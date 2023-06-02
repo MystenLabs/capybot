@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "gts": "^3.1.1",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@cetusprotocol/cetus-sui-clmm-sdk": "^2.5.15",
+    "simple-statistics": "^7.8.3"
+  }
+}
