@@ -19,8 +19,8 @@ let sdk = new SDK(buildSdkOptions())
 // Setup
 const delay = 5000; // 5 seconds
 
-// Setup wallet from passphrase. Currently, we use a test account from Cetus sdk but it should be replaced with a real wallet.
-const mnemonics = 'garden naive sibling glow thumb spawn spare claw nasty choice hero south';
+// Setup wallet from passphrase.
+const mnemonics = '';
 const keypair = Ed25519Keypair.deriveKeypair(mnemonics);
 const signer = new RawSigner(keypair, sdk.fullClient);
 console.log("Using account: " + keypair.getPublicKey().toSuiAddress());
