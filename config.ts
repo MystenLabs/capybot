@@ -6,7 +6,7 @@ export enum sdkEnv {
     testnet = "testnet",
 }
 
-export const currSdkEnv: sdkEnv = sdkEnv.mainnet
+export const currSdkEnv: sdkEnv = sdkEnv.mainnet;
 
 export function buildSdkOptions() {
     switch (currSdkEnv) {
