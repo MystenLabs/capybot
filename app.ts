@@ -7,7 +7,7 @@ import {Entry} from "./types";
 // Catus SDK
 let sdk = new SDK(buildSdkOptions())
 
-const delay = 100; // 0.1 seconds
+const delay = 5000; // 0.1 seconds
 
 // Filesystem to append history
 const fs = require('fs');
@@ -19,6 +19,11 @@ let pools = [
     '0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded', // CETUS / SUI
     '0xf7050dbf36ea21993c16c7b901d054baa1a4ca6fe27f20f615116332c12e8098', // TOCE / SUI
     '0x06d8af9e6afd27262db436f0d37b304a041f710c3ea1fa4c3a9bab36b3569ad3', // USDT / SUI
+];
+
+// Strategies to use
+const strategies: Strategy[] = [
+    new RideTheTrend(5, 10),
 ];
 
 // Cache of historic data
@@ -39,11 +44,6 @@ async function getAmounts(pool: string): Promise<[number, number]> {
         pool_info.coinAmountB]
 }
 
-// Strategies to use
-const strategies: Strategy[] = [
-    new RideTheTrend(5, 0.0001),
-];
-
 async function mainLoop(): Promise<void> {
 
     let running = true;
@@ -61,8 +61,8 @@ async function mainLoop(): Promise<void> {
                 amountB: amounts[1],
             }
             history[pool].push(entry);
-            fs.appendFileSync('history.log', JSON.stringify(entry) + "\n");
-            console.log(JSON.stringify(entry));
+            //fs.appendFileSync('history.log', JSON.stringify(entry) + "\n");
+            //console.log(JSON.stringify(entry));
 
             for (const strategy of strategies) {
                 if (history[pool].length < strategy.history_required()) {
