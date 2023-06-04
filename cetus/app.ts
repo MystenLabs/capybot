@@ -7,7 +7,6 @@ import {
   MAX_SQRT_PRICE,
   MIN_SQRT_PRICE,
 } from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
-import { BCS, getSuiMoveConfig } from "@mysten/bcs";
 import {
   Connection,
   Ed25519Keypair,
@@ -16,7 +15,6 @@ import {
   SUI_CLOCK_OBJECT_ID,
   TransactionBlock,
 } from "@mysten/sui.js";
-const bcs = new BCS(getSuiMoveConfig());
 
 type SwapParams = {
   network: string;
@@ -24,33 +22,13 @@ type SwapParams = {
   module: string;
   globalConfig: string;
   pool: string;
+  byAmountIn: boolean;
+  amount: number;
   amountLimit: number;
   coinTypeA: string;
   coinTypeB: string;
   a2b: boolean;
 };
-
-bcs.registerStructType("TypeParameterObject", {
-  TypeParameter: "u8",
-});
-
-bcs.registerStructType("Struct", {
-  address: "string",
-  module: "string",
-  name: "string",
-  typeArguments: "vector<TypeParameterObject>",
-});
-
-// "Struct": {
-//       "address": "0x2",
-//       "module": "coin",
-//       "name": "Coin",
-//       "typeArguments": [
-//         {
-//           "TypeParameter": 1
-//         }
-//       ]
-//     }
 
 let swapParams: SwapParams;
 // testnet || mainnet
@@ -63,6 +41,8 @@ if (network === "mainnet") {
     module: "pool_script",
     globalConfig: "",
     pool: "",
+    byAmountIn: true,
+    amount: 0,
     amountLimit: 0,
     coinTypeA: "",
     coinTypeB: "0x2::sui::SUI",
@@ -77,6 +57,8 @@ if (network === "mainnet") {
     globalConfig:
       "0x6f4149091a5aea0e818e7243a13adcfb403842d670b9a2089de058512620687a",
     pool: "0x74dcb8625ddd023e2ef7faf1ae299e3bc4cb4c337d991a5326751034676acdae",
+    byAmountIn: true,
+    amount: 10000000,
     amountLimit: 0,
     coinTypeA:
       "0x26b3bc67befc214058ca78ea9a2690298d731a2d4309485ec3d40198063c4abc::usdc::USDC",
@@ -100,30 +82,6 @@ const signer = new RawSigner(keypair, provider);
 const tx = new TransactionBlock();
 tx.setGasBudget(1500000000);
 
-//suiexplorer.com/object/0xe18f7c41e055692946d2bbaf1531af76d297473d2c2c110a0840befec5960be1?module=pool_script
-
-// swap_b2a<Ty0, Ty1>(
-// Arg0: & GlobalConfig,
-// Arg1: & mut Pool<Ty0, Ty1>,
-// Arg2: vector<Coin<Ty1>>,
-// Arg3: bool,
-// Arg4: u64,
-// Arg5: u64,
-// Arg6: u128,
-// Arg7: & Clock
-
-// Ty0: 0x26b3bc67befc214058ca78ea9a2690298d731a2d4309485ec3d40198063c4abc:: usdc:: USDC,
-// Ty1: 0x26b3bc67befc214058ca78ea9a2690298d731a2d4309485ec3d40198063c4abc:: eth:: ETH
-
-// Arg0: &GlobalConfig,
-// Arg1: & mut Pool<Ty0, Ty1>,
-// Arg2: vector<Coin<Ty1>>,
-// Arg3: bool,
-// Arg4: u64,
-// Arg5: u64,
-// Arg6: u128,
-// Arg7: & Clock
-
 const functionName = swapParams.a2b ? "swap_a2b" : "swap_b2a";
 const sqrtPriceLimit = getDefaultSqrtPriceLimit(true);
 console.log(`${swapParams.package}::${swapParams.module}::${functionName}`);
@@ -140,10 +98,9 @@ tx.moveCall({
         ),
       ],
     }),
-    tx.pure(true),
-    tx.pure(10000000), // tx.pure(byAmountIn),
-    tx.pure(0), // tx.pure(swapParams.amount),
-    // tx.pure(0), // tx.pure(swapParams.amountLimit),
+    tx.pure(swapParams.byAmountIn),
+    tx.pure(swapParams.amount),
+    tx.pure(swapParams.amountLimit),
     tx.pure(sqrtPriceLimit.toString()),
     tx.object(SUI_CLOCK_OBJECT_ID),
   ],

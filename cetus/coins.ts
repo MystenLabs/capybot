@@ -2,12 +2,9 @@ import * as dotenv from "dotenv";
 
 dotenv.config({ path: "../.env" });
 
-import { Connection, Ed25519Keypair, JsonRpcProvider } from "@mysten/sui.js";
+import { Connection, JsonRpcProvider } from "@mysten/sui.js";
 
-const fs = require("fs");
-
-const phrase = process.env.ADMIN_PHRASE;
-const keypair = Ed25519Keypair.deriveKeypair(phrase!);
+const admin = process.env.ADMIN_ADDRESS!;
 
 const connOptions = new Connection({
   fullnode: "https://rpc.testnet.sui.io:443",
@@ -15,46 +12,50 @@ const connOptions = new Connection({
 console.log("Connecting to ", "https://rpc.testnet.sui.io:443");
 
 let provider = new JsonRpcProvider(connOptions);
-const admin = process.env.ADMIN_ADDRESS!;
 
-class CoinAsset = {
-    coinAddress: SuiAddressType;
-    coinObjectId: ObjectIdType;
-    balance: BigInt;
+const coins: {
+  version: string;
+  digest: string;
+  coinType: string;
+  previousTransaction: string;
+  coinObjectId: string;
+  balance: string;
+  lockedUntilEpoch?: number | null | undefined;
+}[] = [];
+
+async function getAllCoins() {
+  let cursor: string | null = null;
+
+  const { data } = await provider.getAllCoins({
+    owner: admin,
+  });
+
+  console.log("Fetched data:", data.length);
+  data.forEach((c) => {
+    coins.push(c);
+  });
 }
 
-// provider
-//   .getAllCoins({
-//     owner: admin!,
-//   })
-//   .then(function (res) {
-//     console.log(res.data);
-//   });
+async function getCoins(coinType: string) {
+  let cursor: string | null = null;
 
-//   CoinAsset = {
-//     coinAddress: SuiAddressType;
-//     coinObjectId: SuiObjectIdType;
-//     balance: bigint;
-// }
+  const { data } = await provider.getCoins({
+    owner: admin,
+    coinType,
+  });
 
-let coinAssets: CoinAsset[] = [];
+  console.log("Fetched data:", data.length);
+  data.forEach((c) => {
+    coins.push(c);
+  });
+}
 
-const coinsByCoinType = async (coinType: string) => {
-  await provider
-    .getCoins({
-      owner: admin,
-      coinType,
-    })
-    .then(function (res) {
-      // console.log(res.data);
+// getAllCoins().then((res) => {
+//   console.log(coins);
+// });
 
-      res.data.forEach(function (c) {
-        coinAssets.push(CoinAsset{ coinAddress: c.coinObjectId, coinObjectId: c.coinType, balance: BigInt(c.balance) });
-        console.log(c.coinObjectId, " ", c.coinType, " ", c.balance);
-      });
-    });
-};
-
-coinsByCoinType(
-  "0x588cff9a50e0eaf4cd50d337c1a36570bc1517793fd3303e1513e8ad4d2aa96::usdc::USDC"
-);
+// getCoins(
+//   "0x26b3bc67befc214058ca78ea9a2690298d731a2d4309485ec3d40198063c4abc::usdc::USDC"
+// ).then((res) => {
+//   console.log(coins);
+// });
