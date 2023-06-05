@@ -8,17 +8,20 @@ async function mainLoop(): Promise<void> {
 
     while (new Date().getTime() - startTime < runningTime) {
         for (const pool of pools) {
+            // Get latest data from pool
             let pool_info = await getPoolInfo(pool);
+            let data = {
+                amountA: pool_info.coinAmountA,
+                amountB: pool_info.coinAmountB,
+                timestamp: new Date().getTime(),
+            };
 
             // Push new data to all strategies subscribed to this pool
             for (const strategy of strategies[pool]) {
 
                 // Compute a trading decision for this strategy.
-                let decision = strategy.evaluate(pool, {
-                    amountA: pool_info.coinAmountA,
-                    amountB: pool_info.coinAmountB,
-                    timestamp: new Date().getTime(),
-                });
+                let decision = strategy.evaluate(pool, data);
+
                 if (decision != null) {
                     console.log("Decision for pool " + pool + " with strategy " + strategy.name + ": Buy " + (decision.amount * 100) + "% coin " + (decision.a2b ? "B" : "A"));
                     swap(decision.pool, decision.a2b, decision.amount * default_amount[decision.a2b ? pool_info.coinTypeA : pool_info.coinTypeB]).then((result) => {
@@ -26,7 +29,6 @@ async function mainLoop(): Promise<void> {
                     }).catch((e) => {
                         console.log(e);
                     });
-                    break;
                 }
             }
         }
