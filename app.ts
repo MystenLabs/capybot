@@ -1,6 +1,6 @@
 import {setTimeout} from "timers/promises";
 import {getPoolInfo, swap} from "./pools";
-import {default_amount, delay, pools, runningTime, strategies} from "./config";
+import {default_amount, delay, keypair, pools, runningTime, strategies} from "./config";
 
 async function mainLoop(): Promise<void> {
 
@@ -35,6 +35,8 @@ async function mainLoop(): Promise<void> {
         await setTimeout(delay);
     }
 }
+
+console.log("Using account: " + keypair.getPublicKey().toSuiAddress());
 
 console.log("Using pools:");
 pools.forEach((pool) => {

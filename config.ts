@@ -87,4 +87,3 @@ const mnemonics = 'polar fall caution tortoise monitor tray witness bonus dolphi
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonics);
 export const signer = new RawSigner(keypair, sdk.fullClient);
 sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
-console.log("Using account: " + keypair.getPublicKey().toSuiAddress());
