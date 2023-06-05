@@ -9,11 +9,13 @@ export abstract class Strategy {
     }
 
     /**
-     * Positive means buy A, negative means buy B.
+     * Outcome of evaluation. Amount should be in the range [-1, 1] and should be scaled to the right amount of tokens
+     * by the caller. The a2b parameter indicates whether we should swap coin A for coin B or vice verse. A return value
+     * equal to null means that no trade should done.
      *
      * @param historicData
      */
-    abstract evaluate(historicData: Array<Entry>): number;
+    abstract evaluate(historicData: Array<Entry>): { amount: number, a2b: boolean } | null;
 
     /**
      * The amount of data points required for this strategy to make a decision.
@@ -43,8 +45,9 @@ export class RideTheTrend extends Strategy {
         this.lastDecision = 0;
     }
 
-    evaluate(historicData: Array<Entry>): number {
+    evaluate(historicData: Array<Entry>): { amount: number, a2b: boolean } | null {
 
+        // Keep track of last time this strategy called for a trade. If it was very recent, our trade might have influenced the price.
         this.lastDecision++;
 
         let short_average = average(historicData.slice(historicData.length - this.short, historicData.length).map((entry) => {
@@ -63,15 +66,18 @@ export class RideTheTrend extends Strategy {
         if (short_average != long_average && this.lastDecision > this.short + 1) {
             this.lastDecision = 0;
             if (short_average > long_average && !this.shortWasHigher) {
+                // Trend has gone up - buy A
                 this.shortWasHigher = true;
-                return 1; // Trend has gone up - buy A
+                return {amount: 1, a2b: false};
             } else if (short_average < long_average && this.shortWasHigher) {
+                // Trend is going down - get rid of A
                 this.shortWasHigher = false;
-                return -1; // Trend is going down - buy B
+                return {amount: 1, a2b: true};
             }
         }
 
-        return 0;
+        // No decision can be made at this point
+        return null;
     }
 
     history_required(): number {
@@ -90,15 +96,15 @@ export class StopStrategy extends Strategy {
         this.limits = limits;
     }
 
-    evaluate(historicData: Array<Entry>): number {
+    evaluate(historicData: Array<Entry>): { amount: number, a2b: boolean } | null {
         let rate = price(historicData[0]);
 
         if (rate < this.limits[historicData[0].pool][0]) {
-            return -1;
+            return {amount: 1, a2b: true};
         } else if (rate > this.limits[historicData[0].pool][1]) {
-            return 1;
+            return {amount: 1, a2b: false};
         }
-        return 0;
+        return null;
     }
 
     history_required(): number {

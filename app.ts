@@ -1,11 +1,10 @@
 import {setTimeout} from "timers/promises";
 import {RideTheTrend, Strategy} from "./strategies";
-import {default_amount, getAmounts, pools, swap} from "./pools";
+import {default_amount, getPoolInfo, pools, swap} from "./pools";
 import {append, getHistory} from "./history";
 
 // Setup
 const delay = 1000; // 1 seconds between each update
-let transactionCount = 0;
 
 // Strategies to use
 const strategies: Strategy[] = [
@@ -20,31 +19,40 @@ async function mainLoop(): Promise<void> {
 
     while (new Date().getTime() - startTime < runningTime) {
         for (const pool of pools) {
-            let amounts = await getAmounts(pool);
+            let pool_info = await getPoolInfo(pool);
 
             // Save to history
-            append(pool, amounts);
+            append(pool, [pool_info.coinAmountA, pool_info.coinAmountB]);
 
             for (const strategy of strategies) {
-                // If not enough history has been recorded, skip
+                // If not enough history has been recorded, skip this strategy
                 let history = getHistory(pool, strategy.history_required());
                 if (history.length < strategy.history_required()) {
                     continue;
                 }
 
-                // decision < 0 means sell A for B, > 0 means sell B for A, 0 means do nothing
+                // Compute a trading decision for this strategy.
                 let decision = strategy.evaluate(history);
-                if (decision != 0) {
-                    console.log("Decision for pool " + pool + " with strategy " + strategy.name + ": " + decision)
-                    let a2b = decision < 0;
-                    let coinToBuy = a2b ? 0 : 1;
-                    await swap(pool, default_amount[pool][coinToBuy], decision < 0);
-                    console.log("Transactions: " + transactionCount++);
+                if (decision != null) {
+                    console.log("Decision for pool " + pool + " with strategy " + strategy.name + ": Buy " + decision.amount + " coin " + (decision.a2b ? "B" : "A"));
+                    swap(pool, decision.a2b, decision.amount * default_amount[decision.a2b ? pool_info.coinTypeA : pool_info.coinTypeB]).then((result) => {
+                        console.log("Swap succeeded: " + result);
+                    }).catch((e) => {
+                        console.log(e.toString().split("\n")[0].trim()); // Only print the first line of the error
+                    });
+                    break;
                 }
             }
         }
         await setTimeout(delay);
     }
 }
+
+console.log("Using pools:");
+pools.forEach((pool) => {
+    getPoolInfo(pool).then((pool_info) => {
+        console.log(pool_info);
+    })
+});
 
 mainLoop();

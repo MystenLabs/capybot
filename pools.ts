@@ -1,8 +1,8 @@
 // Pools to monitor
 import {getCoinInfo} from "./coins";
-import {adjustForSlippage, d, Percentage, sendTransaction} from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
+import {adjustForSlippage, d, Percentage, Pool, sendTransaction} from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
 import BN from "bn.js";
-import {keypair, sdk, signer} from "./config";
+import {sdk, signer} from "./config";
 
 export let pools = [
     // Testnet
@@ -23,40 +23,31 @@ export let pools = [
     '0xf7050dbf36ea21993c16c7b901d054baa1a4ca6fe27f20f615116332c12e8098', // TOCE / SUI
     '0x5b0b24c27ccf6d0e98f3a8704d2e577de83fa574d3a9060eb8945eeb82b3e2df', // WETH / SUI
     '0x06d8af9e6afd27262db436f0d37b304a041f710c3ea1fa4c3a9bab36b3569ad3', // USDT / SUI
+    '0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', // CETUS / USDC
 ];
 
 // Setup default amount to trade for each token in each pool. Set to approximately 1-2 USD each.
-export let default_amount: Record<string, [number, number]> = {}
+export let default_amount: Record<string, number> = {}
 
-// USD / SUI
-default_amount['0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630'] = [2_000_000, 2_000_000_000];
+// SUI
+default_amount['0x2::sui::SUI'] = 2_000_000_000;
+// USDC
+default_amount['0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN'] = 2_000_000;
+// CETUS
+default_amount['0x6864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS'] = 30_000_000_000;
+// BRT
+default_amount['0x5580c843b6290acb2dbc7d5bf8ab995d4d4b6ba107e2a283b4d481aab1564d68::brt::BRT'] = 300_000_000_000_000;
+// WETH
+default_amount['0xf7050dbf36ea21993c16c7b901d054baa1a4ca6fe27f20f615116332c12e8098'] = 200_000;
+// TOCE
+default_amount['0xd2013e206f7983f06132d5b61f7c577638ff63171221f4f600a98863febdfb47::toce::TOCE'] = 200_000_000_000;
 
-// BRT / SUI
-default_amount['0xcde6ea498177a6605f85cfee9a50b3f5433eb773beaa310d083c6e6950b18fe5'] = [300_000_000_000_000, 2_000_000_000];
-
-// CETUS / SUI
-default_amount['0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded'] = [30_000_000_000, 2_000_000_000];
-
-// TOCE / SUI
-default_amount['0xf7050dbf36ea21993c16c7b901d054baa1a4ca6fe27f20f615116332c12e8098'] = [200_000_000_000, 2_000_000_000];
-
-// WETH / USDC
-default_amount['0x5b0b24c27ccf6d0e98f3a8704d2e577de83fa574d3a9060eb8945eeb82b3e2df'] = [200_000, 2_000_000];
-
-// USDT / SUI
-default_amount['0x06d8af9e6afd27262db436f0d37b304a041f710c3ea1fa4c3a9bab36b3569ad3'] = [2_000_000, 2_000_000_000];
-
-/** Get amounts of each token from a given pool. */
-export async function getAmounts(pool: string): Promise<[number, number]> {
-    let pool_info = await sdk.Pool.getPool(pool);
-
-    return [
-        pool_info.coinAmountA,
-        pool_info.coinAmountB]
+export async function getPoolInfo(pool: string): Promise<Pool> {
+    return await sdk.Pool.getPool(pool);
 }
 
 /** Assuming the sender has enough funds, swap a given amount of tokens from the pool. */
-export async function swap(pool_address: string, amount: number, a2b: boolean): Promise<void> {
+export async function swap(pool_address: string, a2b: boolean, amount: number): Promise<unknown> {
     let pool = await sdk.Pool.getPool(pool_address);
 
     // Load coin info
@@ -80,22 +71,17 @@ export async function swap(pool_address: string, amount: number, a2b: boolean): 
     console.log("Trying to swap " + amount + " " + (a2b ? coinA.name : coinB.name) + " for ~" + toAmount + " " + (a2b ? coinB.name : coinA.name) + " in pool " + pool_address + ".");
 
     const amountLimit = adjustForSlippage(toAmount, slippage, false);
-    try {
-        const swapPayload = await sdk.Swap.createSwapTransactionPayload(
-            {
-                pool_id: pool.poolAddress,
-                coinTypeA: pool.coinTypeA,
-                coinTypeB: pool.coinTypeB,
-                a2b: a2b,
-                by_amount_in: true,
-                amount: res.amount.toString(),
-                amount_limit: amountLimit.toString(),
-            },
-        );
-        const transferTxn = await sendTransaction(signer, swapPayload);
-        console.log('Sent transaction: ', transferTxn)
-    } catch (e) {
-        console.log(e);
-    }
-
+    return sdk.Swap.createSwapTransactionPayload(
+        {
+            pool_id: pool.poolAddress,
+            coinTypeA: pool.coinTypeA,
+            coinTypeB: pool.coinTypeB,
+            a2b: a2b,
+            by_amount_in: true,
+            amount: res.amount.toString(),
+            amount_limit: amountLimit.toString(),
+        },
+    ).then((payload) => {
+        sendTransaction(signer, payload)
+    });
 }
