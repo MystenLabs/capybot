@@ -1,5 +1,5 @@
-import {Entry} from "./types";
 import {average} from "simple-statistics";
+import {Entry} from "./history";
 
 export abstract class Strategy {
     name: string;
@@ -33,15 +33,19 @@ export class RideTheTrend extends Strategy {
     short: number;
     long: number;
     private shortWasHigher: boolean | null;
+    private lastDecision: number;
 
     constructor(short: number, long: number) {
         super("RideTheTrend (" + short + "/" + long + ")");
         this.short = short;
         this.long = long;
         this.shortWasHigher = null;
+        this.lastDecision = 0;
     }
 
     evaluate(historicData: Array<Entry>): number {
+
+        this.lastDecision++;
 
         let short_average = average(historicData.slice(historicData.length - this.short, historicData.length).map((entry) => {
             return price(entry);
@@ -50,16 +54,21 @@ export class RideTheTrend extends Strategy {
             return price(entry);
         }));
 
+        // The first time we run this, we need to set the initial state
         if (this.shortWasHigher == null) {
             this.shortWasHigher = short_average > long_average;
         }
 
-        if (short_average > long_average && !this.shortWasHigher) {
-            this.shortWasHigher = true;
-            return 1; // Trend has gone up - buy A
-        } else if (short_average < long_average && this.shortWasHigher) {
-            this.shortWasHigher = false;
-            return -1; // Trend is going down - buy B
+        // The last trade could have influenced the price, so we wait until this effect has passed
+        if (short_average != long_average && this.lastDecision > this.short + 1) {
+            this.lastDecision = 0;
+            if (short_average > long_average && !this.shortWasHigher) {
+                this.shortWasHigher = true;
+                return 1; // Trend has gone up - buy A
+            } else if (short_average < long_average && this.shortWasHigher) {
+                this.shortWasHigher = false;
+                return -1; // Trend is going down - buy B
+            }
         }
 
         return 0;
