@@ -42,7 +42,7 @@ export class RideTheTrend extends Strategy {
     private history: Array<Entry> = [];
 
     constructor(pool: string, short: number, long: number) {
-        super("RideTheTrend (" + short + "/" + long + ")");
+        super("RideTheTrend (" + pool + ", " + short + "/" + long + ")");
         this.short = short;
         this.long = long;
         this.shortWasHigher = null;

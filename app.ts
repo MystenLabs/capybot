@@ -23,7 +23,7 @@ async function mainLoop(): Promise<void> {
                 let decision = strategy.evaluate(pool, data);
 
                 if (decision != null) {
-                    console.log("Decision for pool " + pool + " with strategy " + strategy.name + ": Buy " + (decision.amount * 100) + "% coin " + (decision.a2b ? "B" : "A"));
+                    console.log("Decision for strategy " + strategy.name + ": Buy " + (decision.amount * 100) + "% coin " + (decision.a2b ? "B" : "A"));
                     swap(decision.pool, decision.a2b, decision.amount * default_amount[decision.a2b ? pool_info.coinTypeA : pool_info.coinTypeB]).then((result) => {
                         console.log("Swap succeeded: " + result);
                     }).catch((e) => {
