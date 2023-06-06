@@ -5,6 +5,7 @@ import BN from "bn.js";
 
 
 import {sdk, signer} from "./config";
+import {logger} from "./logger";
 
 export async function getPoolInfo(pool: string): Promise<Pool> {
     return await sdk.Pool.getPool(pool);
@@ -21,7 +22,7 @@ export async function swap(pool_address: string, a2b: boolean, amount: number): 
     const res: any = await sdk.Swap.preswap({
         a2b: a2b,
         amount: amount.toString(),
-        by_amount_in: true,
+        by_amount_in: false,
         coinTypeA: pool.coinTypeA,
         coinTypeB: pool.coinTypeB,
         current_sqrt_price: pool.current_sqrt_price,
@@ -32,7 +33,13 @@ export async function swap(pool_address: string, a2b: boolean, amount: number): 
 
     const slippage = Percentage.fromDecimal(d(5))
     const toAmount = new BN(res.estimatedAmountOut);
-    console.log("Trying to swap " + amount + " " + (a2b ? coinA.name : coinB.name) + " for ~" + toAmount + " " + (a2b ? coinB.name : coinA.name) + " in pool " + pool_address + ".");
+    logger.info({preswap: {
+        from: (a2b ? pool.coinTypeA : pool.coinTypeB),
+        to: (a2b ? pool.coinTypeB : pool.coinTypeA),
+        amount: amount,
+        to_amount: toAmount,
+        pool: pool_address
+    }});
 
     const amountLimit = adjustForSlippage(toAmount, slippage, false);
     return sdk.Swap.createSwapTransactionPayload(
@@ -41,7 +48,7 @@ export async function swap(pool_address: string, a2b: boolean, amount: number): 
             coinTypeA: pool.coinTypeA,
             coinTypeB: pool.coinTypeB,
             a2b: a2b,
-            by_amount_in: true,
+            by_amount_in: false,
             amount: res.amount.toString(),
             amount_limit: amountLimit.toString(),
         },
