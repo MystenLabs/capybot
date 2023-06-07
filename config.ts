@@ -2,7 +2,9 @@ import {mainnet} from './mainnet_config'
 import {testnet} from './testnet_config'
 import {Ed25519Keypair, RawSigner} from "@mysten/sui.js";
 import SDK from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
-import {RideTheTrend, Strategy} from "./strategies";
+import {Strategy} from "./strategies/strategy";
+import {RideTheTrend} from "./strategies/ride_the_trend";
+import {Arbitrage} from "./strategies/arbitrage";
 
 export enum sdkEnv {
     mainnet = "mainnet",
@@ -53,12 +55,15 @@ default_amount['0x2::sui::SUI'] = 2_000_000_000;
 default_amount['0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN'] = 2_000_000;
 // CETUS
 default_amount['0x6864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS'] = 30_000_000_000;
+default_amount['0x06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS'] = 30_000_000_000;
 // BRT
 default_amount['0x5580c843b6290acb2dbc7d5bf8ab995d4d4b6ba107e2a283b4d481aab1564d68::brt::BRT'] = 300_000_000_000_000;
 // WETH
-default_amount['0xf7050dbf36ea21993c16c7b901d054baa1a4ca6fe27f20f615116332c12e8098'] = 200_000;
+default_amount['0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN'] = 200_000;
 // TOCE
 default_amount['0xd2013e206f7983f06132d5b61f7c577638ff63171221f4f600a98863febdfb47::toce::TOCE'] = 200_000_000_000;
+// USDT
+default_amount['0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN'] = 2_000_000;
 
 // Map of pool to strategies subscribed to that pool
 export const strategies: Record<string, Array<Strategy>> = {}
@@ -75,8 +80,24 @@ function subscribe(strategy: Strategy) {
 
 // Add strategies
 pools.forEach((pool) => {
-    subscribe(new RideTheTrend(pool, 5, 10));
+    subscribe(new RideTheTrend(pool, 5, 10, 1.005));
 });
+
+// Triangular arbitrage: USDC/SUI -> CETUS/SUI -> USDC/CETUS.
+subscribe(new Arbitrage([
+    {
+        pool: '0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630',
+        a2b: true
+    },
+    {
+        pool: '0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded',
+        a2b: false
+    },
+    {
+        pool: '0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8',
+        a2b: false
+    }
+], 1.005));
 
 // App config
 export const delay = 1000; // 1 seconds between each update

@@ -13,7 +13,7 @@ export type Coin = {
 
 /** Get coin info from coins.json (https://github.com/suiet/sui-coin-list/blob/main/src/coins.json) based on the coin type. */
 export function getCoinInfo(coin_type: string): Coin {
-    const jsonData = JSON.parse(fs.readFileSync('coins.json', 'utf-8'));
+    const jsonData = JSON.parse(fs.readFileSync('coins/coins.json', 'utf-8'));
     for (const coin of jsonData) {
         if (coin.coin_type === coin_type) {
             return coin;

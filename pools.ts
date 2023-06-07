@@ -1,5 +1,5 @@
 // Pools to monitor
-import {getCoinInfo} from "./coins";
+import {getCoinInfo} from "./coins/coins";
 import {adjustForSlippage, d, Percentage, Pool, sendTransaction} from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
 import BN from "bn.js";
 
@@ -12,7 +12,7 @@ export async function getPoolInfo(pool: string): Promise<Pool> {
 }
 
 /** Assuming the sender has enough funds, swap a given amount of tokens from the pool. */
-export async function swap(pool_address: string, a2b: boolean, amount: number): Promise<unknown> {
+export async function swap(pool_address: string, a2b: boolean, amount: number, byAmountIn: boolean): Promise<unknown> {
     let pool = await sdk.Pool.getPool(pool_address);
 
     // Load coin info
@@ -22,7 +22,7 @@ export async function swap(pool_address: string, a2b: boolean, amount: number): 
     const res: any = await sdk.Swap.preswap({
         a2b: a2b,
         amount: amount.toString(),
-        by_amount_in: false,
+        by_amount_in: byAmountIn,
         coinTypeA: pool.coinTypeA,
         coinTypeB: pool.coinTypeB,
         current_sqrt_price: pool.current_sqrt_price,
@@ -32,14 +32,17 @@ export async function swap(pool_address: string, a2b: boolean, amount: number): 
     });
 
     const slippage = Percentage.fromDecimal(d(5))
+    const fromAmount = new BN(res.estimatedAmountIn);
     const toAmount = new BN(res.estimatedAmountOut);
-    logger.info({preswap: {
-        from: (a2b ? pool.coinTypeA : pool.coinTypeB),
-        to: (a2b ? pool.coinTypeB : pool.coinTypeA),
-        amount: amount,
-        to_amount: toAmount,
-        pool: pool_address
-    }});
+    logger.info({
+        preswap: {
+            from: (a2b ? pool.coinTypeA : pool.coinTypeB),
+            to: (a2b ? pool.coinTypeB : pool.coinTypeA),
+            from_amount: fromAmount,
+            to_amount: toAmount,
+            pool: pool_address
+        }
+    });
 
     const amountLimit = adjustForSlippage(toAmount, slippage, false);
     return sdk.Swap.createSwapTransactionPayload(
@@ -48,7 +51,7 @@ export async function swap(pool_address: string, a2b: boolean, amount: number): 
             coinTypeA: pool.coinTypeA,
             coinTypeB: pool.coinTypeB,
             a2b: a2b,
-            by_amount_in: false,
+            by_amount_in: byAmountIn,
             amount: res.amount.toString(),
             amount_limit: amountLimit.toString(),
         },
