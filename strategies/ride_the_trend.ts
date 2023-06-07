@@ -89,7 +89,6 @@ export class RideTheTrend extends Strategy {
     }
 
     subscribes_to(): Array<string> {
-        console.log("Here!!! " + [this.pool]);
         return [this.pool];
     }
 }

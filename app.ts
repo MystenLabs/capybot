@@ -28,9 +28,7 @@ import {Capybot} from "./capybot";
 // '0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', // CETUS / USDC
 
 // Setup wallet from passphrase.
-const mnemonics = 'polar fall caution tortoise monitor tray witness bonus dolphin clinic welcome enter';
-export const keypair = Ed25519Keypair.deriveKeypair(mnemonics);
-//export const signer = new RawSigner(keypair, sdk.fullClient);
+export const keypair = Ed25519Keypair.generate();
 
 let capybot = new Capybot(keypair);
 capybot.addPool(new CetusPool('0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630', coins.USDC, coins.SUI));
