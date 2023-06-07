@@ -1,5 +1,5 @@
-import {DataEntry} from "../types/data_entry";
-import {TradeSuggestion} from "../types/trade_suggestion";
+import {DataEntry} from "./data_entry";
+import {TradeSuggestion} from "./trade_suggestion";
 
 export abstract class Strategy {
     name: string;
@@ -21,6 +21,6 @@ export abstract class Strategy {
     /**
      * The amount of data points required for this strategy to make a decision.
      */
-    abstract subscribe_to(): Array<string>;
+    abstract subscribes_to(): Array<string>;
 }
 

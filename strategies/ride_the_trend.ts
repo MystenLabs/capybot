@@ -1,10 +1,12 @@
-import {DataEntry} from "../types/data_entry";
+import {DataEntry} from "./data_entry";
 import {average} from "simple-statistics";
 import {Strategy} from "./strategy";
-import {TradeSuggestion} from "../types/trade_suggestion";
+import {TradeSuggestion} from "./trade_suggestion";
 
 /**
  * If the change has been consistent over some time in a single pool, buy the corresponding token.
+ *
+ * More accurately, if the short moving average differs from the long moving average we should either buy or short the given token.
  */
 export class RideTheTrend extends Strategy {
 
@@ -15,8 +17,9 @@ export class RideTheTrend extends Strategy {
     private readonly pool: string;
 
     private history: Array<DataEntry> = [];
-    private limit: number;
+    private readonly limit: number;
 
+    /** Relative limit is percentage, eg. 1.05 for a 5% win */
     constructor(pool: string, short: number, long: number, limit: number) {
         super("RideTheTrend (" + pool + ", " + short + "/" + long + ")");
         this.short = short;
@@ -27,7 +30,7 @@ export class RideTheTrend extends Strategy {
 
     evaluate(data: DataEntry): Array<TradeSuggestion> {
 
-        if (data.pool != this.pool) {
+        if (data.pool.address != this.pool) {
             return [];
         }
 
@@ -64,11 +67,20 @@ export class RideTheTrend extends Strategy {
             if (short_average / long_average > this.limit && !this.shortWasHigher) {
                 // Trend has gone up - buy A
                 this.shortWasHigher = true;
-                return [{pool: this.pool, amount: 1, a2b: false}];
+                return [{
+                    pool: this.pool,
+                    amount: 1,
+                    estimatedPrice: short_average,
+                    a2b: false
+                }];
             } else if (short_average / long_average < 1 / this.limit && this.shortWasHigher) {
                 // Trend is going down - get rid of A
                 this.shortWasHigher = false;
-                return [{pool: this.pool, amount: 1, a2b: true}];
+                return [{
+                    pool: this.pool, amount: 1,
+                    estimatedPrice: short_average,
+                    a2b: true
+                }];
             }
         }
 
@@ -76,7 +88,8 @@ export class RideTheTrend extends Strategy {
         return [];
     }
 
-    subscribe_to(): Array<string> {
+    subscribes_to(): Array<string> {
+        console.log("Here!!! " + [this.pool]);
         return [this.pool];
     }
 }

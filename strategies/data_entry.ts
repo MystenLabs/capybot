@@ -1,7 +1,7 @@
+import {Pool} from "../dexs/pool";
+
 export type DataEntry = {
     timestamp: number,
-    pool: string,
-    coinA: string,
-    coinB: string,
+    pool: Pool,
     priceOfB: number,
 }
