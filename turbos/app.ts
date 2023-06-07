@@ -8,6 +8,7 @@ import {
   RawSigner,
   SUI_CLOCK_OBJECT_ID,
   SuiAddress,
+  TransactionArgument,
   TransactionBlock,
 } from "@mysten/sui.js";
 
@@ -21,8 +22,7 @@ type SwapParams = {
   package: string;
   module: string;
   pool: string;
-  byAmountIn: boolean;
-  amount: number;
+  amountIn: number;
   amountLimit: number;
   amountSpecifiedIsInput: boolean;
   type0: string;
@@ -57,8 +57,7 @@ if (network === "mainnet") {
       "0xe18f7c41e055692946d2bbaf1531af76d297473d2c2c110a0840befec5960be1",
     module: "swap_router",
     pool: "",
-    byAmountIn: true,
-    amount: 0,
+    amountIn: 0,
     amountLimit: 0,
     amountSpecifiedIsInput: true,
     type0: "",
@@ -74,8 +73,7 @@ if (network === "mainnet") {
       "0xfea145c1608cd5366ffcf278c0124d9f416b30e33a6a47ee12c615420ee0224c",
     module: "swap_router",
     pool: "0x7278ca6cf1fb19c6c8d5dc22aa245ebb8833e47885955f8334663e832b792a69",
-    byAmountIn: true,
-    amount: 1000000000,
+    amountIn: 1000000000,
     amountLimit: 0,
     amountSpecifiedIsInput: true,
     type0:
@@ -138,13 +136,15 @@ txb.moveCall({
     }),
     // Arg2: u64
     // txb.pure(amountIn.toFixed(0), 'u64')
-    txb.pure(swapParams.amount.toFixed(0), "u64"),
+    txb.pure(swapParams.amountIn.toFixed(0), "u64"),
+
     // Arg3: u64
     // txb.pure( this.amountOutWithSlippage(amountOut, slippage, amountSpecifiedIsInput), 'u64', )
-    txb.pure(swapParams.amount.toFixed(0), "u64"),
+    txb.pure(swapParams.amountIn.toFixed(0), "u64"),
     // Arg4: u128
     // ...sqrtPrices.map((price) => txb.pure(price, 'u128'))
     txb.pure(534012898922251000n, "u128"),
+
     // Arg5: bool
     // txb.pure(amountSpecifiedIsInput, 'bool')
     txb.pure(swapParams.amountSpecifiedIsInput, "bool"),
@@ -181,6 +181,17 @@ signer
 
 function isSUI(coinType: string) {
   return coinType.toLowerCase().indexOf("sui") > -1;
+}
+
+function convertTradeCoins(
+  txb: TransactionBlock,
+  coinIds: string[],
+  coinType: string,
+  amount: Decimal
+): TransactionArgument[] {
+  return isSUI(coinType)
+    ? [txb.splitCoins(txb.gas, [txb.pure(amount.toNumber())])[0]!]
+    : coinIds.map((id) => txb.object(id));
 }
 
 async function getMetadata(provider: JsonRpcProvider, coinType: string) {
