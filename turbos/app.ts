@@ -136,11 +136,11 @@ txb.moveCall({
     }),
     // Arg2: u64
     // txb.pure(amountIn.toFixed(0), 'u64')
-    txb.pure(swapParams.amountIn.toFixed(0), "u64"),
+    txb.pure(1000000000, "u64"),
 
     // Arg3: u64
     // txb.pure( this.amountOutWithSlippage(amountOut, slippage, amountSpecifiedIsInput), 'u64', )
-    txb.pure(swapParams.amountIn.toFixed(0), "u64"),
+    txb.pure(1000000000, "u64"),
     // Arg4: u128
     // ...sqrtPrices.map((price) => txb.pure(price, 'u128'))
     txb.pure(534012898922251000n, "u128"),
