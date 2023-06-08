@@ -13,21 +13,12 @@ import {
 } from "@mysten/sui.js";
 
 import Decimal from "decimal.js";
-import {
-  MAX_SQRT_PRICE,
-  MAX_TICK_INDEX,
-  MIN_SQRT_PRICE,
-  MIN_TICK_INDEX,
-} from "./constants";
-
-const ONE_MINUTE = 60 * 1000;
 
 type SwapParams = {
   network: string;
   package: string;
   module: string;
   pool: string;
-  a2b: boolean;
   amountIn: number;
   slippage: string;
   amountSpecifiedIsInput: boolean;
@@ -63,7 +54,6 @@ if (network === "mainnet") {
       "0xe18f7c41e055692946d2bbaf1531af76d297473d2c2c110a0840befec5960be1",
     module: "swap_router",
     pool: "",
-    a2b: true,
     amountIn: 0,
     slippage: "0",
     amountSpecifiedIsInput: true,
@@ -80,7 +70,6 @@ if (network === "mainnet") {
       "0xfea145c1608cd5366ffcf278c0124d9f416b30e33a6a47ee12c615420ee0224c",
     module: "swap_router",
     pool: "0x7278ca6cf1fb19c6c8d5dc22aa245ebb8833e47885955f8334663e832b792a69",
-    a2b: false,
     amountIn: 1000000000,
     slippage: "0",
     amountSpecifiedIsInput: true,
@@ -156,12 +145,8 @@ txb.moveCall({
     ),
 
     // Arg4: u128
-    txb.pure(
-      tickIndexToSqrtPriceX64(
-        swapParams.a2b ? MIN_TICK_INDEX : MAX_TICK_INDEX
-      ).toString(),
-      "u128"
-    ),
+    // ...sqrtPrices.map((price) => txb.pure(price, 'u128'))
+    txb.pure(534012898922251000n, "u128"),
 
     // Arg5: bool
     // txb.pure(amountSpecifiedIsInput, 'bool')
@@ -220,20 +205,20 @@ async function getMetadata(provider: JsonRpcProvider, coinType: string) {
   return result;
 }
 
-// function getSqrtPrices(nextTickIndex: number, coinA, coinB, aToB) {
-//   const nextTickPrice = tickIndexToPrice(
-//     nextTickIndex,
-//     coinA.decimals,
-//     coinB.decimals
-//   );
-//   return sqrtPriceWithSlippage(
-//     nextTickPrice,
-//     swapParams.slippage,
-//     aToB,
-//     coinA.decimals,
-//     coinB.decimals
-//   );
-// }
+function getSqrtPrices(nextTickIndex: number, coinA, coinB, aToB) {
+  const nextTickPrice = tickIndexToPrice(
+    nextTickIndex,
+    coinA.decimals,
+    coinB.decimals
+  );
+  return sqrtPriceWithSlippage(
+    nextTickPrice,
+    swapParams.slippage,
+    aToB,
+    coinA.decimals,
+    coinB.decimals
+  );
+}
 
 function tickIndexToPrice(
   tickIndex: number,

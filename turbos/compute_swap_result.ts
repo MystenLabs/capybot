@@ -28,6 +28,21 @@ type SwapParams = {
   versioned: string;
 };
 
+interface ComputedSwapResult {
+  a_to_b: boolean;
+  amount_a: string;
+  amount_b: string;
+  fee_amount: string;
+  is_exact_in: boolean;
+  liquidity: string;
+  pool: string;
+  protocol_fee: string;
+  recipient: string;
+  sqrt_price: string;
+  tick_current_index: { bits: number };
+  tick_pre_index: { bits: number };
+}
+
 // https://s3.amazonaws.com/app.turbos.finance/sdk/contract.json
 let swapParams: SwapParams;
 // testnet || mainnet
@@ -39,7 +54,7 @@ swapParams = {
   amountIn: 1000000000,
   amountLimit: 0,
   amountSpecifiedIsInput: true,
-  a2b: false,
+  a2b: true,
   type0:
     "0x541826891e877178df82f2df2996599618a259e719ef54a8e1969211c609cd21::turbos::TURBOS",
   type1: "0x2::sui::SUI",
@@ -82,54 +97,74 @@ function amountOutWithSlippage(
 
 // https://github.com/turbos-finance/turbos-clmm-sdk/blob/main/src/lib/trade.ts
 // suiexplorer.com/object/0xcc1e9ec515810773ac9ad2ae41194ab0166300d9071a09a22cd8eb152138a3b3?network=testnet
-txb.moveCall({
-  target: `${swapParams.package}::${swapParams.module}::${functionName}`,
-  arguments: [
-    // Arg0: & mut Pool<Ty0, Ty1, Ty2>
-    // ...routes.map(({ pool }) => txb.object(pool))
-    txb.object(swapParams.pool),
-    // Arg1: vector<Coin<Ty0>>
-    // txb.makeMoveVec({ objects: this.coin.convertTradeCoins(txb, coinIds, coinTypeA, amountIn), })
+let computedSwapResult: ComputedSwapResult;
+async function swap() {
+  txb.moveCall({
+    target: `${swapParams.package}::${swapParams.module}::${functionName}`,
+    arguments: [
+      // Arg0: & mut Pool<Ty0, Ty1, Ty2>
+      // ...routes.map(({ pool }) => txb.object(pool))
+      txb.object(swapParams.pool),
+      // Arg1: vector<Coin<Ty0>>
+      // txb.makeMoveVec({ objects: this.coin.convertTradeCoins(txb, coinIds, coinTypeA, amountIn), })
 
-    // txb.pure(a2b, "bool"),
-    txb.pure(swapParams.a2b, "bool"),
+      // txb.pure(a2b, "bool"),
+      txb.pure(swapParams.a2b, "bool"),
 
-    // amount_specified
-    txb.pure(new Decimal(swapParams.amountIn).toFixed(0), "u128"),
+      // amount_specified
+      txb.pure(new Decimal(swapParams.amountIn).toFixed(0), "u128"),
 
-    // amount_specified_is_input
-    txb.pure(true, "bool"),
+      // amount_specified_is_input
+      txb.pure(true, "bool"),
 
-    // sqrt_price_limit
-    txb.pure(
-      tickIndexToSqrtPriceX64(
-        swapParams.a2b ? MIN_TICK_INDEX : MAX_TICK_INDEX
-      ).toString(),
-      "u128"
-    ),
+      // sqrt_price_limit
+      txb.pure(
+        tickIndexToSqrtPriceX64(
+          swapParams.a2b ? MIN_TICK_INDEX : MAX_TICK_INDEX
+        ).toString(),
+        "u128"
+      ),
 
-    // Arg8: & Clock
-    // txb.object(SUI_CLOCK_OBJECT_ID)
-    txb.object(SUI_CLOCK_OBJECT_ID),
-    // Arg9: & Versioned
-    // txb.object(contract.Versioned)
-    txb.object(swapParams.versioned),
-  ],
-  typeArguments: [swapParams.type0, swapParams.type1, swapParams.type2],
+      // Arg8: & Clock
+      // txb.object(SUI_CLOCK_OBJECT_ID)
+      txb.object(SUI_CLOCK_OBJECT_ID),
+      // Arg9: & Versioned
+      // txb.object(contract.Versioned)
+      txb.object(swapParams.versioned),
+    ],
+    typeArguments: [swapParams.type0, swapParams.type1, swapParams.type2],
+  });
+
+  const result = await provider.devInspectTransactionBlock({
+    transactionBlock: txb,
+    sender:
+      "0xa7536c86055012cb7753fdb08ecb6c8bf1eb735ad75a2e1980309070123d5ef6",
+  });
+  if (result.error) {
+    throw new Error(result.error);
+  }
+  console.log("res: ", result.events[0]!.parsedJson as ComputedSwapResult);
+  console.log("res: ", result.events);
+  computedSwapResult = result.events[0]!.parsedJson as ComputedSwapResult;
+  return result.events[0]!.parsedJson as ComputedSwapResult;
+}
+
+swap().then((res) => {
+  console.log("rssss", computedSwapResult);
 });
 
-signer
-  .signAndExecuteTransactionBlock({
-    transactionBlock: txb,
-    requestType: "WaitForLocalExecution",
-    options: {
-      showObjectChanges: true,
-      showEffects: true,
-    },
-  })
-  .then(function (res) {
-    console.log("executed! result = ", res);
-  });
+// signer
+//   .signAndExecuteTransactionBlock({
+//     transactionBlock: txb,
+//     requestType: "WaitForLocalExecution",
+//     options: {
+//       showObjectChanges: true,
+//       showEffects: true,
+//     },
+//   })
+//   .then(function (res) {
+//     console.log("executed! result = ", res);
+//   });
 
 function tickIndexToSqrtPriceX64(tickIndex: number): BN {
   if (tickIndex > 0) {
