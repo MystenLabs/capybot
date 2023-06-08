@@ -1,5 +1,4 @@
 import {TransactionBlock} from "@mysten/sui.js";
-import {defaultAmount} from "../coins/coins";
 
 export type PreswapResult = {
     estimatedAmountIn: number,
@@ -22,9 +21,7 @@ export abstract class Pool {
 
     abstract createSwapTransaction(a2b: boolean, amountIn: number, amountOut: number, byAmountIn: boolean, slippage: number): Promise<TransactionBlock>;
 
-    async estimatePrice(): Promise<number> {
-        let res = await this.preswap(true, defaultAmount[this.coinTypeA], true);
-        return res.estimatedAmountOut / res.estimatedAmountIn;
-    }
+    // TODO: Do we need the tick index here as well?
+    abstract estimatePrice(): Promise<number>;
 
 }

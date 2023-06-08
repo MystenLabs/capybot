@@ -24,7 +24,6 @@ function buildSdkOptions() {
     }
 }
 
-
 export class CetusPool extends Pool {
     private sdk: SDK;
 
@@ -73,6 +72,12 @@ export class CetusPool extends Pool {
             estimatedAmountOut: res.estimatedAmountOut,
             estimatedFeeAmount: res.estimatedFeeAmount,
         };
+    }
+
+    async estimatePrice(): Promise<number> {
+        let pool = await this.sdk.Pool.getPool(this.address);
+        // current_sqrt_price is stored in Q64 format on Cetus
+        return pool.current_sqrt_price ** 2 / (2 ** 128);
     }
 
 }

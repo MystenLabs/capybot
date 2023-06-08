@@ -4,6 +4,7 @@ import {Pool} from "./dexs/pool";
 import {logger} from "./logger";
 import {defaultAmount} from "./coins/coins";
 import {setTimeout} from "timers/promises";
+import {DataEntry} from "./strategies/data_entry";
 
 /**
  * A simple trading bot which subscribes to a number of trading pools across different DEXs. The bot may use multiple
@@ -28,7 +29,7 @@ export class Capybot {
                 let pool = this.pools[address];
                 let price = await pool.estimatePrice();
 
-                let data = {
+                let data: DataEntry = {
                     pool: pool,
                     priceOfB: price,
                     timestamp: new Date().getTime(),
