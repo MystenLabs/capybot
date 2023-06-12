@@ -13,10 +13,9 @@ import {
   TransactionBlock,
 } from "@mysten/sui.js";
 import BN from "bn.js";
-import Decimal from "decimal.js";
 import { keypair } from "../../app";
 import { getCoinInfo } from "../../coins/coins";
-import { selectTradeCoins } from "../../utils/utils";
+import { buildInputCoinForAmount } from "../../utils/utils";
 import { Pool, PreswapResult } from "../pool";
 import { mainnet } from "./mainnet_config";
 import { testnet } from "./testnet_config";
@@ -47,7 +46,7 @@ export class CetusPool extends Pool {
   constructor(address: string, coinTypeA: string, coinTypeB: string) {
     super(address, coinTypeA, coinTypeB);
     this.sdk = new SDK(buildSdkOptions());
-    
+
     this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
     this.package = mainnet.package;
     this.module = mainnet.module;
@@ -75,15 +74,17 @@ export class CetusPool extends Pool {
       false
     );
     const txb = new TransactionBlock();
+    txb.setGasBudget(500000000);
 
     const functionName = a2b ? "swap_a2b" : "swap_b2a";
     const sqrtPriceLimit = getDefaultSqrtPriceLimit(a2b);
 
-    const coinsArray: string[] = await selectTradeCoins(
-      provider,
-      admin!,
+    const coins = await buildInputCoinForAmount(
+      txb,
+      BigInt(amountIn),
       a2b ? this.coinTypeA : this.coinTypeB,
-      new Decimal(amountIn)
+      admin!,
+      provider
     );
 
     txb.moveCall({
@@ -92,7 +93,7 @@ export class CetusPool extends Pool {
         txb.object(this.globalConfig),
         txb.object(this.address),
         txb.makeMoveVec({
-          objects: coinsArray.map((id) => txb.object(id)),
+          objects: coins,
         }),
         txb.pure(byAmountIn),
         txb.pure(amountIn),

@@ -132,6 +132,7 @@ export async function selectTradeCoins(
   coinType: string,
   expectedAmount: Decimal
 ): Promise<string[]> {
+  console.log("selectTradeCoins:", owner, coinType, expectedAmount);
   const coins: PaginatedCoins["data"][number][] = [];
   const coinIds: string[] = [];
   let totalAmount = new Decimal(0);
@@ -161,72 +162,42 @@ export async function selectTradeCoins(
   return coinIds;
 }
 
-// export async function buildInputCoinForAmount(
-//   txb: TransactionBlock,
-//   amount: bigint,
-//   coinType: string,
-//   owner: SuiAddress,
-//   provider: JsonRpcProvider
-// ): Promise<TransactionArgument[]> {
-//   const allCoins = await provider.getAllCoins({
-//     owner: owner,
-//   });
-//   const coinAssets: CoinAsset[] = await provider.getCoins({
-//     owner: owner!,
-//     coinType,
-//   });
-//   const coins = await provider.getCoins({ owner: owner });
+export async function buildInputCoinForAmount(
+  txb: TransactionBlock,
+  amount: bigint,
+  coinType: string,
+  owner: SuiAddress,
+  provider: JsonRpcProvider
+): Promise<TransactionArgument[]> {
+  if (amount === BigInt(0)) {
+    throw new Error(`The amount cannot be (${amount})`);
+  }
 
-//   if (amount === 0n) {
-//     throw new Error(`The amount cannot be (${amount})`);
-//   }
+  const amountTotal = await provider.getBalance({
+    owner: owner,
+    coinType,
+  });
 
-//   const amountTotal = await provider.getBalance({
-//     owner: admin,
-//     coinType,
-//   });
+  // PROBABLY amountTotal.totalBalance
+  if (+amountTotal < amount) {
+    throw new Error(
+      `The amount(${+amountTotal}) is Insufficient balance for ${coinType} , expect ${amount} `
+    );
+  }
 
-//   // PROBABLY amountTotal.totalBalance
-//   if (+amountTotal < amount) {
-//     throw new Error(
-//       `The amount(${+amountTotal}) is Insufficient balance for ${coinType} , expect ${amount} `
-//     );
-//   }
+  if (isSUI(coinType)) {
+    console.log("isSUI:", owner, coinType, amount);
+    return [txb.splitCoins(txb.gas, [txb.pure(amount)])[0]!];
+  }
 
-//   if (isSUI(coinType)) {
-//     // const amountCoin = txb.splitCoins(txb.gas, [txb.pure(amount.toString())]);
-//     // return [amountCoin];
-//     return [txb.splitCoins(txb.gas, [txb.pure(amount)])[0]!];
-//   }
-
-//   const selectedCoinsResult = selectCoinObjectIdGreaterThanOrEqual(
-//     coinAssets,
-//     amount
-//   );
-
-//   //   const coinObjectIds = selectedCoinsResult.objectArray;
-//   //   if (buildVector) {
-//   //     return {
-//   //       transactionArgument: txb.makeMoveVec({
-//   //         objects: coinObjectIds.map((id) => txb.object(id)),
-//   //       })
-//   //     };
-//   //   }
-//   //   const [primaryCoinA, ...mergeCoinAs] = coinObjectIds;
-//   //   const primaryCoinAInput: any = txb.object(primaryCoinA);
-
-//   //   if (mergeCoinAs.length > 0) {
-//   //     txb.mergeCoins(
-//   //       primaryCoinAInput,
-//   //       mergeCoinAs.map((coin) => txb.object(coin))
-//   //     );
-//   //   }
-
-//   //   return {
-//   //     transactionArgument: primaryCoinAInput,
-//   //     remainCoins: selectedCoinsResult.remainCoins,
-//   //   };
-// }
+  const coinObjectIds = await selectTradeCoins(
+    provider,
+    owner,
+    coinType,
+    new Decimal(Number(amount))
+  );
+  return coinObjectIds.map((id) => txb.object(id));
+}
 
 function selectCoinObjectIdGreaterThanOrEqual(
   coins: CoinAsset[],
