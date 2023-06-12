@@ -8,7 +8,6 @@ import {
 } from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
 import {
   Connection,
-  Ed25519Keypair,
   JsonRpcProvider,
   SUI_CLOCK_OBJECT_ID,
   TransactionBlock,
@@ -64,14 +63,12 @@ export class CetusPool extends Pool {
     slippage: number
   ): Promise<TransactionBlock> {
     const admin = process.env.ADMIN_ADDRESS;
-    const phrase = process.env.ADMIN_PHRASE;
-    const keypair = Ed25519Keypair.deriveKeypair(phrase!);
 
-    const connOptions = new Connection({
-      fullnode: "https://fullnode.mainnet.sui.io",
-    });
-
-    let provider = new JsonRpcProvider(connOptions);
+    let provider = new JsonRpcProvider(
+      new Connection({
+        fullnode: "https://fullnode.mainnet.sui.io",
+      })
+    );
 
     const amountLimit = adjustForSlippage(
       new BN(amountOut),
