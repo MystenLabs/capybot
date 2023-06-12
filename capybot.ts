@@ -29,7 +29,7 @@ export class Capybot {
         fullnode: "https://rpc.mainnet.sui.io:443",
       })
     );
-    this.signer = new RawSigner(keypair, this.provider);
+    this.signer = new RawSigner(this.keypair, this.provider);
   }
 
   async loop(duration: number, delay: number) {
