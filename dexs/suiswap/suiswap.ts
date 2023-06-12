@@ -86,9 +86,7 @@ export class SuiswapPool extends Pool {
         txb.pure(0, "u64"),
         txb.object(SUI_CLOCK_OBJECT_ID),
       ],
-      typeArguments: a2b
-        ? [this.coinTypeA, this.coinTypeB]
-        : [this.coinTypeB, this.coinTypeA],
+      typeArguments: [this.coinTypeA, this.coinTypeB],
     });
     return txb;
   }

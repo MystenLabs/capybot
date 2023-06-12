@@ -101,9 +101,7 @@ export class CetusPool extends Pool {
         txb.pure(sqrtPriceLimit.toString()),
         txb.object(SUI_CLOCK_OBJECT_ID),
       ],
-      typeArguments: a2b
-        ? [this.coinTypeA, this.coinTypeB]
-        : [this.coinTypeB, this.coinTypeA],
+      typeArguments: [this.coinTypeA, this.coinTypeB],
     });
 
     return txb;

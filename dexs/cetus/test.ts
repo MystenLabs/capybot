@@ -26,7 +26,7 @@ const signer = new RawSigner(keypair, provider);
 let transactionBlock: TransactionBlock;
 const getTransactionBlock = async () => {
   transactionBlock = await pool.createSwapTransaction(
-    true,
+    false,
     1000,
     1000,
     true,
