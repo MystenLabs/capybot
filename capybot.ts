@@ -3,6 +3,7 @@ import {
   JsonRpcProvider,
   Keypair,
   RawSigner,
+  TransactionBlock,
 } from "@mysten/sui.js";
 import { setTimeout } from "timers/promises";
 import { defaultAmount } from "./coins/coins";
@@ -61,7 +62,7 @@ export class Capybot {
               ];
             let expectedAmountOut = tradeSuggestion.estimatedPrice * amountIn;
             // TODO: Do these as a programmable transaction
-            let txb = await this.pools[
+            let txb: TransactionBlock = await this.pools[
               tradeSuggestion.pool
             ].createSwapTransaction(
               tradeSuggestion.a2b,
