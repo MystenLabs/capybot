@@ -93,7 +93,7 @@ txb.moveCall({
     // Arg2: u64
     txb.pure(swapParams.amountIn.toFixed(0), "u64"),
     // Arg3: u64
-    txb.pure(swapParams.amountIn.toFixed(0), "u64"),
+    txb.pure(0, "u64"),
     // Arg8: & Clock
     // txb.object(SUI_CLOCK_OBJECT_ID)
     txb.object(SUI_CLOCK_OBJECT_ID),
