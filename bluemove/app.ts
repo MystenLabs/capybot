@@ -565,12 +565,12 @@ function sqrtPriceWithSlippage(
   );
   const sqrtPrice = priceToSqrtPriceX64(newPrice, decimalsA, decimalsB);
 
-  if (sqrtPrice.lt(new BN(MIN_SQRT_PRICE))) {
-    return MIN_SQRT_PRICE;
-  }
-  if (sqrtPrice.gt(new BN(MAX_SQRT_PRICE))) {
-    return MAX_SQRT_PRICE;
-  }
+  // if (sqrtPrice.lt(new BN(MIN_SQRT_PRICE))) {
+  //   return MIN_SQRT_PRICE;
+  // }
+  // if (sqrtPrice.gt(new BN(MAX_SQRT_PRICE))) {
+  //   return MAX_SQRT_PRICE;
+  // }
   return sqrtPrice.toString();
 }
 

@@ -1,4 +1,6 @@
 import {
+  MAX_SQRT_PRICE,
+  MIN_SQRT_PRICE,
   Percentage,
   SDK,
   adjustForSlippage,
@@ -12,6 +14,7 @@ import {
   TransactionBlock,
 } from "@mysten/sui.js";
 import BN from "bn.js";
+import Decimal from "decimal.js";
 import { keypair } from "../../app";
 import { getCoinInfo } from "../../coins/coins";
 import { selectTradeCoins } from "../../utils/utils";
@@ -40,13 +43,17 @@ export class CetusPool extends Pool {
   private sdk: SDK;
   private package: string;
   private module: string;
+  private globalConfig: string;
 
   constructor(address: string, coinTypeA: string, coinTypeB: string) {
     super(address, coinTypeA, coinTypeB);
     this.sdk = new SDK(buildSdkOptions());
     this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
-    this.package = "";
-    this.module = "";
+    this.package =
+      "0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be";
+    this.module = "pool_script";
+    this.globalConfig =
+      "0xdaa46292632c3c4d8f31f23ea0f9b36a28ff3677e9684980e4438403a67a3d8f";
   }
 
   async createSwapTransaction(
@@ -61,7 +68,7 @@ export class CetusPool extends Pool {
     const keypair = Ed25519Keypair.deriveKeypair(phrase!);
 
     const connOptions = new Connection({
-      fullnode: "https://rpc.mainnet.sui.io:443",
+      fullnode: "https://fullnode.mainnet.sui.io",
     });
 
     let provider = new JsonRpcProvider(connOptions);
@@ -84,11 +91,10 @@ export class CetusPool extends Pool {
     );
 
     txb.moveCall({
-      target: `${swapParams.package}::${swapParams.module}::${functionName}`,
+      target: `${this.package}::${this.module}::${functionName}`,
       arguments: [
-        txb.object(swapParams.globalConfig),
+        txb.object(this.globalConfig),
         txb.object(this.address),
-
         txb.makeMoveVec({
           objects: coinsArray.map((id) => txb.object(id)),
         }),
