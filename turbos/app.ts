@@ -8,11 +8,11 @@ import {
   RawSigner,
   SUI_CLOCK_OBJECT_ID,
   SuiAddress,
-  TransactionArgument,
   TransactionBlock,
 } from "@mysten/sui.js";
 
 import Decimal from "decimal.js";
+import { convertTradeCoins } from "../utils/utils";
 import {
   MAX_SQRT_PRICE,
   MAX_TICK_INDEX,
@@ -37,62 +37,26 @@ type SwapParams = {
   versioned: string;
 };
 
-// export interface SwapOptions {
-//   routes: { pool: string; aToB: boolean; nextTickIndex: number }[];
-//   coinTypeA: string;
-//   coinTypeB: string;
-//   address: SuiAddress;
-//   amountIn: Decimal.Value;
-//   amountOut: Decimal.Value;
-//   amountSpecifiedIsInput: boolean;
-//   slippage: string;
-//   signAndExecute: (
-//     txb: TransactionBlock,
-//     provider: JsonRpcProvider
-//   ) => Promise<SuiTransactionBlockResponse>;
-// }
-
-// https://s3.amazonaws.com/app.turbos.finance/sdk/contract.json
 let swapParams: SwapParams;
 // testnet || mainnet
 const network: string = "testnet";
-if (network === "mainnet") {
-  swapParams = {
-    network: "https://rpc.mainnet.sui.io:443",
-    package:
-      "0xe18f7c41e055692946d2bbaf1531af76d297473d2c2c110a0840befec5960be1",
-    module: "swap_router",
-    pool: "",
-    a2b: true,
-    amountIn: 0,
-    slippage: "0",
-    amountSpecifiedIsInput: true,
-    type0: "",
-    type1: "0x2::sui::SUI",
-    type2: "",
-    versioned:
-      "0xf1cf0e81048df168ebeb1b8030fad24b3e0b53ae827c25053fff0779c1445b6f",
-  };
-} else {
-  swapParams = {
-    network: "https://rpc.testnet.sui.io:443",
-    package:
-      "0xfea145c1608cd5366ffcf278c0124d9f416b30e33a6a47ee12c615420ee0224c",
-    module: "swap_router",
-    pool: "0x7278ca6cf1fb19c6c8d5dc22aa245ebb8833e47885955f8334663e832b792a69",
-    a2b: false,
-    amountIn: 1000000000,
-    slippage: "0",
-    amountSpecifiedIsInput: true,
-    type0:
-      "0x541826891e877178df82f2df2996599618a259e719ef54a8e1969211c609cd21::turbos::TURBOS",
-    type1: "0x2::sui::SUI",
-    type2:
-      "0xfea145c1608cd5366ffcf278c0124d9f416b30e33a6a47ee12c615420ee0224c::fee3000bps::FEE3000BPS",
-    versioned:
-      "0xeabd8d464e40856432781779bfa65f3acad242216b1e15d5838e95ffe5d73b6f",
-  };
-}
+swapParams = {
+  network: "https://rpc.testnet.sui.io:443",
+  package: "0xfea145c1608cd5366ffcf278c0124d9f416b30e33a6a47ee12c615420ee0224c",
+  module: "swap_router",
+  pool: "0x7278ca6cf1fb19c6c8d5dc22aa245ebb8833e47885955f8334663e832b792a69",
+  a2b: false,
+  amountIn: 1000000000,
+  slippage: "0",
+  amountSpecifiedIsInput: true,
+  type0:
+    "0x541826891e877178df82f2df2996599618a259e719ef54a8e1969211c609cd21::turbos::TURBOS",
+  type1: "0x2::sui::SUI",
+  type2:
+    "0xfea145c1608cd5366ffcf278c0124d9f416b30e33a6a47ee12c615420ee0224c::fee3000bps::FEE3000BPS",
+  versioned:
+    "0xeabd8d464e40856432781779bfa65f3acad242216b1e15d5838e95ffe5d73b6f",
+};
 
 const phrase = process.env.ADMIN_PHRASE;
 const keypair = Ed25519Keypair.deriveKeypair(phrase!);
@@ -196,21 +160,6 @@ signer
   .then(function (res) {
     console.log("executed! result = ", res);
   });
-
-function isSUI(coinType: string) {
-  return coinType.toLowerCase().indexOf("sui") > -1;
-}
-
-function convertTradeCoins(
-  txb: TransactionBlock,
-  coinIds: string[],
-  coinType: string,
-  amount: Decimal
-): TransactionArgument[] {
-  return isSUI(coinType)
-    ? [txb.splitCoins(txb.gas, [txb.pure(amount.toNumber())])[0]!]
-    : coinIds.map((id) => txb.object(id));
-}
 
 async function getMetadata(provider: JsonRpcProvider, coinType: string) {
   const result = await provider.getCoinMetadata({ coinType });

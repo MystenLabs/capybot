@@ -128,11 +128,3 @@ function convertTradeCoins(
     ? [txb.splitCoins(txb.gas, [txb.pure(amount.toNumber())])[0]!]
     : coinIds.map((id) => txb.object(id));
 }
-
-async function getMetadata(provider: JsonRpcProvider, coinType: string) {
-  const result = await provider.getCoinMetadata({ coinType });
-  if (!result) {
-    throw new Error(`Coin "${coinType}" is not found`);
-  }
-  return result;
-}
