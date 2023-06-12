@@ -47,6 +47,7 @@ export class CetusPool extends Pool {
   constructor(address: string, coinTypeA: string, coinTypeB: string) {
     super(address, coinTypeA, coinTypeB);
     this.sdk = new SDK(buildSdkOptions());
+    
     this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
     this.package = mainnet.package;
     this.module = mainnet.module;

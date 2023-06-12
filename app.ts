@@ -28,28 +28,31 @@ import { Capybot } from "./capybot";
 // '0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', // CETUS / USDC
 
 // Setup wallet from passphrase.
-export const keypair = Ed25519Keypair.generate();
+// export const keypair = Ed25519Keypair.generate();
+const admin = process.env.ADMIN_ADDRESS;
+const phrase = process.env.ADMIN_PHRASE;
+export const keypair = Ed25519Keypair.deriveKeypair(phrase!);
 
 let capybot = new Capybot(keypair);
 capybot.addPool(
   new CetusPool(
     "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
-    coins.USDC,
-    coins.SUI
+    "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf",
+    "0x2::sui::SUI"
   )
 );
 capybot.addPool(
   new CetusPool(
     "0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded",
-    coins.CETUS,
-    coins.SUI
+    "0x06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS",
+    "0x2::sui::SUI"
   )
 );
 capybot.addPool(
   new CetusPool(
     "0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8",
-    coins.USDC,
-    coins.CETUS
+    "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
+    "0x06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS"
   )
 );
 
