@@ -1,10 +1,10 @@
-import {logger} from "./logger";
-import {coins} from "./coins/coins";
-import {CetusPool} from "./dexs/cetus/cetus";
-import {RideTheTrend} from "./strategies/ride_the_trend";
-import {Arbitrage} from "./strategies/arbitrage";
-import {Ed25519Keypair} from "@mysten/sui.js";
-import {Capybot} from "./capybot";
+import { logger } from "./logger";
+import { coins } from "./coins/coins";
+import { CetusPool } from "./dexs/cetus/cetus";
+import { RideTheTrend } from "./strategies/ride_the_trend";
+import { Arbitrage } from "./strategies/arbitrage";
+import { Ed25519Keypair } from "@mysten/sui.js";
+import { Capybot } from "./capybot";
 
 // Testnet
 // '0x1cc6bf13edcd2e304475478d5a36ed2436eb94bb9c0498f61412cb2446a2b3de',
@@ -31,32 +31,76 @@ import {Capybot} from "./capybot";
 export const keypair = Ed25519Keypair.generate();
 
 let capybot = new Capybot(keypair);
-capybot.addPool(new CetusPool('0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630', coins.USDC, coins.SUI));
-capybot.addPool(new CetusPool('0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded', coins.CETUS, coins.SUI));
-capybot.addPool(new CetusPool('0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', coins.USDC, coins.CETUS));
+capybot.addPool(
+  new CetusPool(
+    "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
+    coins.USDC,
+    coins.SUI
+  )
+);
+capybot.addPool(
+  new CetusPool(
+    "0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded",
+    coins.CETUS,
+    coins.SUI
+  )
+);
+capybot.addPool(
+  new CetusPool(
+    "0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8",
+    coins.USDC,
+    coins.CETUS
+  )
+);
 
 // Trend riding strategies
-capybot.addStrategy(new RideTheTrend('0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630', 5, 10, 1.002));
-capybot.addStrategy(new RideTheTrend('0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded', 5, 10, 1.002));
-capybot.addStrategy(new RideTheTrend('0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', 5, 10, 1.002));
+capybot.addStrategy(
+  new RideTheTrend(
+    "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
+    5,
+    10,
+    1.002
+  )
+);
+capybot.addStrategy(
+  new RideTheTrend(
+    "0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded",
+    5,
+    10,
+    1.002
+  )
+);
+capybot.addStrategy(
+  new RideTheTrend(
+    "0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8",
+    5,
+    10,
+    1.002
+  )
+);
 
 // Add triangular arbitrage strategy: USDC/SUI -> CETUS/SUI -> USDC/CETUS.
-capybot.addStrategy(new Arbitrage([
-    {
-        pool: '0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630',
-        a2b: true
-    },
-    {
-        pool: '0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded',
-        a2b: false
-    },
-    {
-        pool: '0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8',
-        a2b: false
-    }
-], 1.002));
+capybot.addStrategy(
+  new Arbitrage(
+    [
+      {
+        pool: "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
+        a2b: true,
+      },
+      {
+        pool: "0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded",
+        a2b: false,
+      },
+      {
+        pool: "0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8",
+        a2b: false,
+      },
+    ],
+    1.002
+  )
+);
 
 logger.info(capybot.strategies);
 
 // Start the bot
-capybot.loop(3.6e+6, 1000);
+capybot.loop(3.6e6, 1000);
