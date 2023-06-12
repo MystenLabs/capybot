@@ -48,11 +48,9 @@ export class CetusPool extends Pool {
     super(address, coinTypeA, coinTypeB);
     this.sdk = new SDK(buildSdkOptions());
     this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
-    this.package =
-      "0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be";
-    this.module = "pool_script";
-    this.globalConfig =
-      "0xdaa46292632c3c4d8f31f23ea0f9b36a28ff3677e9684980e4438403a67a3d8f";
+    this.package = mainnet.package;
+    this.module = mainnet.module;
+    this.globalConfig = mainnet.globalConfig;
   }
 
   async createSwapTransaction(
@@ -66,7 +64,7 @@ export class CetusPool extends Pool {
 
     let provider = new JsonRpcProvider(
       new Connection({
-        fullnode: "https://fullnode.mainnet.sui.io",
+        fullnode: mainnet.fullRpcUrl,
       })
     );
 
