@@ -30,7 +30,7 @@ export class RideTheTrend extends Strategy {
 
     evaluate(data: DataEntry): Array<TradeSuggestion> {
 
-        if (data.pool.address != this.pool) {
+        if (data.pool.pool != this.pool) {
             return [];
         }
 

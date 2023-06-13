@@ -4,11 +4,10 @@ import {
   SUI_CLOCK_OBJECT_ID,
   TransactionBlock,
 } from "@mysten/sui.js";
-import { keypair } from "../../app";
 import { buildInputCoinForAmount } from "../../utils/utils";
+import { SuiswapParams } from "../dexsParams";
 import { Pool, PreswapResult } from "../pool";
 import { mainnet } from "./mainnet_config";
-import { suiswapParams } from "./suiswapParams";
 import { testnet } from "./testnet_config";
 
 enum sdkEnv {
@@ -28,7 +27,7 @@ function buildSdkOptions() {
   }
 }
 
-export class SuiswapPool extends Pool<suiswapParams> {
+export class SuiswapPool extends Pool<SuiswapParams> {
   preswap(
     a2b: boolean,
     amount: number,
@@ -51,13 +50,13 @@ export class SuiswapPool extends Pool<suiswapParams> {
   ) {
     super(address, coinTypeA, coinTypeB, a2b);
 
-    this.senderAddress = keypair.getPublicKey().toSuiAddress();
+    this.senderAddress = this.keypair.getPublicKey().toSuiAddress();
     this.package = mainnet.package;
     this.module = mainnet.module;
   }
 
   async createSwapTransaction(
-    params: suiswapParams
+    params: SuiswapParams
   ): Promise<TransactionBlock> {
     const admin = process.env.ADMIN_ADDRESS;
 
@@ -83,7 +82,7 @@ export class SuiswapPool extends Pool<suiswapParams> {
     txb.moveCall({
       target: `${this.package}::${this.module}::${functionName}`,
       arguments: [
-        txb.object(this.address),
+        txb.object(this.pool),
         txb.makeMoveVec({
           objects: coins,
         }),

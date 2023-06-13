@@ -13,11 +13,10 @@ import {
   TransactionBlock,
 } from "@mysten/sui.js";
 import BN from "bn.js";
-import { keypair } from "../../app";
 import { getCoinInfo } from "../../coins/coins";
 import { buildInputCoinForAmount } from "../../utils/utils";
+import { CetusParams } from "../dexsParams";
 import { Pool, PreswapResult } from "../pool";
-import { cetusParams } from "./cetusParams";
 import { mainnet } from "./mainnet_config";
 import { testnet } from "./testnet_config";
 
@@ -38,7 +37,7 @@ function buildSdkOptions() {
   }
 }
 
-export class CetusPool extends Pool<cetusParams> {
+export class CetusPool extends Pool<CetusParams> {
   private sdk: SDK;
   private package: string;
   private module: string;
@@ -53,13 +52,13 @@ export class CetusPool extends Pool<cetusParams> {
     super(address, coinTypeA, coinTypeB, a2b);
     this.sdk = new SDK(buildSdkOptions());
 
-    this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
+    this.sdk.senderAddress = this.keypair.getPublicKey().toSuiAddress();
     this.package = mainnet.package;
     this.module = mainnet.module;
     this.globalConfig = mainnet.globalConfig;
   }
 
-  async createSwapTransaction(params: cetusParams): Promise<TransactionBlock> {
+  async createSwapTransaction(params: CetusParams): Promise<TransactionBlock> {
     const admin = process.env.ADMIN_ADDRESS;
 
     let provider = new JsonRpcProvider(
@@ -89,7 +88,7 @@ export class CetusPool extends Pool<cetusParams> {
       target: `${this.package}::${this.module}::${functionName}`,
       arguments: [
         params.transactionBlock.object(this.globalConfig),
-        params.transactionBlock.object(this.address),
+        params.transactionBlock.object(this.pool),
         params.transactionBlock.makeMoveVec({
           objects: coins,
         }),
@@ -110,7 +109,7 @@ export class CetusPool extends Pool<cetusParams> {
     amount: number,
     byAmountIn: boolean
   ): Promise<PreswapResult> {
-    let pool = await this.sdk.Pool.getPool(this.address);
+    let pool = await this.sdk.Pool.getPool(this.pool);
 
     // Load coin info
     let coinA = getCoinInfo(this.coinTypeA);
@@ -136,7 +135,7 @@ export class CetusPool extends Pool<cetusParams> {
   }
 
   async estimatePrice(): Promise<number> {
-    let pool = await this.sdk.Pool.getPool(this.address);
+    let pool = await this.sdk.Pool.getPool(this.pool);
     // current_sqrt_price is stored in Q64 format on Cetus
     return pool.current_sqrt_price ** 2 / 2 ** 128;
   }

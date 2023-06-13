@@ -1,10 +1,10 @@
-import { logger } from "./logger";
-import { coins } from "./coins/coins";
-import { CetusPool } from "./dexs/cetus/cetus";
-import { RideTheTrend } from "./strategies/ride_the_trend";
-import { Arbitrage } from "./strategies/arbitrage";
 import { Ed25519Keypair } from "@mysten/sui.js";
 import { Capybot } from "./capybot";
+import { coins } from "./coins/coins";
+import { CetusPool } from "./dexs/cetus/cetus";
+import { logger } from "./logger";
+import { Arbitrage } from "./strategies/arbitrage";
+import { RideTheTrend } from "./strategies/ride_the_trend";
 
 // Testnet
 // '0x1cc6bf13edcd2e304475478d5a36ed2436eb94bb9c0498f61412cb2446a2b3de',
@@ -30,72 +30,57 @@ import { Capybot } from "./capybot";
 // Setup wallet from passphrase.
 // export const keypair = Ed25519Keypair.generate();
 const phrase = process.env.ADMIN_PHRASE;
-export const keypair = Ed25519Keypair.deriveKeypair(phrase!);
+const keypair = Ed25519Keypair.deriveKeypair(phrase!);
 
 let capybot = new Capybot(keypair);
-capybot.addPool(
-  new CetusPool(
-    "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
-    coins.USDC,
-    coins.SUI
-  )
-);
-capybot.addPool(
-  new CetusPool(
-    "0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded",
-    coins.CETUS,
-    coins.SUI
-  )
-);
-capybot.addPool(
-  new CetusPool(
-    "0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8",
-    coins.USDC,
-    coins.CETUS
-  )
+
+console.log("*** CetusPool", CetusPool);
+
+const USDCtoSUI = new CetusPool(
+  "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
+  coins.USDC,
+  coins.SUI,
+  true
 );
 
+const CETUStoSUI = new CetusPool(
+  "0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded",
+  coins.CETUS,
+  coins.SUI,
+  false
+);
+
+const USDCtoCETUS = new CetusPool(
+  "0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8",
+  coins.USDC,
+  coins.CETUS,
+  false
+);
+
+capybot.addPool(USDCtoSUI);
+capybot.addPool(CETUStoSUI);
+capybot.addPool(USDCtoCETUS);
+
 // Trend riding strategies
-capybot.addStrategy(
-  new RideTheTrend(
-    "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
-    5,
-    10,
-    1.002
-  )
-);
-capybot.addStrategy(
-  new RideTheTrend(
-    "0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded",
-    5,
-    10,
-    1.002
-  )
-);
-capybot.addStrategy(
-  new RideTheTrend(
-    "0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8",
-    5,
-    10,
-    1.002
-  )
-);
+capybot.addStrategy(new RideTheTrend(USDCtoSUI.pool, 5, 10, 1.002));
+capybot.addStrategy(new RideTheTrend(CETUStoSUI.pool, 5, 10, 1.002));
+capybot.addStrategy(new RideTheTrend(USDCtoCETUS.pool, 5, 10, 1.002));
 
 // Add triangular arbitrage strategy: USDC/SUI -> CETUS/SUI -> USDC/CETUS.
 capybot.addStrategy(
   new Arbitrage(
     [
       {
-        pool: "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
-        a2b: true,
+        pool: USDCtoSUI.pool,
+        a2b: USDCtoSUI.a2b,
       },
       {
-        pool: "0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded",
-        a2b: false,
+        pool: CETUStoSUI.pool,
+        a2b: CETUStoSUI.a2b,
       },
       {
-        pool: "0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8",
-        a2b: false,
+        pool: USDCtoCETUS.pool,
+        a2b: USDCtoCETUS.a2b,
       },
     ],
     1.002

@@ -1,10 +1,8 @@
-import { cetusParams } from "../dexs/cetus/cetusParams";
+import { CetusParams, SuiswapParams, TurbosParams } from "../dexs/dexsParams";
 import { Pool } from "../dexs/pool";
-import { suiswapParams } from "../dexs/suiswap/suiswapParams";
-import { turbosParams } from "../dexs/turbos/turbosParams";
 
 export type DataEntry = {
   timestamp: number;
-  pool: Pool<cetusParams | suiswapParams | turbosParams>;
+  pool: Pool<CetusParams | SuiswapParams | TurbosParams>;
   priceOfB: number;
 };

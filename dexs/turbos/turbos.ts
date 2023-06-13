@@ -6,12 +6,11 @@ import {
 } from "@mysten/sui.js";
 import BN from "bn.js";
 import Decimal from "decimal.js";
-import { keypair } from "../../app";
 import { buildInputCoinForAmount } from "../../utils/utils";
+import { TurbosParams } from "../dexsParams";
 import { Pool, PreswapResult } from "../pool";
 import { mainnet } from "./mainnet_config";
 import { testnet } from "./testnet_config";
-import { turbosParams } from "./turbosParams";
 
 const ONE_MINUTE = 60 * 1000;
 
@@ -38,7 +37,7 @@ function buildSdkOptions() {
   }
 }
 
-export class TurbosPool extends Pool<turbosParams> {
+export class TurbosPool extends Pool<TurbosParams> {
   private package: string;
   private module: string;
   private versioned: string;
@@ -54,14 +53,14 @@ export class TurbosPool extends Pool<turbosParams> {
   ) {
     super(address, coinTypeA, coinTypeB, a2b);
 
-    this.senderAddress = keypair.getPublicKey().toSuiAddress();
+    this.senderAddress = this.keypair.getPublicKey().toSuiAddress();
     this.package = mainnet.package;
     this.module = mainnet.module;
     this.versioned = mainnet.module;
     this.coinTypeC = coinTypeC;
   }
 
-  async createSwapTransaction(params: turbosParams): Promise<TransactionBlock> {
+  async createSwapTransaction(params: TurbosParams): Promise<TransactionBlock> {
     let provider = new JsonRpcProvider(
       new Connection({
         fullnode: mainnet.fullRpcUrl,
@@ -86,7 +85,7 @@ export class TurbosPool extends Pool<turbosParams> {
     txb.moveCall({
       target: `${this.package}::${this.module}::${functionName}`,
       arguments: [
-        txb.object(this.address),
+        txb.object(this.pool),
         txb.makeMoveVec({
           objects: coins,
         }),

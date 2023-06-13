@@ -23,7 +23,7 @@ export class Arbitrage extends Strategy {
 
     evaluate(data: DataEntry): Array<TradeSuggestion> {
 
-        this.latestRate[data.pool.address] = data.priceOfB;
+        this.latestRate[data.pool.pool] = data.priceOfB;
 
         // Compute the price when exchanging coins around the chain
         let arbitrage = 1;

@@ -1,7 +1,5 @@
-import { TransactionBlock } from "@mysten/sui.js";
-import { cetusParams } from "./cetus/cetusParams";
-import { suiswapParams } from "./suiswap/suiswapParams";
-import { turbosParams } from "./turbos/turbosParams";
+import { Ed25519Keypair, TransactionBlock } from "@mysten/sui.js";
+import { CetusParams, SuiswapParams, TurbosParams } from "./dexsParams";
 
 export type PreswapResult = {
   estimatedAmountIn: number;
@@ -10,23 +8,45 @@ export type PreswapResult = {
 };
 
 export abstract class Pool<
-  C extends cetusParams | suiswapParams | turbosParams
+  C extends CetusParams | SuiswapParams | TurbosParams
 > {
-  public address: string;
-  public coinTypeA: string;
-  public coinTypeB: string;
-  public a2b: boolean;
+  protected _pool: string;
+  protected _coinTypeA: string;
+  protected _coinTypeB: string;
+  protected _a2b: boolean;
+  protected _keypair: Ed25519Keypair;
 
   constructor(
-    address: string,
+    pool: string,
     coinTypeA: string,
     coinTypeB: string,
     a2b: boolean
   ) {
-    this.address = address;
-    this.coinTypeA = coinTypeA;
-    this.coinTypeB = coinTypeB;
-    this.a2b = a2b;
+    this._pool = pool;
+    this._coinTypeA = coinTypeA;
+    this._coinTypeB = coinTypeB;
+    this._a2b = a2b;
+    this._keypair = Ed25519Keypair.deriveKeypair(process.env.ADMIN_PHRASE!);
+  }
+
+  public get pool(): string {
+    return this._pool;
+  }
+
+  public get coinTypeA(): string {
+    return this._coinTypeA;
+  }
+
+  public get coinTypeB(): string {
+    return this._coinTypeB;
+  }
+
+  public get a2b(): boolean {
+    return this._a2b;
+  }
+
+  public get keypair(): Ed25519Keypair {
+    return this._keypair;
   }
 
   abstract preswap(

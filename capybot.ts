@@ -7,10 +7,8 @@ import {
 } from "@mysten/sui.js";
 import { setTimeout } from "timers/promises";
 import { defaultAmount } from "./coins/coins";
-import { cetusParams } from "./dexs/cetus/cetusParams";
+import { CetusParams, SuiswapParams, TurbosParams } from "./dexs/dexsParams";
 import { Pool } from "./dexs/pool";
-import { suiswapParams } from "./dexs/suiswap/suiswapParams";
-import { turbosParams } from "./dexs/turbos/turbosParams";
 import { logger } from "./logger";
 import { DataEntry } from "./strategies/data_entry";
 import { Strategy } from "./strategies/strategy";
@@ -22,7 +20,7 @@ import { Strategy } from "./strategies/strategy";
 export class Capybot {
   public pools: Record<
     string,
-    Pool<cetusParams | suiswapParams | turbosParams>
+    Pool<CetusParams | SuiswapParams | TurbosParams>
   > = {};
   public strategies: Record<string, Array<Strategy>> = {};
   private keypair: Keypair;
@@ -114,11 +112,11 @@ export class Capybot {
   }
 
   /** Add a new pool for this bot to use for trading. */
-  addPool(pool: Pool<cetusParams | suiswapParams | turbosParams>) {
-    if (this.pools.hasOwnProperty(pool.address)) {
-      throw new Error("Pool " + pool.address + " has already been added.");
+  addPool(pool: Pool<CetusParams | SuiswapParams | TurbosParams>) {
+    if (this.pools.hasOwnProperty(pool.pool)) {
+      throw new Error("Pool " + pool.pool + " has already been added.");
     }
-    this.pools[pool.address] = pool;
-    this.strategies[pool.address] = [];
+    this.pools[pool.pool] = pool;
+    this.strategies[pool.pool] = [];
   }
 }
