@@ -9,7 +9,6 @@ import { coins } from "../../coins/coins";
 import { CetusPool } from "./cetus";
 
 let transactionBlock: TransactionBlock = new TransactionBlock();
-transactionBlock.setGasBudget(500000000);
 
 const USDCtoSUI = new CetusPool(
   "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
