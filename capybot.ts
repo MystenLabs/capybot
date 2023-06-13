@@ -94,6 +94,8 @@ export class Capybot {
               .then(function (res: any) {
                 console.log("executed! result = ", res);
               });
+
+            transactionBlock = new TransactionBlock();
           }
         }
       }
