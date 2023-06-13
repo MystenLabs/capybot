@@ -34,6 +34,11 @@ export class Capybot {
                     priceOfB: price,
                     timestamp: new Date().getTime(),
                 };
+                logger.info({
+                    pool: pool.address,
+                    price: price,
+                    time: new Date().getTime(),
+                }, 'price')
 
                 // Push new data to all strategies subscribed to this pool
                 for (const strategy of this.strategies[address]) {
@@ -43,7 +48,7 @@ export class Capybot {
 
                     // Execute any suggested trades
                     for (const tradeSuggestion of tradeSuggestions) {
-                        logger.info({strategy: strategy.name, decision: tradeSuggestion});
+                        logger.info({strategy: strategy.name, decision: tradeSuggestion}, 'order');
                         let amountIn = tradeSuggestion.amount * defaultAmount[tradeSuggestion.a2b ? pool.coinTypeB : pool.coinTypeA];
                         let expectedAmountOut = tradeSuggestion.estimatedPrice * amountIn;
                         // TODO: Do these as a programmable transaction
@@ -55,7 +60,7 @@ export class Capybot {
                             5, // Allow for 5% slippage (??)
                         ).then((result) => {
                             // TODO: Execute transaction
-                            logger.info({strategy: strategy, transaction: result});
+                            logger.info({strategy: strategy, transaction: result}, 'transaction');
                         }).catch((e) => {
                             logger.error(e);
                         });

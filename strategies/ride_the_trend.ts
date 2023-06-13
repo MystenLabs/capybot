@@ -2,6 +2,7 @@ import {DataEntry} from "./data_entry";
 import {average} from "simple-statistics";
 import {Strategy} from "./strategy";
 import {TradeSuggestion} from "./trade_suggestion";
+import {logger} from "../logger";
 
 /**
  * If the change has been consistent over some time in a single pool, buy the corresponding token.
@@ -52,6 +53,8 @@ export class RideTheTrend extends Strategy {
         // TODO: We can do this by streaming instead of recomputing the average every time
         let short_average = average(this.history.slice(this.history.length - this.short, this.history.length).map(d => d.priceOfB));
         let long_average = average(this.history.map(d => d.priceOfB));
+
+        logger.info({pool: this.pool, short_average: short_average, long_average: long_average, short: this.short, long: this.long}, 'moving averages')
 
         // The first time we run this, we need to set the initial state
         if (this.shortWasHigher == null) {
