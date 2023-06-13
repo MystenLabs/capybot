@@ -8,6 +8,7 @@ import { keypair } from "../../app";
 import { buildInputCoinForAmount } from "../../utils/utils";
 import { Pool, PreswapResult } from "../pool";
 import { mainnet } from "./mainnet_config";
+import { suiswapParams } from "./suiswapParams";
 import { testnet } from "./testnet_config";
 
 enum sdkEnv {
@@ -27,7 +28,7 @@ function buildSdkOptions() {
   }
 }
 
-export class SuiswapPool extends Pool {
+export class SuiswapPool extends Pool<suiswapParams> {
   preswap(
     a2b: boolean,
     amount: number,
@@ -51,8 +52,7 @@ export class SuiswapPool extends Pool {
   }
 
   async createSwapTransaction(
-    a2b: boolean,
-    amountIn: number
+    params: suiswapParams
   ): Promise<TransactionBlock> {
     const admin = process.env.ADMIN_ADDRESS;
 
@@ -65,12 +65,12 @@ export class SuiswapPool extends Pool {
     const txb = new TransactionBlock();
     txb.setGasBudget(500000000);
 
-    const functionName = a2b ? "swap_x_to_y" : "swap_y_to_x";
+    const functionName = params.a2b ? "swap_x_to_y" : "swap_y_to_x";
 
     const coins = await buildInputCoinForAmount(
       txb,
-      BigInt(amountIn),
-      a2b ? this.coinTypeA : this.coinTypeB,
+      BigInt(params.amountIn),
+      params.a2b ? this.coinTypeA : this.coinTypeB,
       this.senderAddress,
       provider
     );
@@ -82,7 +82,7 @@ export class SuiswapPool extends Pool {
         txb.makeMoveVec({
           objects: coins,
         }),
-        txb.pure(amountIn.toFixed(0), "u64"),
+        txb.pure(params.amountIn.toFixed(0), "u64"),
         txb.pure(0, "u64"),
         txb.object(SUI_CLOCK_OBJECT_ID),
       ],

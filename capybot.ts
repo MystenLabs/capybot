@@ -7,7 +7,10 @@ import {
 } from "@mysten/sui.js";
 import { setTimeout } from "timers/promises";
 import { defaultAmount } from "./coins/coins";
+import { cetusParams } from "./dexs/cetus/cetusParams";
 import { Pool } from "./dexs/pool";
+import { suiswapParams } from "./dexs/suiswap/suiswapParams";
+import { turbosParams } from "./dexs/turbos/turbosParams";
 import { logger } from "./logger";
 import { DataEntry } from "./strategies/data_entry";
 import { Strategy } from "./strategies/strategy";
@@ -17,7 +20,10 @@ import { Strategy } from "./strategies/strategy";
  * strategies to trade on these pools.
  */
 export class Capybot {
-  public pools: Record<string, Pool> = {};
+  public pools: Record<
+    string,
+    Pool<cetusParams | suiswapParams | turbosParams>
+  > = {};
   public strategies: Record<string, Array<Strategy>> = {};
   private keypair: Keypair;
   private provider: JsonRpcProvider;
@@ -55,22 +61,27 @@ export class Capybot {
           // Execute any suggested trades
           for (const tradeSuggestion of tradeSuggestions) {
             logger.info({ strategy: strategy.name, decision: tradeSuggestion });
-            let amountIn =
+            let amountIn: number =
               tradeSuggestion.amount *
               defaultAmount[
                 tradeSuggestion.a2b ? pool.coinTypeB : pool.coinTypeA
               ];
-            let expectedAmountOut = tradeSuggestion.estimatedPrice * amountIn;
+            let amountOut: number = tradeSuggestion.estimatedPrice * amountIn;
             // TODO: Do these as a programmable transaction
+
+            const a2b: boolean = tradeSuggestion.a2b;
+            const byAmountIn: boolean = true;
+            const slippage: number = 5; // Allow for 5% slippage (??)
+
             let txb: TransactionBlock = await this.pools[
               tradeSuggestion.pool
-            ].createSwapTransaction(
-              tradeSuggestion.a2b,
+            ].createSwapTransaction({
+              a2b,
               amountIn,
-              expectedAmountOut,
-              true,
-              5 // Allow for 5% slippage (??)
-            );
+              amountOut,
+              byAmountIn,
+              slippage,
+            });
 
             await this.signer
               .signAndExecuteTransactionBlock({
@@ -102,7 +113,7 @@ export class Capybot {
   }
 
   /** Add a new pool for this bot to use for trading. */
-  addPool(pool: Pool) {
+  addPool(pool: Pool<cetusParams | suiswapParams | turbosParams>) {
     if (this.pools.hasOwnProperty(pool.address)) {
       throw new Error("Pool " + pool.address + " has already been added.");
     }

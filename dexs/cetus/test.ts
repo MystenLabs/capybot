@@ -23,15 +23,21 @@ let provider = new JsonRpcProvider(
 );
 const signer = new RawSigner(keypair, provider);
 
+const a2b: boolean = true;
+const amountIn: number = 1000;
+const amountOut: number = 1000;
+const byAmountIn: boolean = true;
+const slippage: number = 5; // Allow for 5% slippage (??)
+
 let transactionBlock: TransactionBlock;
 const getTransactionBlock = async () => {
-  transactionBlock = await pool.createSwapTransaction(
-    false,
-    1000,
-    1000,
-    true,
-    5 // Allow for 5% slippage (??)
-  );
+  transactionBlock = await pool.createSwapTransaction({
+    a2b,
+    amountIn,
+    amountOut,
+    byAmountIn,
+    slippage,
+  });
 };
 
 getTransactionBlock().then((res) => {

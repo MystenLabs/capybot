@@ -17,6 +17,7 @@ import { keypair } from "../../app";
 import { getCoinInfo } from "../../coins/coins";
 import { buildInputCoinForAmount } from "../../utils/utils";
 import { Pool, PreswapResult } from "../pool";
+import { cetusParams } from "./cetusParams";
 import { mainnet } from "./mainnet_config";
 import { testnet } from "./testnet_config";
 
@@ -37,7 +38,7 @@ function buildSdkOptions() {
   }
 }
 
-export class CetusPool extends Pool {
+export class CetusPool extends Pool<cetusParams> {
   private sdk: SDK;
   private package: string;
   private module: string;
@@ -53,13 +54,7 @@ export class CetusPool extends Pool {
     this.globalConfig = mainnet.globalConfig;
   }
 
-  async createSwapTransaction(
-    a2b: boolean,
-    amountIn: number,
-    amountOut: number,
-    byAmountIn: boolean,
-    slippage: number
-  ): Promise<TransactionBlock> {
+  async createSwapTransaction(params: cetusParams): Promise<TransactionBlock> {
     const admin = process.env.ADMIN_ADDRESS;
 
     let provider = new JsonRpcProvider(
@@ -69,20 +64,20 @@ export class CetusPool extends Pool {
     );
 
     const amountLimit = adjustForSlippage(
-      new BN(amountOut),
-      Percentage.fromDecimal(d(slippage)),
+      new BN(params.amountOut),
+      Percentage.fromDecimal(d(params.slippage)),
       false
     );
     const txb = new TransactionBlock();
     txb.setGasBudget(500000000);
 
-    const functionName = a2b ? "swap_a2b" : "swap_b2a";
-    const sqrtPriceLimit = getDefaultSqrtPriceLimit(a2b);
+    const functionName = params.a2b ? "swap_a2b" : "swap_b2a";
+    const sqrtPriceLimit = getDefaultSqrtPriceLimit(params.a2b);
 
     const coins = await buildInputCoinForAmount(
       txb,
-      BigInt(amountIn),
-      a2b ? this.coinTypeA : this.coinTypeB,
+      BigInt(params.amountIn),
+      params.a2b ? this.coinTypeA : this.coinTypeB,
       admin!,
       provider
     );
@@ -95,8 +90,8 @@ export class CetusPool extends Pool {
         txb.makeMoveVec({
           objects: coins,
         }),
-        txb.pure(byAmountIn),
-        txb.pure(amountIn),
+        txb.pure(params.byAmountIn),
+        txb.pure(params.amountIn),
         txb.pure(amountLimit),
         txb.pure(sqrtPriceLimit.toString()),
         txb.object(SUI_CLOCK_OBJECT_ID),

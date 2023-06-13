@@ -11,6 +11,7 @@ import { buildInputCoinForAmount } from "../../utils/utils";
 import { Pool, PreswapResult } from "../pool";
 import { mainnet } from "./mainnet_config";
 import { testnet } from "./testnet_config";
+import { turbosParams } from "./turbosParams";
 
 const ONE_MINUTE = 60 * 1000;
 
@@ -37,7 +38,7 @@ function buildSdkOptions() {
   }
 }
 
-export class TurbosPool extends Pool {
+export class TurbosPool extends Pool<turbosParams> {
   private package: string;
   private module: string;
   private versioned: string;
@@ -59,12 +60,7 @@ export class TurbosPool extends Pool {
     this.coinTypeC = coinTypeC;
   }
 
-  async createSwapTransaction(
-    a2b: boolean,
-    amountIn: number,
-    slippage: string,
-    amountSpecifiedIsInput: boolean
-  ): Promise<TransactionBlock> {
+  async createSwapTransaction(params: turbosParams): Promise<TransactionBlock> {
     let provider = new JsonRpcProvider(
       new Connection({
         fullnode: mainnet.fullRpcUrl,
@@ -74,12 +70,12 @@ export class TurbosPool extends Pool {
     const txb = new TransactionBlock();
     txb.setGasBudget(500000000);
 
-    const functionName = a2b ? "swap_a_b" : "swap_b_a";
+    const functionName = params.a2b ? "swap_a_b" : "swap_b_a";
 
     const coins = await buildInputCoinForAmount(
       txb,
-      BigInt(amountIn),
-      a2b ? this.coinTypeA : this.coinTypeB,
+      BigInt(params.amountIn),
+      params.a2b ? this.coinTypeA : this.coinTypeB,
       this.senderAddress,
       provider
     );
@@ -91,28 +87,25 @@ export class TurbosPool extends Pool {
         txb.makeMoveVec({
           objects: coins,
         }),
-        txb.pure(amountIn.toFixed(0), "u64"),
-        // Arg3: u64
+        txb.pure(params.amountIn.toFixed(0), "u64"),
         txb.pure(
-          amountOutWithSlippage(amountIn, slippage, amountSpecifiedIsInput),
+          amountOutWithSlippage(
+            params.amountIn,
+            params.slippage.toString(),
+            params.amountSpecifiedIsInput
+          ),
           "u64"
         ),
-
-        // Arg4: u128
         txb.pure(
           tickIndexToSqrtPriceX64(
-            a2b ? MIN_TICK_INDEX : MAX_TICK_INDEX
+            params.a2b ? MIN_TICK_INDEX : MAX_TICK_INDEX
           ).toString(),
           "u128"
         ),
-
-        txb.pure(amountSpecifiedIsInput, "bool"),
-
+        txb.pure(params.amountSpecifiedIsInput, "bool"),
         txb.object(this.senderAddress),
         txb.pure(Date.now() + ONE_MINUTE * 3, "u64"),
         txb.object(SUI_CLOCK_OBJECT_ID),
-        // Arg9: & Versioned
-        // txb.object(contract.Versioned)
         txb.object(this.versioned),
       ],
       typeArguments: [this.coinTypeA, this.coinTypeB, this.coinTypeC],
