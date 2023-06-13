@@ -58,6 +58,8 @@ export class Capybot {
           // Compute a trading decision for this strategy.
           let tradeSuggestions = strategy.evaluate(data);
 
+          let transactionBlock: TransactionBlock = new TransactionBlock();
+
           // Execute any suggested trades
           for (const tradeSuggestion of tradeSuggestions) {
             logger.info({ strategy: strategy.name, decision: tradeSuggestion });
@@ -69,14 +71,13 @@ export class Capybot {
             let amountOut: number = tradeSuggestion.estimatedPrice * amountIn;
             // TODO: Do these as a programmable transaction
 
-            const a2b: boolean = tradeSuggestion.a2b;
             const byAmountIn: boolean = true;
             const slippage: number = 5; // Allow for 5% slippage (??)
 
             let txb: TransactionBlock = await this.pools[
               tradeSuggestion.pool
             ].createSwapTransaction({
-              a2b,
+              transactionBlock,
               amountIn,
               amountOut,
               byAmountIn,

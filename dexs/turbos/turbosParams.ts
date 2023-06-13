@@ -1,5 +1,7 @@
+import { TransactionBlock } from "@mysten/sui.js";
+
 export type turbosParams = {
-  a2b: boolean;
+  transactionBlock: TransactionBlock;
   amountIn: number;
   amountSpecifiedIsInput: boolean;
   slippage: number;

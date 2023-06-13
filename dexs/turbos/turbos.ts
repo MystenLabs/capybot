@@ -49,9 +49,10 @@ export class TurbosPool extends Pool<turbosParams> {
     address: string,
     coinTypeA: string,
     coinTypeB: string,
-    coinTypeC: string
+    coinTypeC: string,
+    a2b: boolean
   ) {
-    super(address, coinTypeA, coinTypeB);
+    super(address, coinTypeA, coinTypeB, a2b);
 
     this.senderAddress = keypair.getPublicKey().toSuiAddress();
     this.package = mainnet.package;
@@ -70,12 +71,14 @@ export class TurbosPool extends Pool<turbosParams> {
     const txb = new TransactionBlock();
     txb.setGasBudget(500000000);
 
-    const functionName = params.a2b ? "swap_a_b" : "swap_b_a";
+    const functionName = this.a2b ? "swap_a_b" : "swap_b_a";
+
+    console.log("**** coinType: ", this.a2b ? this.coinTypeA : this.coinTypeB);
 
     const coins = await buildInputCoinForAmount(
       txb,
       BigInt(params.amountIn),
-      params.a2b ? this.coinTypeA : this.coinTypeB,
+      this.a2b ? this.coinTypeA : this.coinTypeB,
       this.senderAddress,
       provider
     );
@@ -98,7 +101,7 @@ export class TurbosPool extends Pool<turbosParams> {
         ),
         txb.pure(
           tickIndexToSqrtPriceX64(
-            params.a2b ? MIN_TICK_INDEX : MAX_TICK_INDEX
+            this.a2b ? MIN_TICK_INDEX : MAX_TICK_INDEX
           ).toString(),
           "u128"
         ),

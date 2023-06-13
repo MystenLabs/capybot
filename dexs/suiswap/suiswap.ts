@@ -43,8 +43,13 @@ export class SuiswapPool extends Pool<suiswapParams> {
   private module: string;
   private senderAddress: string;
 
-  constructor(address: string, coinTypeA: string, coinTypeB: string) {
-    super(address, coinTypeA, coinTypeB);
+  constructor(
+    address: string,
+    coinTypeA: string,
+    coinTypeB: string,
+    a2b: boolean
+  ) {
+    super(address, coinTypeA, coinTypeB, a2b);
 
     this.senderAddress = keypair.getPublicKey().toSuiAddress();
     this.package = mainnet.package;
@@ -65,12 +70,12 @@ export class SuiswapPool extends Pool<suiswapParams> {
     const txb = new TransactionBlock();
     txb.setGasBudget(500000000);
 
-    const functionName = params.a2b ? "swap_x_to_y" : "swap_y_to_x";
+    const functionName = this.a2b ? "swap_x_to_y" : "swap_y_to_x";
 
     const coins = await buildInputCoinForAmount(
       txb,
       BigInt(params.amountIn),
-      params.a2b ? this.coinTypeA : this.coinTypeB,
+      this.a2b ? this.coinTypeA : this.coinTypeB,
       this.senderAddress,
       provider
     );

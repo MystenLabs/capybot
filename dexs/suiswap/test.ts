@@ -10,7 +10,8 @@ import { SuiswapPool } from "./suiswap";
 const pool = new SuiswapPool(
   "0xddb2164a724d13690e347e9078d4234c9205b396633dfc6b859b09b61bbcd257",
   "0x2::sui::SUI", //coins.SUI,
-  "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN" //coins.USDC
+  "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN", //coins.USDC
+  true
 );
 
 const phrase = process.env.ADMIN_PHRASE;
@@ -28,7 +29,10 @@ const amountIn: number = 10000;
 
 let transactionBlock: TransactionBlock;
 const getTransactionBlock = async () => {
-  transactionBlock = await pool.createSwapTransaction({ a2b, amountIn });
+  transactionBlock = await pool.createSwapTransaction({
+    transactionBlock,
+    amountIn,
+  });
 };
 
 getTransactionBlock().then((res) => {

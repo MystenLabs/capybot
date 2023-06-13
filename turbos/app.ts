@@ -41,21 +41,21 @@ let swapParams: SwapParams;
 // testnet || mainnet
 const network: string = "testnet";
 swapParams = {
-  network: "https://rpc.testnet.sui.io:443",
-  package: "0xfea145c1608cd5366ffcf278c0124d9f416b30e33a6a47ee12c615420ee0224c",
+  network: "https://rpc.mainnet.sui.io:443",
+  package: "0x929c577ac4083dff3907386ee60ffe597910f2c2bfc1bf7cb917ff46baab3861",
   module: "swap_router",
-  pool: "0x7278ca6cf1fb19c6c8d5dc22aa245ebb8833e47885955f8334663e832b792a69",
-  a2b: false,
-  amountIn: 1000000000,
+  pool: "0x86ed41e9b4c6cce36de4970cfd4ae3e98d6281f13a1b16aa31fc73ec90079c3d",
+  a2b: true,
+  amountIn: 100000000,
   slippage: "0",
   amountSpecifiedIsInput: true,
-  type0:
-    "0x541826891e877178df82f2df2996599618a259e719ef54a8e1969211c609cd21::turbos::TURBOS",
-  type1: "0x2::sui::SUI",
+  type0: "0x2::sui::SUI",
+  type1:
+    "0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN",
   type2:
-    "0xfea145c1608cd5366ffcf278c0124d9f416b30e33a6a47ee12c615420ee0224c::fee3000bps::FEE3000BPS",
+    "0x91bfbc386a41afcfd9b2533058d7e915a1d3829089cc268ff4333d54d6339ca1::fee3000bps::FEE3000BPS",
   versioned:
-    "0xeabd8d464e40856432781779bfa65f3acad242216b1e15d5838e95ffe5d73b6f",
+    "0xf1cf0e81048df168ebeb1b8030fad24b3e0b53ae827c25053fff0779c1445b6f",
 };
 
 const phrase = process.env.ADMIN_PHRASE;
@@ -72,7 +72,7 @@ const signer = new RawSigner(keypair, provider);
 const txb = new TransactionBlock();
 txb.setGasBudget(1500000000);
 
-const functionName = "swap_b_a";
+const functionName = swapParams.a2b ? "swap_a_b" : "swap_b_a";
 console.log(`${swapParams.package}::${swapParams.module}::${functionName}`);
 
 function amountOutWithSlippage(
@@ -102,7 +102,7 @@ txb.moveCall({
     txb.makeMoveVec({
       objects: convertTradeCoins(
         txb,
-        ["0x91e717011e916384d89bf11c11cc0a5ff0cb3e92a0ea58ee72e595e673a279eb"],
+        ["0x105a0a4de8324fba9608e9ff52ca67dbbd956a51ddb190acde2aaa3c1672f2ee"],
         swapParams.type1,
         new Decimal(swapParams.amountIn)
       ),

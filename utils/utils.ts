@@ -132,7 +132,9 @@ export async function selectTradeCoins(
   coinType: string,
   expectedAmount: Decimal
 ): Promise<string[]> {
-  console.log("selectTradeCoins:", owner, coinType, expectedAmount);
+  console.log(
+    `selectTradeCoins. owner: (${owner}), coinType: (${coinType}), expectedAmount: (${expectedAmount})`
+  );
   const coins: PaginatedCoins["data"][number][] = [];
   const coinIds: string[] = [];
   let totalAmount = new Decimal(0);
@@ -178,15 +180,16 @@ export async function buildInputCoinForAmount(
     coinType,
   });
 
-  // PROBABLY amountTotal.totalBalance
-  if (+amountTotal < amount) {
+  if (BigInt(amountTotal.totalBalance) < amount) {
     throw new Error(
-      `The amount(${+amountTotal}) is Insufficient balance for ${coinType} , expect ${amount} `
+      `The amount(${amountTotal.totalBalance}) is Insufficient balance for ${coinType} , expect ${amount} `
     );
   }
 
   if (isSUI(coinType)) {
-    console.log("isSUI:", owner, coinType, amount);
+    console.log(
+      `isSUI. owner: (${owner}), coinType: (${coinType}), amount: (${amount})`
+    );
     return [txb.splitCoins(txb.gas, [txb.pure(amount)])[0]!];
   }
 
@@ -196,6 +199,7 @@ export async function buildInputCoinForAmount(
     coinType,
     new Decimal(Number(amount))
   );
+  console.log(`coinObjectIds: ${coinObjectIds}`);
   return coinObjectIds.map((id) => txb.object(id));
 }
 

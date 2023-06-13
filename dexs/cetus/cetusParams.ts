@@ -1,5 +1,7 @@
+import { TransactionBlock } from "@mysten/sui.js";
+
 export type cetusParams = {
-  a2b: boolean;
+  transactionBlock: TransactionBlock;
   amountIn: number;
   amountOut: number;
   byAmountIn: boolean;

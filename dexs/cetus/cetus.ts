@@ -44,8 +44,13 @@ export class CetusPool extends Pool<cetusParams> {
   private module: string;
   private globalConfig: string;
 
-  constructor(address: string, coinTypeA: string, coinTypeB: string) {
-    super(address, coinTypeA, coinTypeB);
+  constructor(
+    address: string,
+    coinTypeA: string,
+    coinTypeB: string,
+    a2b: boolean
+  ) {
+    super(address, coinTypeA, coinTypeB, a2b);
     this.sdk = new SDK(buildSdkOptions());
 
     this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
@@ -68,38 +73,36 @@ export class CetusPool extends Pool<cetusParams> {
       Percentage.fromDecimal(d(params.slippage)),
       false
     );
-    const txb = new TransactionBlock();
-    txb.setGasBudget(500000000);
 
-    const functionName = params.a2b ? "swap_a2b" : "swap_b2a";
-    const sqrtPriceLimit = getDefaultSqrtPriceLimit(params.a2b);
+    const functionName = this.a2b ? "swap_a2b" : "swap_b2a";
+    const sqrtPriceLimit = getDefaultSqrtPriceLimit(this.a2b);
 
     const coins = await buildInputCoinForAmount(
-      txb,
+      params.transactionBlock,
       BigInt(params.amountIn),
-      params.a2b ? this.coinTypeA : this.coinTypeB,
+      this.a2b ? this.coinTypeA : this.coinTypeB,
       admin!,
       provider
     );
 
-    txb.moveCall({
+    params.transactionBlock.moveCall({
       target: `${this.package}::${this.module}::${functionName}`,
       arguments: [
-        txb.object(this.globalConfig),
-        txb.object(this.address),
-        txb.makeMoveVec({
+        params.transactionBlock.object(this.globalConfig),
+        params.transactionBlock.object(this.address),
+        params.transactionBlock.makeMoveVec({
           objects: coins,
         }),
-        txb.pure(params.byAmountIn),
-        txb.pure(params.amountIn),
-        txb.pure(amountLimit),
-        txb.pure(sqrtPriceLimit.toString()),
-        txb.object(SUI_CLOCK_OBJECT_ID),
+        params.transactionBlock.pure(params.byAmountIn),
+        params.transactionBlock.pure(params.amountIn),
+        params.transactionBlock.pure(amountLimit),
+        params.transactionBlock.pure(sqrtPriceLimit.toString()),
+        params.transactionBlock.object(SUI_CLOCK_OBJECT_ID),
       ],
       typeArguments: [this.coinTypeA, this.coinTypeB],
     });
 
-    return txb;
+    return params.transactionBlock;
   }
 
   async preswap(

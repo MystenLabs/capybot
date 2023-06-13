@@ -15,11 +15,18 @@ export abstract class Pool<
   public address: string;
   public coinTypeA: string;
   public coinTypeB: string;
+  public a2b: boolean;
 
-  constructor(address: string, coinTypeA: string, coinTypeB: string) {
+  constructor(
+    address: string,
+    coinTypeA: string,
+    coinTypeB: string,
+    a2b: boolean
+  ) {
     this.address = address;
     this.coinTypeA = coinTypeA;
     this.coinTypeB = coinTypeB;
+    this.a2b = a2b;
   }
 
   abstract preswap(
