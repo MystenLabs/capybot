@@ -24,7 +24,7 @@ let provider = new JsonRpcProvider(
 const signer = new RawSigner(keypair, provider);
 
 const a2b: boolean = true;
-const amountIn: number = 1000000000;
+const amountIn: number = 10000;
 
 let transactionBlock: TransactionBlock;
 const getTransactionBlock = async () => {
