@@ -36,7 +36,7 @@ export class Arbitrage extends Strategy {
             arbitrage *= p.a2b ? rate : 1 / rate;
         }
 
-        logger.info({arbitrage: arbitrage, poolChain: this.poolChain}, 'arbitrage');
+            logger.info({arbitrage: arbitrage, poolChain: this.poolChain.map(p => p.pool.substring(0, 8)).toString()}, 'arbitrage');
 
         if (arbitrage > this.lowerLimit) {
             logger.info({arbitrage: arbitrage, poolChain: this.poolChain});

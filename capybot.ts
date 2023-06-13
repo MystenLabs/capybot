@@ -37,7 +37,6 @@ export class Capybot {
                 logger.info({
                     pool: pool.address,
                     price: price,
-                    time: new Date().getTime(),
                 }, 'price')
 
                 // Push new data to all strategies subscribed to this pool

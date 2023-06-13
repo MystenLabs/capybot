@@ -54,7 +54,8 @@ export class RideTheTrend extends Strategy {
         let short_average = average(this.history.slice(this.history.length - this.short, this.history.length).map(d => d.priceOfB));
         let long_average = average(this.history.map(d => d.priceOfB));
 
-        logger.info({pool: this.pool, short_average: short_average, long_average: long_average, short: this.short, long: this.long}, 'moving averages')
+        logger.info({pool: this.pool, value: short_average, range: this.short}, 'moving average')
+        logger.info({pool: this.pool, value: long_average, range: this.long}, 'moving average')
 
         // The first time we run this, we need to set the initial state
         if (this.shortWasHigher == null) {
