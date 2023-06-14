@@ -41,6 +41,9 @@ export const coins = {
   WETH: "0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN",
   TOCE: "0xd2013e206f7983f06132d5b61f7c577638ff63171221f4f600a98863febdfb47::toce::TOCE",
   USDT: "0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN",
+  SUIP: "0xe4239cd951f6c53d9c41e25270d80d31f925ad1655e5ba5b543843d4a66975ee::SUIP::SUIP",
+  SUIA: "0x1d58e26e85fbf9ee8596872686da75544342487f95b1773be3c9a49ab1061b19::suia_token::SUIA_TOKEN",
+  WSOL: "0xb7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN",
 };
 
 // Setup default amount to trade for each token in each pool. Set to approximately 10 USD each.
@@ -53,3 +56,6 @@ defaultAmount[coins.BRT] = 1500_000_000_000_000;
 defaultAmount[coins.WETH] = 1000_000;
 defaultAmount[coins.TOCE] = 1_000_000_000_000;
 defaultAmount[coins.USDT] = 10_000_000;
+defaultAmount[coins.SUIP] = 1;
+defaultAmount[coins.SUIA] = 1;
+defaultAmount[coins.WSOL] = 1;
