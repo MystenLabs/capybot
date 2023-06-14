@@ -55,7 +55,9 @@ export abstract class Pool<
     byAmountIn: boolean
   ): Promise<PreswapResult>;
 
-  abstract createSwapTransaction(params: C): Promise<TransactionBlock>;
+  abstract createSwapTransaction(
+    params: C
+  ): Promise<TransactionBlock | undefined>;
 
   // TODO: Do we need the tick index here as well?
   abstract estimatePrice(): Promise<number>;

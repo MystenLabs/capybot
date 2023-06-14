@@ -29,10 +29,11 @@ const amountIn: number = 10000;
 
 let transactionBlock: TransactionBlock;
 const getTransactionBlock = async () => {
-  transactionBlock = await pool.createSwapTransaction({
+  const txb = await pool.createSwapTransaction({
     transactionBlock,
     amountIn,
   });
+  if (typeof txb !== "undefined") transactionBlock = txb;
 };
 
 getTransactionBlock().then((res) => {

@@ -47,23 +47,25 @@ const byAmountIn: boolean = true;
 const slippage: number = 5; // Allow for 5% slippage (??)
 
 const getUSDCtoSUITransactionBlock = async () => {
-  transactionBlock = await USDCtoSUI.createSwapTransaction({
+  const txb = await USDCtoSUI.createSwapTransaction({
     transactionBlock,
     amountIn,
     amountOut,
     byAmountIn,
     slippage,
   });
+  if (typeof txb !== "undefined") transactionBlock = txb;
 };
 
 const getCETUStoSUITransactionBlock = async () => {
-  transactionBlock = await CETUStoSUI.createSwapTransaction({
+  const txb = await CETUStoSUI.createSwapTransaction({
     transactionBlock,
     amountIn,
     amountOut,
     byAmountIn,
     slippage,
   });
+  if (typeof txb !== "undefined") transactionBlock = txb;
 };
 
 getUSDCtoSUITransactionBlock().then((res) => {

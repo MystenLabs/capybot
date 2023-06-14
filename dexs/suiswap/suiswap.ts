@@ -57,7 +57,7 @@ export class SuiswapPool extends Pool<SuiswapParams> {
 
   async createSwapTransaction(
     params: SuiswapParams
-  ): Promise<TransactionBlock> {
+  ): Promise<TransactionBlock | undefined> {
     const admin = process.env.ADMIN_ADDRESS;
 
     let provider = new JsonRpcProvider(
@@ -79,20 +79,23 @@ export class SuiswapPool extends Pool<SuiswapParams> {
       provider
     );
 
-    txb.moveCall({
-      target: `${this.package}::${this.module}::${functionName}`,
-      arguments: [
-        txb.object(this.pool),
-        txb.makeMoveVec({
-          objects: coins,
-        }),
-        txb.pure(params.amountIn.toFixed(0), "u64"),
-        txb.pure(0, "u64"),
-        txb.object(SUI_CLOCK_OBJECT_ID),
-      ],
-      typeArguments: [this.coinTypeA, this.coinTypeB],
-    });
-    return txb;
+    if (typeof coins !== "undefined") {
+      txb.moveCall({
+        target: `${this.package}::${this.module}::${functionName}`,
+        arguments: [
+          txb.object(this.pool),
+          txb.makeMoveVec({
+            objects: coins,
+          }),
+          txb.pure(params.amountIn.toFixed(0), "u64"),
+          txb.pure(0, "u64"),
+          txb.object(SUI_CLOCK_OBJECT_ID),
+        ],
+        typeArguments: [this.coinTypeA, this.coinTypeB],
+      });
+      return txb;
+    }
+    return undefined;
   }
 
   // async preswap(

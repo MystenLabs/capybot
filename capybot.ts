@@ -12,10 +12,7 @@ import { Pool } from "./dexs/pool";
 import { logger } from "./logger";
 import { DataEntry } from "./strategies/data_entry";
 import { Strategy } from "./strategies/strategy";
-import {
-  getBalancesForCoinTypes,
-  getTotalBalanceByCoinType,
-} from "./utils/utils";
+import { getBalancesForCoinTypes } from "./utils/utils";
 
 /**
  * A simple trading bot which subscribes to a number of trading pools across different DEXs. The bot may use multiple
@@ -43,21 +40,23 @@ export class Capybot {
 
   async loop(duration: number, delay: number) {
     let startTime = new Date().getTime();
+    const coinsSet = new Set<string>([
+      coins.SUI,
+      coins.USDC,
+      coins.CETUS,
+      coins.WETH,
+      coins.USDT,
+      coins.SUIP,
+      coins.SUIA,
+      coins.WSOL,
+    ]);
 
     while (new Date().getTime() - startTime < duration) {
+      // Retrieve the balances for the coins
       let coinsBalances = await getBalancesForCoinTypes(
         this.provider,
         this.keypair.getPublicKey().toSuiAddress(),
-        new Set<string>([
-          coins.SUI,
-          coins.USDC,
-          coins.CETUS,
-          coins.WETH,
-          coins.USDT,
-          coins.SUIP,
-          coins.SUIA,
-          coins.WSOL,
-        ])
+        coinsSet
       );
 
       for (const address in this.pools) {
@@ -92,61 +91,25 @@ export class Capybot {
             let amountIn: number =
               tradeSuggestion.amount *
               defaultAmount[
-                tradeSuggestion.a2b ? pool.coinTypeB : pool.coinTypeA
+                tradeSuggestion.a2b ? pool.coinTypeA : pool.coinTypeB
               ];
             let amountOut: number = tradeSuggestion.estimatedPrice * amountIn;
 
             const byAmountIn: boolean = true;
             const slippage: number = 5; // Allow for 5% slippage (??)
 
-            // const totalCoinTypeBalance = await getTotalBalanceByCoinType(
-            //   this.provider,
-            //   this.keypair.getPublicKey().toSuiAddress(),
-            //   tradeSuggestion.a2b ? pool.coinTypeB : pool.coinTypeA
-            // );
+            const txb = await this.pools[
+              tradeSuggestion.pool
+            ].createSwapTransaction({
+              transactionBlock,
+              amountIn,
+              amountOut,
+              byAmountIn,
+              slippage,
+            });
 
-            // const totalCoinTypeBalance = await getTotalBalanceByCoinType(
-            //   this.provider,
-            //   this.keypair.getPublicKey().toSuiAddress(),
-            //   this.pools[tradeSuggestion.pool].a2b
-            //     ? pool.coinTypeA
-            //     : pool.coinTypeB
-            // );
-
-            // console.log(
-            //   `**** amountIn: (${amountIn}) totalCoinTypeBalance: ${Number(
-            //     totalCoinTypeBalance
-            //   )}, coin: ${
-            //     this.pools[tradeSuggestion.pool].a2b
-            //       ? pool.coinTypeA
-            //       : pool.coinTypeB
-            //   }`
-            // );
-
-            const totalCoinTypeBalance = coinsBalances.get(
-              this.pools[tradeSuggestion.pool].a2b
-                ? pool.coinTypeA
-                : pool.coinTypeB
-            );
-
-            if (amountIn <= Number(totalCoinTypeBalance)) {
-              console.log(
-                `if (${amountIn} < ${Number(totalCoinTypeBalance)}) - ${
-                  this.pools[tradeSuggestion.pool].a2b
-                    ? pool.coinTypeA
-                    : pool.coinTypeB
-                }, pool: ${this.pools[tradeSuggestion.pool].pool}`
-              );
-              transactionBlock = await this.pools[
-                tradeSuggestion.pool
-              ].createSwapTransaction({
-                transactionBlock,
-                amountIn,
-                amountOut,
-                byAmountIn,
-                slippage,
-              });
-
+            if (typeof txb !== "undefined") {
+              transactionBlock = txb;
               await this.signer
                 .signAndExecuteTransactionBlock({
                   transactionBlock: transactionBlock,
@@ -170,22 +133,9 @@ export class Capybot {
               coinsBalances = await getBalancesForCoinTypes(
                 this.provider,
                 this.keypair.getPublicKey().toSuiAddress(),
-                new Set<string>([
-                  coins.SUI,
-                  coins.USDC,
-                  coins.CETUS,
-                  coins.WETH,
-                  coins.USDT,
-                  coins.SUIP,
-                  coins.SUIA,
-                  coins.WSOL,
-                ])
+                coinsSet
               );
               transactionBlock = new TransactionBlock();
-            } else {
-              console.log(
-                `else (${amountIn} > ${Number(totalCoinTypeBalance)})`
-              );
             }
           }
         }

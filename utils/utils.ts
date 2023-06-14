@@ -181,7 +181,39 @@ export async function getTotalBalanceByCoinType(
     coinType,
   });
 
+  console.log(
+    `TotalBalance for CoinType (${coinType}), is: ${amountTotal.totalBalance}`
+  );
+
   return amountTotal.totalBalance;
+}
+
+export async function getBalancesForCoinTypes(
+  provider: JsonRpcProvider,
+  owner: SuiAddress,
+  coinTypes: Set<string>
+): Promise<Map<string, BigInt>> {
+  let coinsBalances = new Map<string, BigInt>();
+
+  for (let coinType of coinTypes.values()) {
+    let coinBalance = await provider.getBalance({
+      owner,
+      coinType,
+    });
+    console.log(coinType, " - ", BigInt(coinBalance.totalBalance));
+    coinsBalances.set(coinType, BigInt(coinBalance.totalBalance));
+  }
+
+  // coinTypes.forEach(async (coinType) => {
+  //   console.log(coinType);
+  //   let coinBalance = await provider.getBalance({
+  //     owner,
+  //     coinType,
+  //   });
+  //   coinsBalances.set(coinType, BigInt(coinBalance.totalBalance));
+  // });
+
+  return coinsBalances;
 }
 
 export async function buildInputCoinForAmount(
@@ -190,7 +222,7 @@ export async function buildInputCoinForAmount(
   coinType: string,
   owner: SuiAddress,
   provider: JsonRpcProvider
-): Promise<TransactionArgument[]> {
+): Promise<TransactionArgument[] | undefined> {
   if (amount === BigInt(0)) {
     throw new Error(`The amount cannot be (${amount})`);
   }
@@ -202,9 +234,11 @@ export async function buildInputCoinForAmount(
   );
 
   if (BigInt(totalBalance) < amount) {
-    throw new Error(
-      `The amount(${totalBalance}) is Insufficient balance for ${coinType} , expect ${amount} `
+    // throw new Error(`The amount(${totalBalance}) is Insufficient balance for ${coinType} , expect ${amount}`);
+    console.log(
+      `The amount(${totalBalance}) is Insufficient balance for ${coinType} , expect ${amount}`
     );
+    return undefined;
   }
 
   if (isSUI(coinType)) {

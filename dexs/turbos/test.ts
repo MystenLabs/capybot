@@ -32,12 +32,13 @@ const amountSpecifiedIsInput: boolean = true;
 
 let transactionBlock: TransactionBlock;
 const getTransactionBlock = async () => {
-  transactionBlock = await pool.createSwapTransaction({
+  const txb = await pool.createSwapTransaction({
     transactionBlock,
     amountIn,
     amountSpecifiedIsInput,
     slippage,
   });
+  if (typeof txb !== "undefined") transactionBlock = txb;
 };
 
 getTransactionBlock().then((res) => {

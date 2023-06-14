@@ -10,6 +10,7 @@ import {
   Connection,
   JsonRpcProvider,
   SUI_CLOCK_OBJECT_ID,
+  TransactionArgument,
   TransactionBlock,
 } from "@mysten/sui.js";
 import BN from "bn.js";
@@ -58,7 +59,16 @@ export class CetusPool extends Pool<CetusParams> {
     this.globalConfig = mainnet.globalConfig;
   }
 
-  async createSwapTransaction(params: CetusParams): Promise<TransactionBlock> {
+  async createSwapTransaction(
+    params: CetusParams
+  ): Promise<TransactionBlock | undefined> {
+    console.log(
+      `Swap: (${params.amountIn}) [${
+        this.a2b ? this.coinTypeA : this.coinTypeB
+      }], To: [${!this.a2b ? this.coinTypeA : this.coinTypeB}], pool: ${
+        this.pool
+      }`
+    );
     const admin = process.env.ADMIN_ADDRESS;
 
     let provider = new JsonRpcProvider(
@@ -76,32 +86,36 @@ export class CetusPool extends Pool<CetusParams> {
     const functionName = this.a2b ? "swap_a2b" : "swap_b2a";
     const sqrtPriceLimit = getDefaultSqrtPriceLimit(this.a2b);
 
-    const coins = await buildInputCoinForAmount(
-      params.transactionBlock,
-      BigInt(params.amountIn),
-      this.a2b ? this.coinTypeA : this.coinTypeB,
-      admin!,
-      provider
-    );
+    const coins: TransactionArgument[] | undefined =
+      await buildInputCoinForAmount(
+        params.transactionBlock,
+        BigInt(params.amountIn),
+        this.a2b ? this.coinTypeA : this.coinTypeB,
+        admin!,
+        provider
+      );
 
-    params.transactionBlock.moveCall({
-      target: `${this.package}::${this.module}::${functionName}`,
-      arguments: [
-        params.transactionBlock.object(this.globalConfig),
-        params.transactionBlock.object(this.pool),
-        params.transactionBlock.makeMoveVec({
-          objects: coins,
-        }),
-        params.transactionBlock.pure(params.byAmountIn),
-        params.transactionBlock.pure(params.amountIn),
-        params.transactionBlock.pure(amountLimit),
-        params.transactionBlock.pure(sqrtPriceLimit.toString()),
-        params.transactionBlock.object(SUI_CLOCK_OBJECT_ID),
-      ],
-      typeArguments: [this.coinTypeA, this.coinTypeB],
-    });
+    if (typeof coins !== "undefined") {
+      params.transactionBlock.moveCall({
+        target: `${this.package}::${this.module}::${functionName}`,
+        arguments: [
+          params.transactionBlock.object(this.globalConfig),
+          params.transactionBlock.object(this.pool),
+          params.transactionBlock.makeMoveVec({
+            objects: coins,
+          }),
+          params.transactionBlock.pure(params.byAmountIn),
+          params.transactionBlock.pure(params.amountIn),
+          params.transactionBlock.pure(amountLimit),
+          params.transactionBlock.pure(sqrtPriceLimit.toString()),
+          params.transactionBlock.object(SUI_CLOCK_OBJECT_ID),
+        ],
+        typeArguments: [this.coinTypeA, this.coinTypeB],
+      });
 
-    return params.transactionBlock;
+      return params.transactionBlock;
+    }
+    return undefined;
   }
 
   async preswap(
