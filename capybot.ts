@@ -51,12 +51,21 @@ export class Capybot {
           timestamp: new Date().getTime(),
         };
 
+        logger.info(
+          {
+            pool: pool.pool,
+            price: price,
+          },
+          "price"
+        );
+
         // Push new data to all strategies subscribed to this pool
         for (const strategy of this.strategies[address]) {
           // Compute a trading decision for this strategy.
           let tradeSuggestions = strategy.evaluate(data);
 
           let transactionBlock: TransactionBlock = new TransactionBlock();
+          transactionBlock.setGasBudget(1500000000);
 
           // Execute any suggested trades
           for (const tradeSuggestion of tradeSuggestions) {
@@ -72,7 +81,7 @@ export class Capybot {
             const byAmountIn: boolean = true;
             const slippage: number = 5; // Allow for 5% slippage (??)
 
-            let txb: TransactionBlock = await this.pools[
+            transactionBlock = await this.pools[
               tradeSuggestion.pool
             ].createSwapTransaction({
               transactionBlock,
@@ -84,15 +93,22 @@ export class Capybot {
 
             await this.signer
               .signAndExecuteTransactionBlock({
-                transactionBlock: txb,
+                transactionBlock: transactionBlock,
                 requestType: "WaitForLocalExecution",
                 options: {
                   showObjectChanges: true,
                   showEffects: true,
                 },
               })
-              .then(function (res: any) {
-                console.log("executed! result = ", res);
+              .then((result) => {
+                // TODO: Execute transaction
+                logger.info(
+                  { strategy: strategy, transaction: result },
+                  "transaction"
+                );
+              })
+              .catch((e) => {
+                logger.error(e);
               });
 
             transactionBlock = new TransactionBlock();
