@@ -39,11 +39,11 @@ export type CoinAsset = {
 };
 
 export function moveCallCoinZero(txb: TransactionBlock, coinType: string) {
-    return txb.moveCall({
-      target: '0x2::coin::zero',
-      typeArguments: [coinType],
-    })
-  }
+  return txb.moveCall({
+    target: "0x2::coin::zero",
+    typeArguments: [coinType],
+  });
+}
 
 function isSUI(coinType: string) {
   return coinType.toLowerCase().indexOf("sui") > -1;
@@ -171,6 +171,19 @@ export async function selectTradeCoins(
   return coinIds;
 }
 
+export async function getTotalBalanceByCoinType(
+  provider: JsonRpcProvider,
+  owner: SuiAddress,
+  coinType: string
+): Promise<string> {
+  const amountTotal = await provider.getBalance({
+    owner,
+    coinType,
+  });
+
+  return amountTotal.totalBalance;
+}
+
 export async function buildInputCoinForAmount(
   txb: TransactionBlock,
   amount: bigint,
@@ -182,14 +195,15 @@ export async function buildInputCoinForAmount(
     throw new Error(`The amount cannot be (${amount})`);
   }
 
-  const amountTotal = await provider.getBalance({
-    owner: owner,
-    coinType,
-  });
+  const totalBalance = await getTotalBalanceByCoinType(
+    provider,
+    owner,
+    coinType
+  );
 
-  if (BigInt(amountTotal.totalBalance) < amount) {
+  if (BigInt(totalBalance) < amount) {
     throw new Error(
-      `The amount(${amountTotal.totalBalance}) is Insufficient balance for ${coinType} , expect ${amount} `
+      `The amount(${totalBalance}) is Insufficient balance for ${coinType} , expect ${amount} `
     );
   }
 

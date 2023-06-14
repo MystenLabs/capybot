@@ -98,10 +98,8 @@ const CETUStoSUIA = new CetusPool(
   false
 );
 
-// 0xb7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN, 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN
-
 const WSOLtoUSDC = new CetusPool(
-  "0x7717c936c4612bca53d6c07c72ecb37b20ef40b83f15fad3a81306876f2f6048",
+  "0x9ddb0d269d1049caf7c872846cc6d9152618d1d3ce994fae84c1c051ee23b179",
   coins.WSOL,
   coins.USDC,
   true
