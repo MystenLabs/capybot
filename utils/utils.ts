@@ -38,6 +38,13 @@ export type CoinAsset = {
   balance: bigint;
 };
 
+export function moveCallCoinZero(txb: TransactionBlock, coinType: string) {
+    return txb.moveCall({
+      target: '0x2::coin::zero',
+      typeArguments: [coinType],
+    })
+  }
+
 function isSUI(coinType: string) {
   return coinType.toLowerCase().indexOf("sui") > -1;
 }
