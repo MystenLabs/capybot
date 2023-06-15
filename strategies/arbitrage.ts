@@ -52,7 +52,7 @@ export class Arbitrage extends Strategy {
                 pool: p.pool,
                 amount: 1,
                 estimatedPrice: this.latestRate[p.pool],
-                a2b: p.a2b
+                a2b: !p.a2b
             }));
         }
 
