@@ -1,4 +1,4 @@
-import {DataEntry} from "./data_entry";
+import {DataEntry, SourceType} from "./data_entry";
 import {average} from "simple-statistics";
 import {Strategy} from "./strategy";
 import {TradeSuggestion} from "./trade_suggestion";
@@ -31,7 +31,8 @@ export class RideTheTrend extends Strategy {
 
     evaluate(data: DataEntry): Array<TradeSuggestion> {
 
-        if (data.pool.address != this.pool) {
+        // This strategy is only interested in the price from the pool it's observing
+        if (data.sourceType != SourceType.Pool || data.address != this.pool) {
             return [];
         }
 

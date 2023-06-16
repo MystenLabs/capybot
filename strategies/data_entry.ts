@@ -1,7 +1,13 @@
-import {Pool} from "../dexs/pool";
+export enum SourceType {
+    Pool,
+    Exchange,
+}
 
 export type DataEntry = {
     timestamp: number,
-    pool: Pool,
+    address: string,
+    sourceType: SourceType,
+    coinTypeA: string,
+    coinTypeB: string,
     priceOfB: number,
 }
