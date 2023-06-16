@@ -58,25 +58,26 @@ capybot.addPool(new CetusPool('0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f2
 capybot.addPool(new CetusPool('0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', coins.USDC, coins.CETUS));
 
 // Trend riding strategies
-capybot.addStrategy(new RideTheTrend('0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630', 10, 30, 1.002));
-capybot.addStrategy(new RideTheTrend('0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded', 10, 30, 1.002));
-capybot.addStrategy(new RideTheTrend('0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', 10, 30, 1.002));
+capybot.addStrategy(new RideTheTrend('0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630', 10, 30, [defaultAmount[coins.USDC], defaultAmount[coins.SUI]], 1.002));
+capybot.addStrategy(new RideTheTrend('0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded', 10, 30, [defaultAmount[coins.CETUS], defaultAmount[coins.SUI]], 1.002));
+capybot.addStrategy(new RideTheTrend('0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', 10, 30, [defaultAmount[coins.USDC], defaultAmount[coins.CETUS]], 1.002));
 
-// Add triangular arbitrage strategy: USDC/SUI -> CETUS/SUI -> USDC/CETUS.
+// Add triangular arbitrage strategy: USDC/SUI -> (CETUS/SUI)^-1 -> (USDC/CETUS)^-1.
 capybot.addStrategy(new Arbitrage([
-    {
-        pool: '0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630',
-        a2b: true
-    },
-    {
-        pool: '0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded',
-        a2b: false
-    },
-    {
-        pool: '0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8',
-        a2b: false
-    }
-], 1.01));
+        {
+            pool: '0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630',
+            a2b: true
+        },
+        {
+            pool: '0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded',
+            a2b: false
+        },
+        {
+            pool: '0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8',
+            a2b: false
+        }],
+    defaultAmount[coins.USDC],
+    1.01));
 
 logger.info(capybot.strategies, 'strategies');
 
