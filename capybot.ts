@@ -2,9 +2,9 @@ import {Keypair} from "@mysten/sui.js";
 import {Strategy} from "./strategies/strategy";
 import {Pool} from "./dexs/pool";
 import {logger} from "./logger";
-import {defaultAmount} from "./coins/coins";
 import {setTimeout} from "timers/promises";
 import {DataEntry, SourceType} from "./strategies/data_entry";
+import {defaultAmount} from "./index";
 
 /**
  * A simple trading bot which subscribes to a number of trading pools across different DEXs. The bot may use multiple

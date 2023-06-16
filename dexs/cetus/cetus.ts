@@ -5,7 +5,7 @@ import {adjustForSlippage, d, Percentage, SDK} from "@cetusprotocol/cetus-sui-cl
 import BN from "bn.js";
 import {mainnet} from "./mainnet_config";
 import {testnet} from "./testnet_config";
-import {keypair} from "../../app";
+import {keypair} from "../../index";
 
 enum sdkEnv {
     mainnet = "mainnet",
