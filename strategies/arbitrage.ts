@@ -12,18 +12,24 @@ export class Arbitrage extends Strategy {
 
     private readonly lowerLimit: number;
     private readonly poolChain: Array<PoolWithDirection>;
+    private readonly poolChainAsString: string;
     private latestRate: Record<string, number> = {};
+    private readonly defaultAmount: number;
 
     /**
      * Create a new arbitrage strategy.
      *
      * @param poolChain The chain of pools to consider for an arbitrage. The order should be defined such that a transaction on all chains in order will end up with the same token.
+     * @param defaultAmount The default amount of the first coin in the pool chain to trade (e.g. `poolChain[0].a2b ? poolChain[0].pool.coinTypeA : poolChain[0].pool.coinTypeB`.
      * @param relativeLimit Relative limit is percentage, e.g. 1.05 for a 5% win.
      */
-    constructor(poolChain: Array<PoolWithDirection>, relativeLimit: number) {
+    constructor(poolChain: Array<PoolWithDirection>, defaultAmount: number, relativeLimit: number) {
         super("Arbitrage (" + poolChain.map(p => p.pool) + ")");
         this.poolChain = poolChain;
+        this.defaultAmount = defaultAmount;
         this.lowerLimit = relativeLimit;
+        // A short string representation of the pools used. Used for logging and debugging
+        this.poolChainAsString = this.poolChain.map(p => p.pool.substring(0, 8)).toString();
     }
 
     evaluate(data: DataEntry): Array<TradeOrder> {
@@ -38,35 +44,47 @@ export class Arbitrage extends Strategy {
 
         // Compute the price when exchanging coins around the chain
         let arbitrage = 1;
-        for (const p of this.poolChain) {
-            let rate = this.latestRate[p.pool];
+        for (const pool of this.poolChain) {
+            let rate = this.getLatestRate(pool.pool, pool.a2b);
             if (rate == undefined) {
                 // Not all pools have a registered value yet.
                 return [];
             }
-            arbitrage *= p.a2b ? rate : 1 / rate;
+            arbitrage *= rate;
         }
         logger.info({
             arbitrage: arbitrage,
-            poolChain: this.poolChain.map(p => p.pool.substring(0, 8)).toString()
+            poolChain: this.poolChainAsString
         }, 'arbitrage');
 
         if (arbitrage > this.lowerLimit) {
-            logger.info({arbitrage: arbitrage, poolChain: this.poolChain});
-            return this.poolChain.map((p) => ({
-                pool: p.pool,
-                amount: 1,
-                estimatedPrice: this.latestRate[p.pool],
-                a2b: p.a2b
-            }));
+            let orders = [];
+            let amountIn: number = this.defaultAmount;
+            for (const pool of this.poolChain) {
+                let latestRate = this.getLatestRate(pool.pool, pool.a2b);
+                orders.push({
+                    pool: pool.pool,
+                    amountIn: amountIn,
+                    estimatedPrice: latestRate,
+                    a2b: pool.a2b
+                });
+                amountIn = amountIn * latestRate;
+            }
+            return orders;
         } else if (arbitrage < 1 / this.lowerLimit) {
-            logger.info({arbitrage: arbitrage, poolChain: this.poolChain});
-            return this.poolChain.map((p) => ({
-                pool: p.pool,
-                amount: 1,
-                estimatedPrice: this.latestRate[p.pool],
-                a2b: !p.a2b
-            }));
+            let orders = [];
+            let amount: number = this.defaultAmount;
+            for (const pool of this.poolChain.reverse()) {
+                let latestRate = this.getLatestRate(pool.pool, !pool.a2b);
+                orders.push({
+                    pool: pool.pool,
+                    amountIn: amount,
+                    estimatedPrice: latestRate,
+                    a2b: !pool.a2b
+                });
+                amount = amount * latestRate;
+            }
+            return orders;
         }
 
         // No decisions can be made at this point
@@ -75,5 +93,9 @@ export class Arbitrage extends Strategy {
 
     subscribes_to(): Array<string> {
         return this.poolChain.map(value => value.pool);
+    }
+
+    getLatestRate(pool: string, a2b: boolean): number {
+        return a2b ? this.latestRate[pool] : 1 / this.latestRate[pool];
     }
 }

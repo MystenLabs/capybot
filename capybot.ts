@@ -3,7 +3,6 @@ import {Strategy} from "./strategies/strategy";
 import {Pool} from "./dexs/pool";
 import {logger} from "./logger";
 import {setTimeout} from "timers/promises";
-import {defaultAmount} from "./index";
 import {DataSource} from "./dexs/data_source";
 
 /**
@@ -41,9 +40,7 @@ export class Capybot {
                     // Execute any suggested trades
                     for (const order of tradeOrders) {
                         logger.info({strategy: strategy.name, decision: order}, 'order');
-                        let amountIn = order.amount * defaultAmount[order.a2b ?
-                            this.pools[order.pool].coinTypeB :
-                            this.pools[order.pool].coinTypeA];
+                        let amountIn = order.amountIn;
                         let expectedAmountOut = order.estimatedPrice * amountIn;
                         // TODO: Do these as a programmable transaction
                         this.pools[order.pool].createSwapTransaction(

@@ -1,6 +1,6 @@
 export type TradeOrder = {
     pool: string,
-    amount: number,
+    amountIn: number,
     estimatedPrice: number,
     a2b: boolean
 };

@@ -18,6 +18,7 @@ export class RideTheTrend extends Strategy {
 
     private history: Array<DataEntry> = [];
     private readonly limit: number;
+    private readonly defaultAmounts: [number, number];
 
     /**
      * Create a new trend-riding strategy.
@@ -25,13 +26,15 @@ export class RideTheTrend extends Strategy {
      * @param pool The address of the pool to watch.
      * @param short The length of the short moving average.
      * @param long The length of the long moving average.
+     * @param defaultAmounts The number of tokens to swap of coin type A and B resp. when the trend changes.
      * @param limit Relative limit is percentage, eg. 1.05 for a 5% win
      */
-    constructor(pool: string, short: number, long: number, limit: number) {
+    constructor(pool: string, short: number, long: number, defaultAmounts: [number, number], limit: number) {
         super("RideTheTrend (" + pool + ", " + short + "/" + long + ")");
         this.short = short;
         this.long = long;
         this.pool = pool;
+        this.defaultAmounts = defaultAmounts;
         this.limit = limit;
     }
 
@@ -71,26 +74,25 @@ export class RideTheTrend extends Strategy {
 
         // The last trade could have influenced the price, so we wait until this effect has passed
         if (short_average != long_average && this.lastDecision > this.short + 1) {
-
-            // Averages differ - make a decision
-            this.lastDecision = 0;
-
             if (short_average / long_average > this.limit && !this.shortWasHigher) {
-                // Trend has gone up - buy A
+                // Trend has gone up - buy B for A
+                this.lastDecision = 0;
                 this.shortWasHigher = true;
                 return [{
                     pool: this.pool,
-                    amount: 1,
-                    estimatedPrice: short_average,
-                    a2b: false
+                    amountIn: this.defaultAmounts[0],
+                    estimatedPrice: data.price,
+                    a2b: true
                 }];
             } else if (short_average / long_average < 1 / this.limit && this.shortWasHigher) {
-                // Trend is going down - get rid of A
+                // Trend is going down - buy A for B
+                this.lastDecision = 0;
                 this.shortWasHigher = false;
                 return [{
-                    pool: this.pool, amount: 1,
-                    estimatedPrice: short_average,
-                    a2b: true
+                    pool: this.pool,
+                    amountIn: this.defaultAmounts[1],
+                    estimatedPrice: 1 / data.price,
+                    a2b: false
                 }];
             }
         }
