@@ -81,7 +81,5 @@ capybot.addStrategy(new Arbitrage([
 
 // TODO: Add exchanges as data sources and use MarketDifference strategy once PR #5 lands
 
-logger.info(capybot.strategies, 'strategies');
-
 // Start the bot
 capybot.loop(3.6e+6, 1000);

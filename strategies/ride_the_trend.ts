@@ -2,7 +2,6 @@ import {DataEntry, SourceType} from "./data_entry";
 import {average} from "simple-statistics";
 import {Strategy} from "./strategy";
 import {TradeOrder} from "./order";
-import {logger} from "../logger";
 
 /**
  * If the price of a token looks like it's going into a period where it's price is increasing we should buy the token.
@@ -30,7 +29,12 @@ export class RideTheTrend extends Strategy {
      * @param limit Relative limit is percentage, eg. 1.05 for a 5% win
      */
     constructor(pool: string, short: number, long: number, defaultAmounts: [number, number], limit: number) {
-        super("RideTheTrend (" + pool + ", " + short + "/" + long + ")");
+        super({
+            name: "RideTheTrend",
+            pool: pool,
+            short: short,
+            long: long
+        });
         this.short = short;
         this.long = long;
         this.pool = pool;
@@ -41,7 +45,7 @@ export class RideTheTrend extends Strategy {
     evaluate(data: DataEntry): Array<TradeOrder> {
 
         // This strategy is only interested in the price from the pool it's observing
-        if (data.sourceType != SourceType.Pool || data.uri != this.pool) {
+        if (data.sourceType != SourceType.Pool || data.source != this.pool) {
             return [];
         }
 
@@ -64,8 +68,11 @@ export class RideTheTrend extends Strategy {
         let short_average = average(this.history.slice(this.history.length - this.short, this.history.length).map(d => d.price));
         let long_average = average(this.history.map(d => d.price));
 
-        logger.info({pool: this.pool, value: short_average, range: this.short}, 'moving average')
-        logger.info({pool: this.pool, value: long_average, range: this.long}, 'moving average')
+        this.logStatus({
+            price: data.price,
+            short_average: short_average,
+            long_average: long_average
+        });
 
         // The first time we run this, we need to set the initial state
         if (this.shortWasHigher == null) {

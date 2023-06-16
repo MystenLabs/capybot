@@ -1,7 +1,6 @@
 import {DataEntry, SourceType} from "./data_entry";
 import {Strategy} from "./strategy";
 import {TradeOrder} from "./order";
-import {logger} from "../logger";
 
 type PoolWithDirection = {
     pool: string,
@@ -24,7 +23,10 @@ export class Arbitrage extends Strategy {
      * @param relativeLimit Relative limit is percentage, e.g. 1.05 for a 5% win.
      */
     constructor(poolChain: Array<PoolWithDirection>, defaultAmount: number, relativeLimit: number) {
-        super("Arbitrage (" + poolChain.map(p => p.pool) + ")");
+        super({
+            name: "Arbitrage",
+            poolChain: poolChain,
+        });
         this.poolChain = poolChain;
         this.defaultAmount = defaultAmount;
         this.lowerLimit = relativeLimit;
@@ -35,12 +37,12 @@ export class Arbitrage extends Strategy {
     evaluate(data: DataEntry): Array<TradeOrder> {
 
         // This strategy is only interested in the price from the pools it's observing
-        if (data.sourceType != SourceType.Pool || !this.poolChain.map(p => p.pool).includes(data.uri)) {
+        if (data.sourceType != SourceType.Pool || !this.poolChain.map(p => p.pool).includes(data.source)) {
             return [];
         }
 
         // Update history
-        this.latestRate[data.uri] = data.price;
+        this.latestRate[data.source] = data.price;
 
         // Compute the price when exchanging coins around the chain
         let arbitrage = 1;
@@ -52,10 +54,7 @@ export class Arbitrage extends Strategy {
             }
             arbitrage *= rate;
         }
-        logger.info({
-            arbitrage: arbitrage,
-            poolChain: this.poolChainAsString
-        }, 'arbitrage');
+        this.logStatus({arbitrage: arbitrage});
 
         if (arbitrage > this.lowerLimit) {
             let orders = [];

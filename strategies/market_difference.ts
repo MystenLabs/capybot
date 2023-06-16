@@ -2,12 +2,11 @@ import {Strategy} from "./strategy";
 import {DataEntry} from "./data_entry";
 import {TradeOrder} from "./order";
 import {Pool} from "../dexs/pool";
-import {logger} from "../logger";
 
 export class MarketDifference extends Strategy {
     private readonly pool: Pool;
     private readonly exchanges: Array<string>;
-    private latestPoolPrice: number;
+    private latestPoolPrice: number | undefined;
     private readonly limit: number;
     private readonly defaultAmounts: [number, number];
 
@@ -22,7 +21,11 @@ export class MarketDifference extends Strategy {
      *             A value of 1.05 means that the price difference should be at least 5%.
      */
     constructor(pool: Pool, exchanges: Array<string>, defaultAmounts: [number, number], limit: number) {
-        super("MarketDifference (" + pool + ", " + exchanges + ")");
+        super({
+            name: "MarketDifference",
+            pool: pool.uri,
+            exchanges: exchanges,
+        });
         this.pool = pool;
         this.exchanges = exchanges;
         this.defaultAmounts = defaultAmounts;
@@ -30,7 +33,7 @@ export class MarketDifference extends Strategy {
     }
 
     evaluate(data: DataEntry): Array<TradeOrder> {
-        if (data.uri == this.pool.uri) {
+        if (data.source == this.pool.uri) {
             this.latestPoolPrice = data.price;
             return [];
         }
@@ -40,11 +43,11 @@ export class MarketDifference extends Strategy {
         }
 
         let priceRatio = data.price / this.latestPoolPrice;
-        logger.info({
-            pool: this.pool.uri,
+        this.logStatus({
+            poolPrice: this.latestPoolPrice,
+            exchangePrice: data.price,
             priceRatio,
-            exchange: data.uri,
-        }, 'market_difference');
+        });
 
         if (priceRatio > this.limit) {
             // The pool price for B is too low - buy B
@@ -63,6 +66,8 @@ export class MarketDifference extends Strategy {
                 a2b: false
             }];
         }
+
+        return [];
     }
 
     subscribes_to(): Array<string> {
