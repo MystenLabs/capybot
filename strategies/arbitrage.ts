@@ -1,6 +1,6 @@
 import {DataEntry, SourceType} from "./data_entry";
 import {Strategy} from "./strategy";
-import {TradeSuggestion} from "./trade_suggestion";
+import {TradeOrder} from "./order";
 import {logger} from "../logger";
 
 type PoolWithDirection = {
@@ -14,22 +14,27 @@ export class Arbitrage extends Strategy {
     private readonly poolChain: Array<PoolWithDirection>;
     private latestRate: Record<string, number> = {};
 
-    /** Relative limit is percentage, e.g. 1.05 for a 5% win. */
+    /**
+     * Create a new arbitrage strategy.
+     *
+     * @param poolChain The chain of pools to consider for an arbitrage. The order should be defined such that a transaction on all chains in order will end up with the same token.
+     * @param relativeLimit Relative limit is percentage, e.g. 1.05 for a 5% win.
+     */
     constructor(poolChain: Array<PoolWithDirection>, relativeLimit: number) {
         super("Arbitrage (" + poolChain.map(p => p.pool) + ")");
         this.poolChain = poolChain;
         this.lowerLimit = relativeLimit;
     }
 
-    evaluate(data: DataEntry): Array<TradeSuggestion> {
+    evaluate(data: DataEntry): Array<TradeOrder> {
 
         // This strategy is only interested in the price from the pools it's observing
-        if (data.sourceType != SourceType.Pool || !this.poolChain.map(p => p.pool).includes(data.address)) {
+        if (data.sourceType != SourceType.Pool || !this.poolChain.map(p => p.pool).includes(data.uri)) {
             return [];
         }
 
         // Update history
-        this.latestRate[data.address] = data.priceOfB;
+        this.latestRate[data.uri] = data.price;
 
         // Compute the price when exchanging coins around the chain
         let arbitrage = 1;
