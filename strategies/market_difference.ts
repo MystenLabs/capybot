@@ -2,6 +2,7 @@ import {Strategy} from "./strategy";
 import {DataEntry} from "./data_entry";
 import {TradeOrder} from "./order";
 import {Pool} from "../dexs/pool";
+import {logger} from "../logger";
 
 export class MarketDifference extends Strategy {
     private readonly pool: Pool;
@@ -38,7 +39,14 @@ export class MarketDifference extends Strategy {
             return [];
         }
 
-        if (data.price / this.latestPoolPrice > this.limit) {
+        let priceRatio = data.price / this.latestPoolPrice;
+        logger.info({
+            pool: this.pool.uri,
+            priceRatio,
+            exchange: data.uri,
+        }, 'market_difference');
+
+        if (priceRatio > this.limit) {
             // The pool price for B is too low - buy B
             return [{
                 pool: this.pool.uri,
@@ -46,7 +54,7 @@ export class MarketDifference extends Strategy {
                 estimatedPrice: this.latestPoolPrice,
                 a2b: true
             }];
-        } else if (data.price / this.latestPoolPrice < 1 / this.limit) {
+        } else if (priceRatio < 1 / this.limit) {
             // The pool price for B is too high - buy A
             return [{
                 pool: this.pool.uri,
