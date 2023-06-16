@@ -1,4 +1,12 @@
 {
+  "name": "arbitrage-bot",
+  "version": "0.0.1",
+  "description": "Arbitrage Bot",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node build/index.js"
+  },
+  "license": "MIT",
   "devDependencies": {
     "gts": "^3.1.1",
     "typescript": "^5.0.4"
