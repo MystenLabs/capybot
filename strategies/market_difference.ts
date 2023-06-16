@@ -10,6 +10,16 @@ export class MarketDifference extends Strategy {
     private readonly limit: number;
     private readonly defaultAmounts: [number, number];
 
+    /**
+     * Create a new market difference strategy. This strategy compare prices between a pool and various exchanges and
+     * will buy the token that is too cheap and sell the token that is too expensive.
+     *
+     * @param pool The pool so monitor.
+     * @param exchanges The exchanges to monitor. These should give the same price pairs as the pool.
+     * @param defaultAmounts The default amounts to trade when the price difference is too large.
+     * @param limit The relative limit for the price difference. If the price difference is larger than this, a trade will be made.
+     *             A value of 1.05 means that the price difference should be at least 5%.
+     */
     constructor(pool: Pool, exchanges: Array<string>, defaultAmounts: [number, number], limit: number) {
         super("MarketDifference (" + pool + ", " + exchanges + ")");
         this.pool = pool;
