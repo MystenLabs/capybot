@@ -69,6 +69,7 @@ export class RideTheTrend extends Strategy {
         let long_average = average(this.history.map(d => d.price));
 
         this.logStatus({
+            price: data.price,
             short_average: short_average,
             long_average: long_average
         });

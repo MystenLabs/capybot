@@ -47,8 +47,7 @@ export class Arbitrage extends Strategy {
             let rate = this.getLatestRate(pool.pool, pool.a2b);
             if (rate == undefined) {
                 // Not all pools have a registered value yet.
-                arbitrage = 1;
-                break;
+                return [];
             }
             arbitrage *= rate;
         }

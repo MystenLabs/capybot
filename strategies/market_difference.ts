@@ -6,7 +6,7 @@ import {Pool} from "../dexs/pool";
 export class MarketDifference extends Strategy {
     private readonly pool: Pool;
     private readonly exchanges: Array<string>;
-    private latestPoolPrice: number;
+    private latestPoolPrice: number | undefined;
     private readonly limit: number;
     private readonly defaultAmounts: [number, number];
 
@@ -66,6 +66,8 @@ export class MarketDifference extends Strategy {
                 a2b: false
             }];
         }
+
+        return [];
     }
 
     subscribes_to(): Array<string> {

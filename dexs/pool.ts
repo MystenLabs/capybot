@@ -32,7 +32,6 @@ export abstract class Pool extends DataSource {
             coinTypeFrom: this.coinTypeA,
             coinTypeTo: this.coinTypeB,
             price: price,
-            timestamp: new Date().getTime(),
         };
     }
 }
