@@ -1,9 +1,10 @@
-import { Keypair } from "@mysten/sui.js";
+import { Connection, JsonRpcProvider, Keypair, RawSigner } from "@mysten/sui.js";
 import { Strategy } from "./strategies/strategy";
 import { Pool } from "./dexs/pool";
 import { logger } from "./logger";
 import { setTimeout } from "timers/promises";
 import { DataSource } from "./dexs/data_source";
+import {TransactionBlock} from "@mysten/sui.js";
 
 /**
  * A simple trading bot which subscribes to a number of trading pools across different DEXs. The bot may use multiple
@@ -14,9 +15,17 @@ export class Capybot {
   public pools: Record<string, Pool> = {};
   public strategies: Record<string, Array<Strategy>> = {};
   private keypair: Keypair;
+  private provider: JsonRpcProvider;
+  private signer: RawSigner;
 
   constructor(keypair: Keypair) {
     this.keypair = keypair;
+    this.provider = new JsonRpcProvider(
+      new Connection({
+        fullnode: "https://rpc.mainnet.sui.io:443",
+      })
+    );
+    this.signer = new RawSigner(this.keypair, this.provider);
   }
 
   async loop(duration: number, delay: number) {
@@ -48,31 +57,50 @@ export class Capybot {
           // Get orders for this strategy.
           let tradeOrders = strategy.evaluate(data);
 
+          let transactionBlock: TransactionBlock = new TransactionBlock();
+          transactionBlock.setGasBudget(1500000000);
+
           // Execute any suggested trades
           for (const order of tradeOrders) {
+            console.log("*** for:", order);
             logger.info({ strategy: strategy.uri, decision: order }, "order");
             let amountIn = order.amountIn;
             let expectedAmountOut = order.estimatedPrice * amountIn;
             // TODO: Do these as a programmable transaction
-            this.pools[order.pool]
-              .createSwapTransaction(
-                order.a2b,
-                amountIn,
-                expectedAmountOut,
-                true,
-                1 // Allow for 1% slippage (??)
-              )
-              .then((result) => {
-                // TODO: Execute transaction
-                logger.info(
-                  { strategy: strategy, transaction: result },
-                  "transaction"
-                );
-              })
-              .catch((e) => {
-                logger.error(e);
-              });
+            const txb = await this.pools[order.pool].createSwapTransaction(
+              order.a2b,
+              amountIn,
+              expectedAmountOut,
+              true,
+              1 // Allow for 1% slippage (??)
+            );
+            if (typeof txb !== "undefined") {
+              transactionBlock = txb;
+              
+              await this.signer
+                .signAndExecuteTransactionBlock({
+                  transactionBlock: transactionBlock,
+                  requestType: "WaitForLocalExecution",
+                  options: {
+                    showObjectChanges: true,
+                    showEffects: true,
+                  },
+                })
+                .then((result) => {
+                  // TODO: Execute transaction
+                  logger.info(
+                    { strategy: strategy, transaction: result },
+                    "transaction"
+                  );
+                })
+                .catch((e) => {
+                  logger.error(e);
+                });
+
+              transactionBlock = new TransactionBlock();
+            }
           }
+          // await this.signAndExecuteTransactionBlock(transactionBlock);
         }
       }
       await setTimeout(delay);

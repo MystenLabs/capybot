@@ -76,13 +76,14 @@ export class CetusPool extends Pool {
     //   amount_limit: amountLimit.toString(),
     // });
 
-    return this.createTransactionBlock(
+     const txb = await this.createTransactionBlock(
       a2b,
       amountIn,
       amountOut,
       byAmountIn,
       slippage
-    );
+     );
+    return txb;
   }
 
   async createTransactionBlock(
