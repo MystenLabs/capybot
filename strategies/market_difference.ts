@@ -33,7 +33,7 @@ export class MarketDifference extends Strategy {
     }
 
     evaluate(data: DataEntry): Array<TradeOrder> {
-        if (data.uri == this.pool.uri) {
+        if (data.source == this.pool.uri) {
             this.latestPoolPrice = data.price;
             return [];
         }

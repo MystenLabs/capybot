@@ -34,12 +34,12 @@ export class Arbitrage extends Strategy {
     evaluate(data: DataEntry): Array<TradeOrder> {
 
         // This strategy is only interested in the price from the pools it's observing
-        if (data.sourceType != SourceType.Pool || !this.poolChain.map(p => p.pool).includes(data.uri)) {
+        if (data.sourceType != SourceType.Pool || !this.poolChain.map(p => p.pool).includes(data.source)) {
             return [];
         }
 
         // Update history
-        this.latestRate[data.uri] = data.price;
+        this.latestRate[data.source] = data.price;
 
         // Compute the price when exchanging coins around the chain
         let arbitrage = 1;

@@ -28,7 +28,7 @@ export abstract class Pool extends DataSource {
         let price = await this.estimatePrice();
         return {
             sourceType: SourceType.Pool,
-            uri: this.uri,
+            source: this.uri,
             coinTypeFrom: this.coinTypeA,
             coinTypeTo: this.coinTypeB,
             price: price,

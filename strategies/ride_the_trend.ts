@@ -45,7 +45,7 @@ export class RideTheTrend extends Strategy {
     evaluate(data: DataEntry): Array<TradeOrder> {
 
         // This strategy is only interested in the price from the pool it's observing
-        if (data.sourceType != SourceType.Pool || data.uri != this.pool) {
+        if (data.sourceType != SourceType.Pool || data.source != this.pool) {
             return [];
         }
 

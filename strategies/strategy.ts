@@ -34,9 +34,9 @@ export abstract class Strategy {
      */
     protected logStatus(status: Record<string, number>): void {
         logger.info({
-            strategy: this.uri,
+            uri: this.uri,
             data: status,
-        });
+        }, 'strategy status');
     }
 }
 
