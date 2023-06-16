@@ -20,7 +20,7 @@ export abstract class Pool extends DataSource {
 
     abstract preswap(a2b: boolean, amount: number, byAmountIn: boolean): Promise<PreswapResult>;
 
-    abstract createSwapTransaction(a2b: boolean, amountIn: number, amountOut: number, byAmountIn: boolean, slippage: number): Promise<TransactionBlock>;
+    abstract createSwapTransaction(a2b: boolean, amountIn: number, amountOut: number, byAmountIn: boolean, slippage: number): Promise<TransactionBlock | undefined>;
 
     abstract estimatePrice(): Promise<number>;
 

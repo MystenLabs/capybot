@@ -1,11 +1,17 @@
+import {Pool, PreswapResult} from "../pool";
+import {getCoinInfo} from "../../coins/coins";
 import {
   MAX_SQRT_PRICE,
   MIN_SQRT_PRICE,
-  Percentage,
-  SDK,
   adjustForSlippage,
   d,
+  Percentage,
+  SDK,
 } from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
+import BN from "bn.js";
+import {mainnet} from "./mainnet_config";
+import {testnet} from "./testnet_config";
+import { keypair } from "../../index";
 import {
   Connection,
   JsonRpcProvider,
@@ -13,109 +19,69 @@ import {
   TransactionArgument,
   TransactionBlock,
 } from "@mysten/sui.js";
-import BN from "bn.js";
-import { getCoinInfo } from "../../coins/coins";
 import { buildInputCoinForAmount } from "../../utils/utils";
-import { CetusParams } from "../dexsParams";
-import { Pool, PreswapResult } from "../pool";
-import { mainnet } from "./mainnet_config";
-import { testnet } from "./testnet_config";
 
 enum sdkEnv {
-  mainnet = "mainnet",
-  testnet = "testnet",
+    mainnet = "mainnet",
+    testnet = "testnet",
 }
 
 // Use testnet or mainnet.
 const currSdkEnv: sdkEnv = sdkEnv.mainnet;
 
 function buildSdkOptions() {
-  switch (currSdkEnv) {
-    case sdkEnv.mainnet:
-      return mainnet;
-    case sdkEnv.testnet:
-      return testnet;
-  }
+    switch (currSdkEnv) {
+        case sdkEnv.mainnet:
+            return mainnet;
+        case sdkEnv.testnet:
+            return testnet;
+    }
 }
 
-export class CetusPool extends Pool<CetusParams> {
+export class CetusPool extends Pool {
   private sdk: SDK;
   private package: string;
   private module: string;
   private globalConfig: string;
 
-  constructor(
-    address: string,
-    coinTypeA: string,
-    coinTypeB: string,
-    a2b: boolean
-  ) {
-    super(address, coinTypeA, coinTypeB, a2b);
+  constructor(address: string, coinTypeA: string, coinTypeB: string) {
+    super(address, coinTypeA, coinTypeB);
     this.sdk = new SDK(buildSdkOptions());
+    this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
 
-    this.sdk.senderAddress = this.keypair.getPublicKey().toSuiAddress();
     this.package = mainnet.package;
     this.module = mainnet.module;
     this.globalConfig = mainnet.globalConfig;
   }
 
   async createSwapTransaction(
-    params: CetusParams
+    a2b: boolean,
+    amountIn: number,
+    amountOut: number,
+    byAmountIn: boolean,
+    slippage: number
   ): Promise<TransactionBlock | undefined> {
-    console.log(
-      `Swap: (${params.amountIn}) [${
-        this.a2b ? this.coinTypeA : this.coinTypeB
-      }], To: [${!this.a2b ? this.coinTypeA : this.coinTypeB}], pool: ${
-        this.pool
-      }`
-    );
-    const admin = process.env.ADMIN_ADDRESS;
-
-    let provider = new JsonRpcProvider(
-      new Connection({
-        fullnode: mainnet.fullRpcUrl,
-      })
-    );
-
     const amountLimit = adjustForSlippage(
-      new BN(params.amountOut),
-      Percentage.fromDecimal(d(params.slippage)),
+      new BN(amountOut),
+      Percentage.fromDecimal(d(slippage)),
       false
     );
-
-    const functionName = this.a2b ? "swap_a2b" : "swap_b2a";
-    const sqrtPriceLimit = getDefaultSqrtPriceLimit(this.a2b);
-
-    const coins: TransactionArgument[] | undefined =
-      await buildInputCoinForAmount(
-        params.transactionBlock,
-        BigInt(params.amountIn),
-        this.a2b ? this.coinTypeA : this.coinTypeB,
-        admin!,
-        provider
-      );
-
-    if (typeof coins !== "undefined") {
-      params.transactionBlock.moveCall({
-        target: `${this.package}::${this.module}::${functionName}`,
-        arguments: [
-          params.transactionBlock.object(this.globalConfig),
-          params.transactionBlock.object(this.pool),
-          params.transactionBlock.makeMoveVec({
-            objects: coins,
-          }),
-          params.transactionBlock.pure(params.byAmountIn),
-          params.transactionBlock.pure(params.amountIn),
-          params.transactionBlock.pure(amountLimit),
-          params.transactionBlock.pure(sqrtPriceLimit.toString()),
-          params.transactionBlock.object(SUI_CLOCK_OBJECT_ID),
-        ],
-        typeArguments: [this.coinTypeA, this.coinTypeB],
-      });
-
-      return params.transactionBlock;
-    }
-    return undefined;
+    // return this.sdk.Swap.createSwapTransactionPayload({
+    //   pool_id: this.uri,
+    //   coinTypeA: this.coinTypeA,
+    //   coinTypeB: this.coinTypeB,
+    //   a2b: a2b,
+    //   by_amount_in: byAmountIn,
+    //   amount: byAmountIn ? amountIn.toString() : amountOut.toString(),
+    //   amount_limit: amountLimit.toString(),
+    // });
+    return this.createTransactionBlock(
+      a2b,
+      amountIn,
+      amountOut,
+      byAmountIn,
+      slippage
+    );
   }
 
   async preswap(
@@ -123,7 +89,7 @@ export class CetusPool extends Pool<CetusParams> {
     amount: number,
     byAmountIn: boolean
   ): Promise<PreswapResult> {
-    let pool = await this.sdk.Pool.getPool(this.pool);
+    let pool = await this.sdk.Pool.getPool(this.uri);
 
     // Load coin info
     let coinA = getCoinInfo(this.coinTypeA);
@@ -149,12 +115,75 @@ export class CetusPool extends Pool<CetusParams> {
   }
 
   async estimatePrice(): Promise<number> {
-    let pool = await this.sdk.Pool.getPool(this.pool);
+    let pool = await this.sdk.Pool.getPool(this.uri);
     // current_sqrt_price is stored in Q64 format on Cetus
     return pool.current_sqrt_price ** 2 / 2 ** 128;
   }
-}
 
+  async createTransactionBlock(
+    a2b: boolean,
+    amountIn: number,
+    amountOut: number,
+    byAmountIn: boolean,
+    slippage: number
+  ): Promise<TransactionBlock | undefined> {
+    console.log(
+      `Swap: (${amountIn}) [${a2b ? this.coinTypeA : this.coinTypeB}], 
+       To: [${!a2b ? this.coinTypeA : this.coinTypeB}], 
+       pool: ${this.uri}`
+    );
+    const admin = process.env.ADMIN_ADDRESS;
+
+    let provider = new JsonRpcProvider(
+      new Connection({
+        fullnode: mainnet.fullRpcUrl,
+      })
+    );
+
+    const amountLimit = adjustForSlippage(
+      new BN(amountOut),
+      Percentage.fromDecimal(d(slippage)),
+      false
+    );
+
+    const functionName = a2b ? "swap_a2b" : "swap_b2a";
+    const sqrtPriceLimit = getDefaultSqrtPriceLimit(a2b);
+
+    const transactionBlock = new TransactionBlock();
+
+    const coins: TransactionArgument[] | undefined =
+      await buildInputCoinForAmount(
+        transactionBlock,
+        BigInt(amountIn),
+        a2b ? this.coinTypeA : this.coinTypeB,
+        admin!,
+        provider
+      );
+
+    if (typeof coins !== "undefined") {
+      transactionBlock.moveCall({
+        target: `${this.package}::${this.module}::${functionName}`,
+        arguments: [
+          transactionBlock.object(this.globalConfig),
+          transactionBlock.object(this.uri),
+          transactionBlock.makeMoveVec({
+            objects: coins,
+          }),
+          transactionBlock.pure(byAmountIn),
+          transactionBlock.pure(amountIn),
+          transactionBlock.pure(amountLimit),
+          transactionBlock.pure(sqrtPriceLimit.toString()),
+          transactionBlock.object(SUI_CLOCK_OBJECT_ID),
+        ],
+        typeArguments: [this.coinTypeA, this.coinTypeB],
+      });
+
+      return transactionBlock;
+    }
+    return undefined;
+  }
+}
 function getDefaultSqrtPriceLimit(a2b: boolean): BN {
   return new BN(a2b ? MIN_SQRT_PRICE : MAX_SQRT_PRICE);
 }
+
