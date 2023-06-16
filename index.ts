@@ -79,6 +79,8 @@ capybot.addStrategy(new Arbitrage([
     defaultAmount[coins.USDC],
     1.01));
 
+// TODO: Add exchanges as data sources and use MarketDifference strategy once PR #5 lands
+
 logger.info(capybot.strategies, 'strategies');
 
 // Start the bot
