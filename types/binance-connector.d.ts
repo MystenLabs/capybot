@@ -279,4 +279,6 @@ declare module "@binance/connector" {
       options?: OrderOptions
     ): Promise<AxiosResponse<NewOrderResponseType>>;
   }
+
+  export class WebsocketStream {}
 }
