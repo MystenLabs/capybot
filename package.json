@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "description": "Arbitrage Bot",
   "scripts": {
-    "build": "npm i && npx tsc"
+    "build": "npx tsc",
+    "start": "node build/index.js"
   },
-  "author": "Sahil Silare",
   "license": "MIT",
   "devDependencies": {
     "gts": "^3.1.1",
