@@ -1,13 +1,12 @@
 import {DataEntry, SourceType} from "./data_entry";
 import {average} from "simple-statistics";
 import {Strategy} from "./strategy";
-import {TradeSuggestion} from "./trade_suggestion";
+import {TradeOrder} from "./order";
 import {logger} from "../logger";
 
 /**
- * If the change has been consistent over some time in a single pool, buy the corresponding token.
- *
- * More accurately, if the short moving average differs from the long moving average we should either buy or short the given token.
+ * If the price of a token looks like it's going into a period where it's price is increasing we should buy the token.
+ * This is determined by comparing a short moving average to a longer moving average.
  */
 export class RideTheTrend extends Strategy {
 
@@ -20,7 +19,14 @@ export class RideTheTrend extends Strategy {
     private history: Array<DataEntry> = [];
     private readonly limit: number;
 
-    /** Relative limit is percentage, eg. 1.05 for a 5% win */
+    /**
+     * Create a new trend-riding strategy.
+     *
+     * @param pool The address of the pool to watch.
+     * @param short The length of the short moving average.
+     * @param long The length of the long moving average.
+     * @param limit Relative limit is percentage, eg. 1.05 for a 5% win
+     */
     constructor(pool: string, short: number, long: number, limit: number) {
         super("RideTheTrend (" + pool + ", " + short + "/" + long + ")");
         this.short = short;
@@ -29,10 +35,10 @@ export class RideTheTrend extends Strategy {
         this.limit = limit;
     }
 
-    evaluate(data: DataEntry): Array<TradeSuggestion> {
+    evaluate(data: DataEntry): Array<TradeOrder> {
 
         // This strategy is only interested in the price from the pool it's observing
-        if (data.sourceType != SourceType.Pool || data.address != this.pool) {
+        if (data.sourceType != SourceType.Pool || data.uri != this.pool) {
             return [];
         }
 
@@ -52,8 +58,8 @@ export class RideTheTrend extends Strategy {
 
         // We're certain that the history has length this.long at this point
         // TODO: We can do this by streaming instead of recomputing the average every time
-        let short_average = average(this.history.slice(this.history.length - this.short, this.history.length).map(d => d.priceOfB));
-        let long_average = average(this.history.map(d => d.priceOfB));
+        let short_average = average(this.history.slice(this.history.length - this.short, this.history.length).map(d => d.price));
+        let long_average = average(this.history.map(d => d.price));
 
         logger.info({pool: this.pool, value: short_average, range: this.short}, 'moving average')
         logger.info({pool: this.pool, value: long_average, range: this.long}, 'moving average')

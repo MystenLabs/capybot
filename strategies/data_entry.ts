@@ -5,9 +5,9 @@ export enum SourceType {
 
 export type DataEntry = {
     timestamp: number,
-    address: string,
+    uri: string,
     sourceType: SourceType,
-    coinTypeA: string,
-    coinTypeB: string,
-    priceOfB: number,
+    coinTypeFrom: string,
+    coinTypeTo: string,
+    price: number,
 }

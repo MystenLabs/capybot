@@ -37,7 +37,7 @@ export class CetusPool extends Pool {
         const amountLimit = adjustForSlippage(new BN(amountOut), Percentage.fromDecimal(d(slippage)), false);
         return this.sdk.Swap.createSwapTransactionPayload(
             {
-                pool_id: this.address,
+                pool_id: this.uri,
                 coinTypeA: this.coinTypeA,
                 coinTypeB: this.coinTypeB,
                 a2b: a2b,
@@ -49,7 +49,7 @@ export class CetusPool extends Pool {
     }
 
     async preswap(a2b: boolean, amount: number, byAmountIn: boolean): Promise<PreswapResult> {
-        let pool = await this.sdk.Pool.getPool(this.address);
+        let pool = await this.sdk.Pool.getPool(this.uri);
 
         // Load coin info
         let coinA = getCoinInfo(this.coinTypeA);
@@ -75,7 +75,7 @@ export class CetusPool extends Pool {
     }
 
     async estimatePrice(): Promise<number> {
-        let pool = await this.sdk.Pool.getPool(this.address);
+        let pool = await this.sdk.Pool.getPool(this.uri);
         // current_sqrt_price is stored in Q64 format on Cetus
         return pool.current_sqrt_price ** 2 / (2 ** 128);
     }

@@ -76,7 +76,7 @@ capybot.addStrategy(new Arbitrage([
         pool: '0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8',
         a2b: false
     }
-], 1.002));
+], 1.01));
 
 logger.info(capybot.strategies, 'strategies');
 

@@ -1,4 +1,4 @@
-export type TradeSuggestion = {
+export type TradeOrder = {
     pool: string,
     amount: number,
     estimatedPrice: number,

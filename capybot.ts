@@ -3,14 +3,15 @@ import {Strategy} from "./strategies/strategy";
 import {Pool} from "./dexs/pool";
 import {logger} from "./logger";
 import {setTimeout} from "timers/promises";
-import {DataEntry, SourceType} from "./strategies/data_entry";
 import {defaultAmount} from "./index";
+import {DataSource} from "./dexs/data_source";
 
 /**
  * A simple trading bot which subscribes to a number of trading pools across different DEXs. The bot may use multiple
  * strategies to trade on these pools.
  */
 export class Capybot {
+    public dataSources: Record<string, DataSource> = {};
     public pools: Record<string, Pool> = {};
     public strategies: Record<string, Array<Strategy>> = {}
     private keypair: Keypair;
@@ -24,37 +25,29 @@ export class Capybot {
 
         while (new Date().getTime() - startTime < duration) {
 
-            for (const address in this.pools) {
-
-                let pool = this.pools[address];
-                let price = await pool.estimatePrice();
-                let data: DataEntry = {
-                    sourceType: SourceType.Pool,
-                    address: pool.address,
-                    coinTypeA: pool.coinTypeA,
-                    coinTypeB: pool.coinTypeB,
-                    priceOfB: price,
-                    timestamp: new Date().getTime(),
-                };
+            for (const uri in this.dataSources) {
+                let dataSource = this.dataSources[uri];
+                let data = await dataSource.getData();
                 logger.info({
-                    pool: pool.address,
-                    price: price,
+                    price: data,
                 }, 'price')
 
-                // Push new data to all strategies subscribed to this pool
-                for (const strategy of this.strategies[address]) {
+                // Push new data to all strategies subscribed to this data source
+                for (const strategy of this.strategies[uri]) {
 
-                    // Compute a trading decision for this strategy.
-                    let tradeSuggestions = strategy.evaluate(data);
+                    // Get orders for this strategy.
+                    let tradeOrders = strategy.evaluate(data);
 
                     // Execute any suggested trades
-                    for (const tradeSuggestion of tradeSuggestions) {
-                        logger.info({strategy: strategy.name, decision: tradeSuggestion}, 'order');
-                        let amountIn = tradeSuggestion.amount * defaultAmount[tradeSuggestion.a2b ? pool.coinTypeB : pool.coinTypeA];
-                        let expectedAmountOut = tradeSuggestion.estimatedPrice * amountIn;
+                    for (const order of tradeOrders) {
+                        logger.info({strategy: strategy.name, decision: order}, 'order');
+                        let amountIn = order.amount * defaultAmount[order.a2b ?
+                            this.pools[order.pool].coinTypeB :
+                            this.pools[order.pool].coinTypeA];
+                        let expectedAmountOut = order.estimatedPrice * amountIn;
                         // TODO: Do these as a programmable transaction
-                        this.pools[tradeSuggestion.pool].createSwapTransaction(
-                            tradeSuggestion.a2b,
+                        this.pools[order.pool].createSwapTransaction(
+                            order.a2b,
                             amountIn,
                             expectedAmountOut,
                             true,
@@ -74,21 +67,30 @@ export class Capybot {
 
     /** Add a strategy to this bot. The pools it subscribes to must have been added first. */
     addStrategy(strategy: Strategy) {
-        for (const pool of strategy.subscribes_to()) {
-            if (!this.pools.hasOwnProperty(pool)) {
-                throw new Error('Bot does not know the pool with address ' + pool);
+        for (const dataSource of strategy.subscribes_to()) {
+            if (!this.dataSources.hasOwnProperty(dataSource)) {
+                throw new Error('Bot does not know the dataSource with address ' + dataSource);
             }
-            this.strategies[pool].push(strategy);
+            this.strategies[dataSource].push(strategy);
         }
+    }
+
+    /** Add a new price data source for this bot to use */
+    addDataSource(dataSource: DataSource) {
+        if (this.dataSources.hasOwnProperty(dataSource.uri)) {
+            throw new Error('Data source ' + dataSource.uri + " has already been added.");
+        }
+        this.dataSources[dataSource.uri] = dataSource;
+        this.strategies[dataSource.uri] = [];
     }
 
     /** Add a new pool for this bot to use for trading. */
     addPool(pool: Pool) {
-        if (this.pools.hasOwnProperty(pool.address)) {
-            throw new Error('Pool ' + pool.address + " has already been added.");
+        if (this.pools.hasOwnProperty(pool.uri)) {
+            throw new Error('Pool ' + pool.uri + " has already been added.");
         }
-        this.pools[pool.address] = pool;
-        this.strategies[pool.address] = [];
+        this.pools[pool.uri] = pool;
+        this.addDataSource(pool);
     }
 
 }
