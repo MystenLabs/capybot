@@ -1,7 +1,13 @@
 # Capy Arbitrage Bot
 
-This repository contains a simple system for discovering, evaluating, rating, and submitting arbitrage opportunities on different SUI DEXs.
+This repository contains a simple arbitrage bot which is designed to find and take advantage of arbitrage opportunities in different SUI DEXs.
 Since it is still in BETA version, is very unlikely to be profitable.
+
+## Features
+
+- Finds arbitrage opportunities across multiple DEXs.
+- Automatically executes trades when profitable opportunities are found.
+- Supports multiple cryptocurrencies and trading pairs.
 
 ## Installation
 
