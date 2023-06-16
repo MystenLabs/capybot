@@ -1,4 +1,4 @@
-import { BTCtoUSDC, BTCtoUSDT } from "./ticker-price";
+import { BTCtoUSDC, BTCtoUSDT } from "./binance-ticker-price";
 
 let BTCtoUSDTprice: string;
 let BTCtoUSDCprice: string;
