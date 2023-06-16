@@ -1,4 +1,6 @@
 import {TransactionBlock} from "@mysten/sui.js";
+import {DataSource} from "./data_source";
+import {DataEntry, SourceType} from "../strategies/data_entry";
 
 export type PreswapResult = {
     estimatedAmountIn: number,
@@ -6,13 +8,12 @@ export type PreswapResult = {
     estimatedFeeAmount: number,
 }
 
-export abstract class Pool {
-    public address: string;
+export abstract class Pool extends DataSource {
     public coinTypeA: string;
     public coinTypeB: string;
 
     constructor(address: string, coinTypeA: string, coinTypeB: string) {
-        this.address = address;
+        super(address);
         this.coinTypeA = coinTypeA;
         this.coinTypeB = coinTypeB;
     }
@@ -21,7 +22,17 @@ export abstract class Pool {
 
     abstract createSwapTransaction(a2b: boolean, amountIn: number, amountOut: number, byAmountIn: boolean, slippage: number): Promise<TransactionBlock>;
 
-    // TODO: Do we need the tick index here as well?
     abstract estimatePrice(): Promise<number>;
 
+    async getData(): Promise<DataEntry> {
+        let price = await this.estimatePrice();
+        return {
+            sourceType: SourceType.Pool,
+            uri: this.uri,
+            coinTypeFrom: this.coinTypeA,
+            coinTypeTo: this.coinTypeB,
+            price: price,
+            timestamp: new Date().getTime(),
+        };
+    }
 }
