@@ -1,7 +1,6 @@
 import {DataEntry, SourceType} from "./data_entry";
 import {Strategy} from "./strategy";
 import {TradeOrder} from "./order";
-import {logger} from "../logger";
 
 type PoolWithDirection = {
     pool: string,
@@ -12,7 +11,6 @@ export class Arbitrage extends Strategy {
 
     private readonly lowerLimit: number;
     private readonly poolChain: Array<PoolWithDirection>;
-    private readonly poolChainAsString: string;
     private latestRate: Record<string, number> = {};
     private readonly defaultAmount: number;
 
@@ -24,12 +22,13 @@ export class Arbitrage extends Strategy {
      * @param relativeLimit Relative limit is percentage, e.g. 1.05 for a 5% win.
      */
     constructor(poolChain: Array<PoolWithDirection>, defaultAmount: number, relativeLimit: number) {
-        super("Arbitrage (" + poolChain.map(p => p.pool) + ")");
+        super({
+            name: "Arbitrage",
+            poolChain: poolChain,
+        });
         this.poolChain = poolChain;
         this.defaultAmount = defaultAmount;
         this.lowerLimit = relativeLimit;
-        // A short string representation of the pools used. Used for logging and debugging
-        this.poolChainAsString = this.poolChain.map(p => p.pool.substring(0, 8)).toString();
     }
 
     evaluate(data: DataEntry): Array<TradeOrder> {
@@ -48,14 +47,12 @@ export class Arbitrage extends Strategy {
             let rate = this.getLatestRate(pool.pool, pool.a2b);
             if (rate == undefined) {
                 // Not all pools have a registered value yet.
-                return [];
+                arbitrage = 1;
+                break;
             }
             arbitrage *= rate;
         }
-        logger.info({
-            arbitrage: arbitrage,
-            poolChain: this.poolChainAsString
-        }, 'arbitrage');
+        this.logStatus({arbitrage: arbitrage});
 
         if (arbitrage > this.lowerLimit) {
             let orders = [];

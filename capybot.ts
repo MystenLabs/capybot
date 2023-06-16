@@ -39,7 +39,7 @@ export class Capybot {
 
                     // Execute any suggested trades
                     for (const order of tradeOrders) {
-                        logger.info({strategy: strategy.name, decision: order}, 'order');
+                        logger.info({strategy: strategy.uri, decision: order}, 'order');
                         let amountIn = order.amountIn;
                         let expectedAmountOut = order.estimatedPrice * amountIn;
                         // TODO: Do these as a programmable transaction
