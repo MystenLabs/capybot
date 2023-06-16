@@ -15,9 +15,14 @@ Since it is still in BETA version, is very unlikely to be profitable.
 2. Install dependencies with `npm install`.
 
 ## Usage
+Export the `ADMIN_PHRASE` and the `ADMIN_ADDRESS`:
+```shell
+export ADMIN_PHRASE=""
+export ADMIN_ADDRESS="0x..."
+```
 
-1. Build the project with `npm run build`.
-2. Run the script with `npm run start`.
+1. Build the project with `npm run build`
+2. Run the script with `npm run start`
 
 ## Contributing
 
