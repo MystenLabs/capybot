@@ -1,5 +1,5 @@
 import {DataEntry} from "./data_entry";
-import {TradeSuggestion} from "./trade_suggestion";
+import {TradeOrder} from "./order";
 
 export abstract class Strategy {
     name: string;
@@ -16,10 +16,10 @@ export abstract class Strategy {
      * @param pool
      * @param data
      */
-    abstract evaluate(data: DataEntry): Array<TradeSuggestion>;
+    abstract evaluate(data: DataEntry): Array<TradeOrder>;
 
     /**
-     * The amount of data points required for this strategy to make a decision.
+     * The pools and coin types this pool needs information from.
      */
     abstract subscribes_to(): Array<string>;
 }

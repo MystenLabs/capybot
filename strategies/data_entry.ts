@@ -1,8 +1,13 @@
-import { CetusParams, SuiswapParams, TurbosParams } from "../dexs/dexsParams";
-import { Pool } from "../dexs/pool";
+export enum SourceType {
+    Pool,
+    Exchange,
+}
 
 export type DataEntry = {
-  timestamp: number;
-  pool: Pool<CetusParams | SuiswapParams | TurbosParams>;
-  priceOfB: number;
-};
+    timestamp: number,
+    uri: string,
+    sourceType: SourceType,
+    coinTypeFrom: string,
+    coinTypeTo: string,
+    price: number,
+}
