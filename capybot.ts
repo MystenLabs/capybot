@@ -1,10 +1,15 @@
-import { Connection, JsonRpcProvider, Keypair, RawSigner } from "@mysten/sui.js";
+import {
+  Connection,
+  JsonRpcProvider,
+  Keypair,
+  RawSigner,
+  TransactionBlock,
+} from "@mysten/sui.js";
 import { Strategy } from "./strategies/strategy";
 import { Pool } from "./dexs/pool";
 import { logger } from "./logger";
 import { setTimeout } from "timers/promises";
 import { DataSource } from "./dexs/data_source";
-import {TransactionBlock} from "@mysten/sui.js";
 
 /**
  * A simple trading bot which subscribes to a number of trading pools across different DEXs. The bot may use multiple
