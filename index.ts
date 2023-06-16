@@ -1,4 +1,3 @@
-import {logger} from "./logger";
 import {CetusPool} from "./dexs/cetus/cetus";
 import {RideTheTrend} from "./strategies/ride_the_trend";
 import {Arbitrage} from "./strategies/arbitrage";
