@@ -1,64 +1,38 @@
-import { Ed25519Keypair, TransactionBlock } from "@mysten/sui.js";
-import { CetusParams, SuiswapParams, TurbosParams } from "./dexsParams";
+import {TransactionBlock} from "@mysten/sui.js";
+import {DataSource} from "./data_source";
+import {DataEntry, SourceType} from "../strategies/data_entry";
 
 export type PreswapResult = {
-  estimatedAmountIn: number;
-  estimatedAmountOut: number;
-  estimatedFeeAmount: number;
-};
+    estimatedAmountIn: number,
+    estimatedAmountOut: number,
+    estimatedFeeAmount: number,
+}
 
-export abstract class Pool<
-  C extends CetusParams | SuiswapParams | TurbosParams
-> {
-  protected _pool: string;
-  protected _coinTypeA: string;
-  protected _coinTypeB: string;
-  protected _a2b: boolean;
-  protected _keypair: Ed25519Keypair;
+export abstract class Pool extends DataSource {
+    public coinTypeA: string;
+    public coinTypeB: string;
 
-  constructor(
-    pool: string,
-    coinTypeA: string,
-    coinTypeB: string,
-    a2b: boolean
-  ) {
-    this._pool = pool;
-    this._coinTypeA = coinTypeA;
-    this._coinTypeB = coinTypeB;
-    this._a2b = a2b;
-    this._keypair = Ed25519Keypair.deriveKeypair(process.env.ADMIN_PHRASE!);
-  }
+    constructor(address: string, coinTypeA: string, coinTypeB: string) {
+        super(address);
+        this.coinTypeA = coinTypeA;
+        this.coinTypeB = coinTypeB;
+    }
 
-  public get pool(): string {
-    return this._pool;
-  }
+    abstract preswap(a2b: boolean, amount: number, byAmountIn: boolean): Promise<PreswapResult>;
 
-  public get coinTypeA(): string {
-    return this._coinTypeA;
-  }
+    abstract createSwapTransaction(a2b: boolean, amountIn: number, amountOut: number, byAmountIn: boolean, slippage: number): Promise<TransactionBlock>;
 
-  public get coinTypeB(): string {
-    return this._coinTypeB;
-  }
+    abstract estimatePrice(): Promise<number>;
 
-  public get a2b(): boolean {
-    return this._a2b;
-  }
-
-  public get keypair(): Ed25519Keypair {
-    return this._keypair;
-  }
-
-  abstract preswap(
-    a2b: boolean,
-    amount: number,
-    byAmountIn: boolean
-  ): Promise<PreswapResult>;
-
-  abstract createSwapTransaction(
-    params: C
-  ): Promise<TransactionBlock | undefined>;
-
-  // TODO: Do we need the tick index here as well?
-  abstract estimatePrice(): Promise<number>;
+    async getData(): Promise<DataEntry> {
+        let price = await this.estimatePrice();
+        return {
+            sourceType: SourceType.Pool,
+            uri: this.uri,
+            coinTypeFrom: this.coinTypeA,
+            coinTypeTo: this.coinTypeB,
+            price: price,
+            timestamp: new Date().getTime(),
+        };
+    }
 }
