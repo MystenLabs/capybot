@@ -22,6 +22,16 @@ export class Capybot {
     async loop(duration: number, delay: number) {
         let startTime = new Date().getTime();
 
+        let uniqueStrategies: Record<string, any> = {};
+        for (const pool in this.strategies) {
+            for (const strategy of this.strategies[pool]) {
+                if (!uniqueStrategies.hasOwnProperty(strategy.uri)) {
+                    uniqueStrategies[strategy.uri] = strategy["parameters"];
+                }
+            }
+        }
+        logger.info({strategies: uniqueStrategies}, 'strategies');
+
         while (new Date().getTime() - startTime < duration) {
 
             for (const uri in this.dataSources) {
@@ -39,7 +49,7 @@ export class Capybot {
 
                     // Execute any suggested trades
                     for (const order of tradeOrders) {
-                        logger.info({strategy: strategy.name, decision: order}, 'order');
+                        logger.info({strategy: strategy.uri, decision: order}, 'order');
                         let amountIn = order.amountIn;
                         let expectedAmountOut = order.estimatedPrice * amountIn;
                         // TODO: Do these as a programmable transaction
@@ -48,7 +58,7 @@ export class Capybot {
                             amountIn,
                             expectedAmountOut,
                             true,
-                            5, // Allow for 5% slippage (??)
+                            1, // Allow for 1% slippage (??)
                         ).then((result) => {
                             // TODO: Execute transaction
                             logger.info({strategy: strategy, transaction: result}, 'transaction');
