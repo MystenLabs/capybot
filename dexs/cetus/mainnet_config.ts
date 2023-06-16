@@ -34,68 +34,54 @@ const SDKConfig = {
 }
 
 export const mainnet = {
-  //fullRpcUrl: 'https://sui-mainnet-endpoint.blockvision.org',
-  //fullRpcUrl: 'https://rpc-mainnet.suiscan.xyz:443',
-  fullRpcUrl: "https://fullnode.mainnet.sui.io",
-  faucetURL: "",
-  faucet: {
-    faucet_display:
-      "0x0588cff9a50e0eaf4cd50d337c1a36570bc1517793fd3303e1513e8ad4d2aa96",
-    faucet_router:
-      "0x0588cff9a50e0eaf4cd50d337c1a36570bc1517793fd3303e1513e8ad4d2aa96",
-  },
-  simulationAccount: {
-    address:
-      "0x326ce9894f08dcaa337fa232641cc34db957aec9ff6614c1186bc9a7508df0bb",
-  },
-  token: {
-    token_display:
-      "0x481fb627bf18bc93c02c41ada3cc8b574744ef23c9d5e3136637ae3076e71562",
-    config: SDKConfig.tokenConfig,
-  },
-  clmm: {
-    clmm_display:
-      "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
-    clmm_router: {
-      cetus:
-        "0xe18f7c41e055692946d2bbaf1531af76d297473d2c2c110a0840befec5960be1",
-      deepbook: "",
+    //fullRpcUrl: 'https://sui-mainnet-endpoint.blockvision.org',
+    //fullRpcUrl: 'https://rpc-mainnet.suiscan.xyz:443',
+    fullRpcUrl: 'https://fullnode.mainnet.sui.io',
+    faucetURL: '',
+    faucet: {
+        faucet_display: '0x0588cff9a50e0eaf4cd50d337c1a36570bc1517793fd3303e1513e8ad4d2aa96',
+        faucet_router: '0x0588cff9a50e0eaf4cd50d337c1a36570bc1517793fd3303e1513e8ad4d2aa96',
     },
-    config: SDKConfig.clmmConfig,
-  },
-  launchpad: {
-    ido_display:
-      "0x80d114c5d474eabc2eb2fcd1a0903f1eb5b5096a8dc4184d72453f7a9be728e4",
-    ido_router:
-      "0x80d114c5d474eabc2eb2fcd1a0903f1eb5b5096a8dc4184d72453f7a9be728e4",
-    config_display:
-      "0x631889e37e45cda904a7c34dd3b81df6dd4f33ae125bcd231a28c106e1d298ff",
-    config: SDKConfig.launchpadConfig,
-  },
-  xcetus: {
-    xcetus_display:
-      "0x9e69acc50ca03bc943c4f7c5304c2a6002d507b51c11913b247159c60422c606",
-    xcetus_router:
-      "0x9e69acc50ca03bc943c4f7c5304c2a6002d507b51c11913b247159c60422c606",
-    dividends_display:
-      "0x785248249ac457dfd378bdc6d2fbbfec9d1daf65e9d728b820eb4888c8da2c10",
-    dividends_router:
-      "0x785248249ac457dfd378bdc6d2fbbfec9d1daf65e9d728b820eb4888c8da2c10",
-    cetus_faucet:
-      "0x6864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b",
-    config: SDKConfig.xcetusConfig,
-  },
-  booster: {
-    booster_display: "",
-    booster_router: "",
-    config: SDKConfig.boosterConfig,
-  },
-  maker_bonus: {
-    maker_display: "",
-    maker_router: "",
-    config: SDKConfig.makerBonusConfig,
-  },
-  package: "0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be",
-  module: "pool_script",
-  globalConfig: "0xdaa46292632c3c4d8f31f23ea0f9b36a28ff3677e9684980e4438403a67a3d8f",
-};
+    simulationAccount: {
+        address: '0x326ce9894f08dcaa337fa232641cc34db957aec9ff6614c1186bc9a7508df0bb',
+    },
+    token: {
+        token_display: '0x481fb627bf18bc93c02c41ada3cc8b574744ef23c9d5e3136637ae3076e71562',
+        config: SDKConfig.tokenConfig,
+    },
+    clmm: {
+        clmm_display: '0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb',
+        clmm_router: {
+            cetus: '0xe18f7c41e055692946d2bbaf1531af76d297473d2c2c110a0840befec5960be1',
+            deepbook: '',
+        },
+        config: SDKConfig.clmmConfig,
+    },
+    launchpad: {
+        ido_display: '0x80d114c5d474eabc2eb2fcd1a0903f1eb5b5096a8dc4184d72453f7a9be728e4',
+        ido_router: '0x80d114c5d474eabc2eb2fcd1a0903f1eb5b5096a8dc4184d72453f7a9be728e4',
+        config_display: '0x631889e37e45cda904a7c34dd3b81df6dd4f33ae125bcd231a28c106e1d298ff',
+        config: SDKConfig.launchpadConfig,
+    },
+    xcetus: {
+        xcetus_display: '0x9e69acc50ca03bc943c4f7c5304c2a6002d507b51c11913b247159c60422c606',
+        xcetus_router: '0x9e69acc50ca03bc943c4f7c5304c2a6002d507b51c11913b247159c60422c606',
+        dividends_display: '0x785248249ac457dfd378bdc6d2fbbfec9d1daf65e9d728b820eb4888c8da2c10',
+        dividends_router: '0x785248249ac457dfd378bdc6d2fbbfec9d1daf65e9d728b820eb4888c8da2c10',
+        cetus_faucet: '0x6864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b',
+        config: SDKConfig.xcetusConfig,
+    },
+    booster: {
+        booster_display: '',
+        booster_router: '',
+        config: SDKConfig.boosterConfig,
+    },
+    maker_bonus: {
+        maker_display: "",
+        maker_router: "",
+        config: SDKConfig.makerBonusConfig,
+    },
+    package: "0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be",
+    module: "pool_script",
+    globalConfig: "0xdaa46292632c3c4d8f31f23ea0f9b36a28ff3677e9684980e4438403a67a3d8f"
+}
