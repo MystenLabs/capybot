@@ -6,29 +6,16 @@ import {
   TransactionBlock,
 } from "@mysten/sui.js";
 import { coins } from "../..";
-import { CetusPool } from "./cetus";
+import { TurbosPool } from "./turbos";
 
 let transactionBlock: TransactionBlock = new TransactionBlock();
 
-// USDC -> SUI
-const USDCtoSUI = new CetusPool(
+// SUI -> USDT
+const SUItoUSDT = new TurbosPool(
   "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
   coins.USDC,
-  coins.SUI
-);
-
-// SUI -> CETUS
-const CETUStoSUI = new CetusPool(
-  "0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded",
-  coins.CETUS,
-  coins.SUI
-);
-
-// CETUS -> USDC
-const USDCtoCETUS = new CetusPool(
-  "0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8",
-  coins.USDC,
-  coins.CETUS
+  coins.SUI,
+  "0x91bfbc386a41afcfd9b2533058d7e915a1d3829089cc268ff4333d54d6339ca1::fee3000bps::FEE3000BPS"
 );
 
 const phrase = process.env.ADMIN_PHRASE;
@@ -42,36 +29,21 @@ let provider = new JsonRpcProvider(
 const signer = new RawSigner(keypair, provider);
 
 let a2b: boolean = true;
-const amountIn: number = 10000;
-const amountOut: number = 10000;
-const byAmountIn: boolean = true;
+const amountIn: number = 1000000000;
+const amountSpecifiedIsInput: boolean = true;
 const slippage: number = 5; // Allow for 5% slippage (??)
 
-const getUSDCtoSUITransactionBlock = async () => {
-  const txb = await USDCtoSUI.createSwapTransaction({
+const getSUItoUSDTTransactionBlock = async () => {
+  const txb = await SUItoUSDT.createSwapTransaction({
     a2b,
     amountIn,
-    amountOut,
-    byAmountIn,
+    amountSpecifiedIsInput,
     slippage,
   });
   if (typeof txb !== "undefined") transactionBlock = txb;
 };
 
-a2b = false;
-const getCETUStoSUITransactionBlock = async () => {
-  const txb = await CETUStoSUI.createSwapTransaction({
-    a2b,
-    amountIn,
-    amountOut,
-    byAmountIn,
-    slippage,
-  });
-  if (typeof txb !== "undefined") transactionBlock = txb;
-};
-
-// getUSDCtoSUITransactionBlock().then((res) => {
-getCETUStoSUITransactionBlock().then((res) => {
+getSUItoUSDTTransactionBlock().then(() => {
   signer
     .signAndExecuteTransactionBlock({
       transactionBlock: transactionBlock,
@@ -85,4 +57,3 @@ getCETUStoSUITransactionBlock().then((res) => {
       console.log("executed! result = ", res);
     });
 });
-// });
