@@ -10,8 +10,10 @@ import {
   Connection,
   JsonRpcProvider,
   SUI_CLOCK_OBJECT_ID,
+  SuiObjectResponse,
   TransactionArgument,
   TransactionBlock,
+  getObjectFields,
 } from "@mysten/sui.js";
 import BN from "bn.js";
 import { getCoinInfo } from "../../coins/coins";
@@ -43,6 +45,7 @@ export class CetusPool extends Pool {
   private package: string;
   private module: string;
   private globalConfig: string;
+  private provider: JsonRpcProvider;
 
   constructor(address: string, coinTypeA: string, coinTypeB: string) {
     super(address, coinTypeA, coinTypeB);
@@ -52,6 +55,11 @@ export class CetusPool extends Pool {
     this.package = mainnet.package;
     this.module = mainnet.module;
     this.globalConfig = mainnet.globalConfig;
+    this.provider = new JsonRpcProvider(
+      new Connection({
+        fullnode: mainnet.fullRpcUrl,
+      })
+    );
   }
 
   async createSwapTransaction(
@@ -76,13 +84,13 @@ export class CetusPool extends Pool {
     //   amount_limit: amountLimit.toString(),
     // });
 
-     const txb = await this.createTransactionBlock(
+    const txb = await this.createTransactionBlock(
       a2b,
       amountIn,
       amountOut,
       byAmountIn,
       slippage
-     );
+    );
     return txb;
   }
 
@@ -99,12 +107,6 @@ export class CetusPool extends Pool {
        pool: ${this.uri}`
     );
     const admin = process.env.ADMIN_ADDRESS;
-
-    let provider = new JsonRpcProvider(
-      new Connection({
-        fullnode: mainnet.fullRpcUrl,
-      })
-    );
 
     const amountLimit = adjustForSlippage(
       new BN(amountOut),
@@ -123,7 +125,7 @@ export class CetusPool extends Pool {
         BigInt(amountIn),
         a2b ? this.coinTypeA : this.coinTypeB,
         admin!,
-        provider
+        this.provider
       );
 
     if (typeof coins !== "undefined") {
@@ -180,9 +182,15 @@ export class CetusPool extends Pool {
   }
 
   async estimatePrice(): Promise<number> {
-    let pool = await this.sdk.Pool.getPool(this.uri);
-    // current_sqrt_price is stored in Q64 format on Cetus
-    return pool.current_sqrt_price ** 2 / 2 ** 128;
+    const obj: SuiObjectResponse = await this.provider.getObject({
+      id: this.uri,
+      options: { showContent: true, showType: true },
+    });
+    let objFields = null;
+    if (obj && obj.data?.content?.dataType === "moveObject") {
+      objFields = getObjectFields(obj);
+    }
+    return objFields?.current_sqrt_price ** 2 / 2 ** 128;
   }
 }
 
