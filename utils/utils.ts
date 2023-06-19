@@ -183,7 +183,7 @@ export async function getTotalBalanceByCoinType(
   });
 
   console.log(
-    `TotalBalance for CoinType (${coinType}), is: ${amountTotal.totalBalance}`
+    `TotalBalance for CoinType (${coinType}), is: ${amountTotal.totalBalance} and the owner is: ${owner}`
   );
 
   return amountTotal.totalBalance;
