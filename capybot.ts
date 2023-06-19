@@ -67,7 +67,6 @@ export class Capybot {
           let tradeOrders = strategy.evaluate(data);
 
           let transactionBlock: TransactionBlock = new TransactionBlock();
-          transactionBlock.setGasBudget(1500000000);
 
           // Execute any suggested trades
           for (const order of tradeOrders) {
@@ -87,6 +86,7 @@ export class Capybot {
             });
             if (typeof txb !== "undefined") {
               transactionBlock = txb;
+              //   transactionBlock.setGasBudget(1500000000);
 
               await this.signer
                 .signAndExecuteTransactionBlock({
