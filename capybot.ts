@@ -50,15 +50,15 @@ export class Capybot {
                     // Execute any suggested trades
                     for (const order of tradeOrders) {
                         logger.info({strategy: strategy.uri, decision: order}, 'order');
-                        let amountIn = order.amountIn;
-                        let expectedAmountOut = order.estimatedPrice * amountIn;
+                        let amountIn = order.amountIn
+                        let expectedAmountOut = Math.round(order.estimatedPrice * amountIn);
                         // TODO: Do these as a programmable transaction
                         this.pools[order.pool].createSwapTransaction(
                             order.a2b,
                             amountIn,
                             expectedAmountOut,
                             true,
-                            1, // Allow for 1% slippage (??)
+                            5, // Allow for 0.5% slippage (??)
                         ).then((result) => {
                             // TODO: Execute transaction
                             logger.info({strategy: strategy, transaction: result}, 'transaction');
