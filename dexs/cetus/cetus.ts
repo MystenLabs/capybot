@@ -1,45 +1,20 @@
-import {
-  MAX_SQRT_PRICE,
-  MIN_SQRT_PRICE,
+import SDK, {
   Percentage,
-  SDK,
+  SdkOptions,
   adjustForSlippage,
   d,
 } from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
-import {
-  Connection,
-  JsonRpcProvider,
-  SUI_CLOCK_OBJECT_ID,
-  SuiObjectResponse,
-  TransactionArgument,
-  TransactionBlock,
-  getObjectFields,
-} from "@mysten/sui.js";
+import { Connection, JsonRpcProvider, TransactionBlock } from "@mysten/sui.js";
 import BN from "bn.js";
 import { getCoinInfo } from "../../coins/coins";
-import { keypair } from "../../index";
-import { buildInputCoinForAmount } from "../../utils/utils";
+import { getTotalBalanceByCoinType } from "../../utils/utils";
 import { cetusConfig } from "../dexsConfig";
 import { CetusParams } from "../dexsParams";
 import { Pool, PreswapResult } from "../pool";
 import { mainnet } from "./mainnet_config";
-import { testnet } from "./testnet_config";
 
-enum sdkEnv {
-  mainnet = "mainnet",
-  testnet = "testnet",
-}
-
-// Use testnet or mainnet.
-const currSdkEnv: sdkEnv = sdkEnv.mainnet;
-
-function buildSdkOptions() {
-  switch (currSdkEnv) {
-    case sdkEnv.mainnet:
-      return mainnet;
-    case sdkEnv.testnet:
-      return testnet;
-  }
+function buildSdkOptions(): SdkOptions {
+  return mainnet;
 }
 
 export class CetusPool extends Pool<CetusParams> {
@@ -48,11 +23,12 @@ export class CetusPool extends Pool<CetusParams> {
   private module: string;
   private globalConfig: string;
   private provider: JsonRpcProvider;
+  private ownerAddress: string;
 
   constructor(address: string, coinTypeA: string, coinTypeB: string) {
     super(address, coinTypeA, coinTypeB);
     this.sdk = new SDK(buildSdkOptions());
-    this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
+    this.sdk.senderAddress = process.env.ADMIN_ADDRESS!;
 
     this.package = cetusConfig.contract.PackageId;
     this.module = cetusConfig.contract.ModuleId;
@@ -62,6 +38,7 @@ export class CetusPool extends Pool<CetusParams> {
         fullnode: mainnet.fullRpcUrl,
       })
     );
+    this.ownerAddress = process.env.ADMIN_ADDRESS!;
   }
 
   async createSwapTransaction(
@@ -72,79 +49,35 @@ export class CetusPool extends Pool<CetusParams> {
       Percentage.fromDecimal(d(params.slippage)),
       false
     );
-    // return this.sdk.Swap.createSwapTransactionPayload({
-    //   pool_id: this.uri,
-    //   coinTypeA: this.coinTypeA,
-    //   coinTypeB: this.coinTypeB,
-    //   a2b: a2b,
-    //   by_amount_in: byAmountIn,
-    //   amount: byAmountIn ? amountIn.toString() : amountOut.toString(),
-    //   amount_limit: amountLimit.toString(),
-    // });
 
-    const txb = await this.createTransactionBlock(
-      params.a2b,
-      params.amountIn,
-      params.amountOut,
-      params.byAmountIn,
-      params.slippage
+    const totalBalance = await getTotalBalanceByCoinType(
+      this.provider,
+      this.ownerAddress,
+      params.a2b ? this.coinTypeA : this.coinTypeB
     );
-    return txb;
-  }
 
-  async createTransactionBlock(
-    a2b: boolean,
-    amountIn: number,
-    amountOut: number,
-    byAmountIn: boolean,
-    slippage: number
-  ): Promise<TransactionBlock | undefined> {
     console.log(
-      `Swap: (${amountIn}) [${a2b ? this.coinTypeA : this.coinTypeB}], 
-       To: [${!a2b ? this.coinTypeA : this.coinTypeB}], 
-       pool: ${this.uri}`
-    );
-    const admin = process.env.ADMIN_ADDRESS;
-
-    const amountLimit = adjustForSlippage(
-      new BN(amountOut),
-      Percentage.fromDecimal(d(slippage)),
-      false
+      `TotalBalance for CoinType (${
+        params.a2b ? this.coinTypeA : this.coinTypeB
+      }), is: ${totalBalance} and amountIn is: ${params.amountIn}`
     );
 
-    const functionName = a2b ? "swap_a2b" : "swap_b2a";
-    const sqrtPriceLimit = getDefaultSqrtPriceLimit(a2b);
-
-    const transactionBlock = new TransactionBlock();
-
-    const coins: TransactionArgument[] | undefined =
-      await buildInputCoinForAmount(
-        transactionBlock,
-        BigInt(amountIn),
-        a2b ? this.coinTypeA : this.coinTypeB,
-        admin!,
-        this.provider
+    if (Number(totalBalance) >= params.amountIn) {
+      console.log(
+        `******* a2b: ${params.a2b}, amountIn: ${params.amountIn}, amountOut: ${params.amountOut}, byAmountIn: ${params.byAmountIn}, slippage: ${params.slippage}`
       );
 
-    if (typeof coins !== "undefined") {
-      transactionBlock.moveCall({
-        target: `${this.package}::${this.module}::${functionName}`,
-        arguments: [
-          transactionBlock.object(this.globalConfig),
-          transactionBlock.object(this.uri),
-          transactionBlock.makeMoveVec({
-            objects: coins,
-          }),
-          transactionBlock.pure(byAmountIn),
-          transactionBlock.pure(amountIn),
-          transactionBlock.pure(amountLimit),
-          transactionBlock.pure(sqrtPriceLimit.toString()),
-          transactionBlock.object(SUI_CLOCK_OBJECT_ID),
-        ],
-        typeArguments: [this.coinTypeA, this.coinTypeB],
+      return this.sdk.Swap.createSwapTransactionPayload({
+        pool_id: this.uri,
+        coinTypeA: this.coinTypeA,
+        coinTypeB: this.coinTypeB,
+        a2b: params.a2b,
+        by_amount_in: params.byAmountIn,
+        amount: params.byAmountIn
+          ? params.amountIn.toString()
+          : params.amountOut.toString(),
+        amount_limit: amountLimit.toString(),
       });
-
-      return transactionBlock;
     }
     return undefined;
   }
@@ -180,18 +113,21 @@ export class CetusPool extends Pool<CetusParams> {
   }
 
   async estimatePrice(): Promise<number> {
-    const obj: SuiObjectResponse = await this.provider.getObject({
-      id: this.uri,
-      options: { showContent: true, showType: true },
-    });
-    let objFields = null;
-    if (obj && obj.data?.content?.dataType === "moveObject") {
-      objFields = getObjectFields(obj);
-    }
-    return objFields?.current_sqrt_price ** 2 / 2 ** 128;
+    // const obj: SuiObjectResponse = await this.provider.getObject({
+    //   id: this.uri,
+    //   options: { showContent: true, showType: true },
+    // });
+    // let objFields = null;
+    // if (obj && obj.data?.content?.dataType === "moveObject") {
+    //   objFields = getObjectFields(obj);
+    // }
+    // return objFields?.current_sqrt_price ** 2 / 2 ** 128;
+
+    let pool = await this.sdk.Pool.getPool(this.uri);
+    return pool.current_sqrt_price ** 2 / 2 ** 128;
   }
 }
 
-function getDefaultSqrtPriceLimit(a2b: boolean): BN {
-  return new BN(a2b ? MIN_SQRT_PRICE : MAX_SQRT_PRICE);
-}
+// function getDefaultSqrtPriceLimit(a2b: boolean): BN {
+//   return new BN(a2b ? MIN_SQRT_PRICE : MAX_SQRT_PRICE);
+// }
