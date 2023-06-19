@@ -27,6 +27,9 @@ defaultAmount[coins.WETH] = 1000_000;
 defaultAmount[coins.TOCE] = 1_000_000_000_000;
 defaultAmount[coins.USDT] = 10_000_000;
 
+const RIDE_THE_THREAD_LIMIT = 1.00001;
+const ARBITAGE_RELATIVE_LIMIT = 1.002;
+
 // Setup wallet from passphrase.
 const phrase = process.env.ADMIN_PHRASE;
 export const keypair = Ed25519Keypair.deriveKeypair(phrase!);
@@ -62,7 +65,7 @@ capybot.addStrategy(
       defaultAmount[cetusUSDCtoSUI.coinTypeA],
       defaultAmount[cetusUSDCtoSUI.coinTypeB],
     ],
-    1.00001
+    RIDE_THE_THREAD_LIMIT
   )
 );
 capybot.addStrategy(
@@ -74,7 +77,7 @@ capybot.addStrategy(
       defaultAmount[cetusCETUStoSUI.coinTypeA],
       defaultAmount[cetusCETUStoSUI.coinTypeB],
     ],
-    1.00001
+    RIDE_THE_THREAD_LIMIT
   )
 );
 capybot.addStrategy(
@@ -86,7 +89,7 @@ capybot.addStrategy(
       defaultAmount[cetusUSDCtoCETUS.coinTypeA],
       defaultAmount[cetusUSDCtoCETUS.coinTypeB],
     ],
-    1.00001
+    RIDE_THE_THREAD_LIMIT
   )
 );
 
@@ -108,7 +111,7 @@ capybot.addStrategy(
       },
     ],
     defaultAmount[coins.USDC],
-    1.002
+    ARBITAGE_RELATIVE_LIMIT
   )
 );
 
