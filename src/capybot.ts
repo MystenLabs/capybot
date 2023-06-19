@@ -66,7 +66,7 @@ export class Capybot {
           // Get orders for this strategy.
           let tradeOrders = strategy.evaluate(data);
 
-          let transactionBlock: TransactionBlock = new TransactionBlock();
+          let transactionBlock: TransactionBlock | undefined;
 
           // Execute any suggested trades
           for (const order of tradeOrders) {
@@ -77,20 +77,19 @@ export class Capybot {
             const byAmountIn: boolean = true;
             const slippage: number = 1;
 
-            const txb = await this.pools[order.pool].createSwapTransaction({
+            transactionBlock = await this.pools[
+              order.pool
+            ].createSwapTransaction({
               a2b,
               amountIn,
               amountOut,
               byAmountIn,
               slippage, // Allow for 1% slippage (??)
             });
-            if (typeof txb !== "undefined") {
-              transactionBlock = txb;
-              //   transactionBlock.setGasBudget(1500000000);
-
+            if (typeof transactionBlock !== "undefined") {
               await this.signer
                 .signAndExecuteTransactionBlock({
-                  transactionBlock: transactionBlock,
+                  transactionBlock,
                   requestType: "WaitForLocalExecution",
                   options: {
                     showObjectChanges: true,

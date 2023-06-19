@@ -41,9 +41,7 @@ export class CetusPool extends Pool<CetusParams> {
     this.ownerAddress = process.env.ADMIN_ADDRESS!;
   }
 
-  async createSwapTransaction(
-    params: CetusParams
-  ): Promise<TransactionBlock | undefined> {
+  async createSwapTransaction(params: CetusParams): Promise<TransactionBlock> {
     const totalBalance = await getTotalBalanceByCoinType(
       this.provider,
       this.ownerAddress,
@@ -58,7 +56,7 @@ export class CetusPool extends Pool<CetusParams> {
 
     if (Number(totalBalance) >= params.amountIn) {
       console.log(
-        `******* a2b: ${params.a2b}, amountIn: ${params.amountIn}, amountOut: ${params.amountOut}, byAmountIn: ${params.byAmountIn}, slippage: ${params.slippage}`
+        `a2b: ${params.a2b}, amountIn: ${params.amountIn}, amountOut: ${params.amountOut}, byAmountIn: ${params.byAmountIn}, slippage: ${params.slippage}`
       );
 
       // fix input token amount
@@ -99,17 +97,20 @@ export class CetusPool extends Pool<CetusParams> {
       );
 
       // build swap Payload
-      return await this.sdk.Swap.createSwapTransactionPayload({
-        pool_id: pool.poolAddress,
-        coinTypeA: pool.coinTypeA,
-        coinTypeB: pool.coinTypeB,
-        a2b: params.a2b,
-        by_amount_in: byAmountIn,
-        amount: res.amount.toString(),
-        amount_limit: amountLimit.toString(),
-      });
+      const transactionBlock: TransactionBlock =
+        await this.sdk.Swap.createSwapTransactionPayload({
+          pool_id: pool.poolAddress,
+          coinTypeA: pool.coinTypeA,
+          coinTypeB: pool.coinTypeB,
+          a2b: params.a2b,
+          by_amount_in: byAmountIn,
+          amount: res.amount.toString(),
+          amount_limit: amountLimit.toString(),
+        });
+
+      return transactionBlock;
     }
-    return undefined;
+    return new TransactionBlock();
   }
 
   async preswap(
