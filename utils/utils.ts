@@ -243,9 +243,7 @@ export async function buildInputCoinForAmount(
   }
 
   if (isSUI(coinType)) {
-    console.log(
-      `isSUI. owner: (${owner}), coinType: (${coinType}), amount: (${amount})`
-    );
+    console.log(`coinType: (${coinType}), amount: (${amount})`);
     return [txb.splitCoins(txb.gas, [txb.pure(amount)])[0]!];
   }
 
