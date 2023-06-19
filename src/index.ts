@@ -62,7 +62,7 @@ capybot.addStrategy(
       defaultAmount[cetusUSDCtoSUI.coinTypeA],
       defaultAmount[cetusUSDCtoSUI.coinTypeB],
     ],
-    1.0001
+    1.00001
   )
 );
 capybot.addStrategy(
@@ -74,7 +74,7 @@ capybot.addStrategy(
       defaultAmount[cetusCETUStoSUI.coinTypeA],
       defaultAmount[cetusCETUStoSUI.coinTypeB],
     ],
-    1.0001
+    1.00001
   )
 );
 capybot.addStrategy(
@@ -86,7 +86,7 @@ capybot.addStrategy(
       defaultAmount[cetusUSDCtoCETUS.coinTypeA],
       defaultAmount[cetusUSDCtoCETUS.coinTypeB],
     ],
-    1.0001
+    1.00001
   )
 );
 
@@ -108,7 +108,7 @@ capybot.addStrategy(
       },
     ],
     defaultAmount[coins.USDC],
-    1.0001
+    1.002
   )
 );
 
