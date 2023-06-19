@@ -44,12 +44,6 @@ export class CetusPool extends Pool<CetusParams> {
   async createSwapTransaction(
     params: CetusParams
   ): Promise<TransactionBlock | undefined> {
-    const amountLimit = adjustForSlippage(
-      new BN(params.amountOut),
-      Percentage.fromDecimal(d(params.slippage)),
-      false
-    );
-
     const totalBalance = await getTotalBalanceByCoinType(
       this.provider,
       this.ownerAddress,
@@ -67,15 +61,51 @@ export class CetusPool extends Pool<CetusParams> {
         `******* a2b: ${params.a2b}, amountIn: ${params.amountIn}, amountOut: ${params.amountOut}, byAmountIn: ${params.byAmountIn}, slippage: ${params.slippage}`
       );
 
-      return this.sdk.Swap.createSwapTransactionPayload({
-        pool_id: this.uri,
+      // fix input token amount
+      const coinAmount = new BN(params.amountIn);
+      // input token amount is token a
+      const byAmountIn = true;
+      // slippage value
+      const slippage = Percentage.fromDecimal(d(5));
+      // Fetch pool data
+      const pool = await this.sdk.Pool.getPool(this.uri);
+      // Estimated amountIn amountOut fee
+
+      // Load coin info
+      let coinA = getCoinInfo(this.coinTypeA);
+      let coinB = getCoinInfo(this.coinTypeB);
+
+      const res: any = await this.sdk.Swap.preswap({
+        a2b: params.a2b,
+        amount: coinAmount.toString(),
+        by_amount_in: byAmountIn,
         coinTypeA: this.coinTypeA,
         coinTypeB: this.coinTypeB,
+        current_sqrt_price: pool.current_sqrt_price,
+        decimalsA: coinA.decimals,
+        decimalsB: coinB.decimals,
+        pool: pool,
+      });
+
+      const toAmount = byAmountIn
+        ? res.estimatedAmountOut
+        : res.estimatedAmountIn;
+      // const amountLimit = adjustForSlippage(toAmount, slippage, !byAmountIn);
+
+      const amountLimit = adjustForSlippage(
+        new BN(toAmount),
+        slippage,
+        !byAmountIn
+      );
+
+      // build swap Payload
+      return await this.sdk.Swap.createSwapTransactionPayload({
+        pool_id: pool.poolAddress,
+        coinTypeA: pool.coinTypeA,
+        coinTypeB: pool.coinTypeB,
         a2b: params.a2b,
-        by_amount_in: params.byAmountIn,
-        amount: params.byAmountIn
-          ? params.amountIn.toString()
-          : params.amountOut.toString(),
+        by_amount_in: byAmountIn,
+        amount: res.amount.toString(),
         amount_limit: amountLimit.toString(),
       });
     }
