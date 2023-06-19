@@ -58,9 +58,9 @@ capybot.addPool(new CetusPool('0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f2
 capybot.addPool(new CetusPool('0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', coins.USDC, coins.CETUS));
 
 // Trend riding strategies
-capybot.addStrategy(new RideTheTrend('0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630', 5, 10, [defaultAmount[coins.USDC], defaultAmount[coins.SUI]], 1.002));
-capybot.addStrategy(new RideTheTrend('0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded', 5, 10, [defaultAmount[coins.CETUS], defaultAmount[coins.SUI]], 1.002));
-capybot.addStrategy(new RideTheTrend('0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', 5, 10, [defaultAmount[coins.USDC], defaultAmount[coins.CETUS]], 1.002));
+capybot.addStrategy(new RideTheTrend('0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630', 5, 10, [defaultAmount[coins.USDC], defaultAmount[coins.SUI]], 1.0001));
+capybot.addStrategy(new RideTheTrend('0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded', 5, 10, [defaultAmount[coins.CETUS], defaultAmount[coins.SUI]], 1.0001));
+capybot.addStrategy(new RideTheTrend('0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8', 5, 10, [defaultAmount[coins.USDC], defaultAmount[coins.CETUS]], 1.0001));
 
 // Add triangular arbitrage strategy: USDC/SUI -> (CETUS/SUI)^-1 -> (USDC/CETUS)^-1.
 capybot.addStrategy(new Arbitrage([
@@ -77,7 +77,7 @@ capybot.addStrategy(new Arbitrage([
             a2b: false
         }],
     defaultAmount[coins.USDC],
-    1.002));
+    1.0001));
 
 // TODO: Add exchanges as data sources and use MarketDifference strategy once PR #5 lands
 
