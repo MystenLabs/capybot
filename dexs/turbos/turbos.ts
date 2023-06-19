@@ -2,19 +2,21 @@ import {
   Connection,
   JsonRpcProvider,
   SUI_CLOCK_OBJECT_ID,
+  SuiObjectResponse,
   TransactionArgument,
   TransactionBlock,
+  getObjectFields,
 } from "@mysten/sui.js";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 import { keypair } from "../../index";
-import { buildInputCoinForAmount } from "../../utils/utils";
+import { buildInputCoinForAmount, getCoinDecimals } from "../../utils/utils";
+import { mainnet } from "../cetus/mainnet_config";
+import { testnet } from "../cetus/testnet_config";
 import { turbosConfig } from "../dexsConfig";
 import { TurbosParams } from "../dexsParams";
 import { Pool, PreswapResult } from "../pool";
 import { MAX_TICK_INDEX, MIN_TICK_INDEX } from "./constants";
-import { mainnet } from "./mainnet_config";
-import { testnet } from "./testnet_config";
 
 const ONE_MINUTE = 60 * 1000;
 
@@ -41,6 +43,7 @@ export class TurbosPool extends Pool<TurbosParams> {
   private senderAddress: string;
   private versioned: string;
   private coinTypeC: string;
+  private provider: JsonRpcProvider;
 
   constructor(
     address: string,
@@ -55,6 +58,12 @@ export class TurbosPool extends Pool<TurbosParams> {
     this.package = turbosConfig.contract.PackageId;
     this.module = turbosConfig.contract.ModuleId;
     this.versioned = turbosConfig.contract.Versioned;
+
+    this.provider = new JsonRpcProvider(
+      new Connection({
+        fullnode: mainnet.fullRpcUrl,
+      })
+    );
   }
 
   async createSwapTransaction(
@@ -82,12 +91,6 @@ export class TurbosPool extends Pool<TurbosParams> {
     );
     const admin = process.env.ADMIN_ADDRESS;
 
-    let provider = new JsonRpcProvider(
-      new Connection({
-        fullnode: mainnet.fullRpcUrl,
-      })
-    );
-
     const functionName = a2b ? "swap_a_b" : "swap_b_a";
 
     const transactionBlock = new TransactionBlock();
@@ -98,7 +101,7 @@ export class TurbosPool extends Pool<TurbosParams> {
         BigInt(amountIn),
         a2b ? this.coinTypeA : this.coinTypeB,
         admin!,
-        provider
+        this.provider
       );
 
     if (typeof coins !== "undefined") {
@@ -151,10 +154,26 @@ export class TurbosPool extends Pool<TurbosParams> {
   }
 
   async estimatePrice(): Promise<number> {
-    // let pool = await this.sdk.Pool.getPool(this.uri);
-    // // current_sqrt_price is stored in Q64 format on Cetus
-    // return pool.current_sqrt_price ** 2 / 2 ** 128;
-    return 0;
+    const obj: SuiObjectResponse = await this.provider.getObject({
+      id: this.uri,
+      options: { showContent: true, showType: true },
+    });
+    let objFields = null;
+    if (obj && obj.data?.content?.dataType === "moveObject") {
+      objFields = getObjectFields(obj);
+    }
+    const current_sqrt_price = objFields?.current_sqrt_price;
+
+    const price = new Decimal(current_sqrt_price.toString())
+      .mul(Decimal.pow(2, -64))
+      .pow(2)
+      .mul(
+        Decimal.pow(
+          10,
+          getCoinDecimals(this.coinTypeA) - getCoinDecimals(this.coinTypeB)
+        )
+      );
+    return price.toNumber();
   }
 }
 
