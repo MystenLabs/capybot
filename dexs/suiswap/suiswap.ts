@@ -1,4 +1,3 @@
-import { SDK } from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
 import {
   Connection,
   JsonRpcProvider,
@@ -6,12 +5,12 @@ import {
   TransactionArgument,
   TransactionBlock,
 } from "@mysten/sui.js";
-import { getCoinInfo } from "../../coins/coins";
 import { keypair } from "../../index";
 import { buildInputCoinForAmount } from "../../utils/utils";
+import { mainnet } from "../cetus/mainnet_config";
+import { testnet } from "../cetus/testnet_config";
+import { suiswapConfig } from "../dexsConfig";
 import { Pool, PreswapResult } from "../pool";
-import { mainnet } from "./mainnet_config";
-import { testnet } from "./testnet_config";
 
 enum sdkEnv {
   mainnet = "mainnet",
@@ -31,17 +30,16 @@ function buildSdkOptions() {
 }
 
 export class Suiwap extends Pool {
-  private sdk: SDK;
   private package: string;
   private module: string;
+  private senderAddress: string;
 
   constructor(address: string, coinTypeA: string, coinTypeB: string) {
     super(address, coinTypeA, coinTypeB);
-    this.sdk = new SDK(buildSdkOptions());
-    this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
+    this.senderAddress = keypair.getPublicKey().toSuiAddress();
 
-    this.package = mainnet.package;
-    this.module = mainnet.module;
+    this.package = suiswapConfig.contract.PackageId;
+    this.module = suiswapConfig.contract.ModuleId;
   }
 
   async createSwapTransaction(
@@ -107,34 +105,14 @@ export class Suiwap extends Pool {
     amount: number,
     byAmountIn: boolean
   ): Promise<PreswapResult> {
-    let pool = await this.sdk.Pool.getPool(this.uri);
-
-    // Load coin info
-    let coinA = getCoinInfo(this.coinTypeA);
-    let coinB = getCoinInfo(this.coinTypeB);
-
-    const res: any = await this.sdk.Swap.preswap({
-      a2b: a2b,
-      amount: amount.toString(),
-      by_amount_in: byAmountIn,
-      coinTypeA: this.coinTypeA,
-      coinTypeB: this.coinTypeB,
-      current_sqrt_price: pool.current_sqrt_price,
-      decimalsA: coinA.decimals,
-      decimalsB: coinB.decimals,
-      pool: pool,
-    });
-
     return {
-      estimatedAmountIn: res.estimatedAmountIn,
-      estimatedAmountOut: res.estimatedAmountOut,
-      estimatedFeeAmount: res.estimatedFeeAmount,
+      estimatedAmountIn: 0,
+      estimatedAmountOut: 0,
+      estimatedFeeAmount: 0,
     };
   }
 
   async estimatePrice(): Promise<number> {
-    let pool = await this.sdk.Pool.getPool(this.uri);
-    // current_sqrt_price is stored in Q64 format on Cetus
-    return pool.current_sqrt_price ** 2 / 2 ** 128;
+    return 0 ** 2 / 2 ** 128;
   }
 }
