@@ -1,7 +1,9 @@
 export const cetusConfig = {
-  package: "0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be",
-  module: "pool_script",
-  globalConfig: "0xdaa46292632c3c4d8f31f23ea0f9b36a28ff3677e9684980e4438403a67a3d8f",
+  contract: {
+    PackageId: "0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be",
+    ModuleId: "pool_script",
+    GlobalConfig: "0xdaa46292632c3c4d8f31f23ea0f9b36a28ff3677e9684980e4438403a67a3d8f",
+  },
 };
 
 export const suiswapConfig = {

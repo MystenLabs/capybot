@@ -19,6 +19,8 @@ import BN from "bn.js";
 import { getCoinInfo } from "../../coins/coins";
 import { keypair } from "../../index";
 import { buildInputCoinForAmount } from "../../utils/utils";
+import { cetusConfig } from "../dexsConfig";
+import { CetusParams } from "../dexsParams";
 import { Pool, PreswapResult } from "../pool";
 import { mainnet } from "./mainnet_config";
 import { testnet } from "./testnet_config";
@@ -40,7 +42,7 @@ function buildSdkOptions() {
   }
 }
 
-export class CetusPool extends Pool {
+export class CetusPool extends Pool<CetusParams> {
   private sdk: SDK;
   private package: string;
   private module: string;
@@ -52,9 +54,9 @@ export class CetusPool extends Pool {
     this.sdk = new SDK(buildSdkOptions());
     this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
 
-    this.package = mainnet.package;
-    this.module = mainnet.module;
-    this.globalConfig = mainnet.globalConfig;
+    this.package = cetusConfig.contract.PackageId;
+    this.module = cetusConfig.contract.ModuleId;
+    this.globalConfig = cetusConfig.contract.GlobalConfig;
     this.provider = new JsonRpcProvider(
       new Connection({
         fullnode: mainnet.fullRpcUrl,
@@ -63,15 +65,11 @@ export class CetusPool extends Pool {
   }
 
   async createSwapTransaction(
-    a2b: boolean,
-    amountIn: number,
-    amountOut: number,
-    byAmountIn: boolean,
-    slippage: number
+    params: CetusParams
   ): Promise<TransactionBlock | undefined> {
     const amountLimit = adjustForSlippage(
-      new BN(amountOut),
-      Percentage.fromDecimal(d(slippage)),
+      new BN(params.amountOut),
+      Percentage.fromDecimal(d(params.slippage)),
       false
     );
     // return this.sdk.Swap.createSwapTransactionPayload({
@@ -85,11 +83,11 @@ export class CetusPool extends Pool {
     // });
 
     const txb = await this.createTransactionBlock(
-      a2b,
-      amountIn,
-      amountOut,
-      byAmountIn,
-      slippage
+      params.a2b,
+      params.amountIn,
+      params.amountOut,
+      params.byAmountIn,
+      params.slippage
     );
     return txb;
   }

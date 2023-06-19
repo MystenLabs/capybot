@@ -48,41 +48,41 @@ const byAmountIn: boolean = true;
 const slippage: number = 5; // Allow for 5% slippage (??)
 
 const getUSDCtoSUITransactionBlock = async () => {
-  const txb = await USDCtoSUI.createSwapTransaction(
+  const txb = await USDCtoSUI.createSwapTransaction({
     a2b,
     amountIn,
     amountOut,
     byAmountIn,
-    slippage
-  );
+    slippage,
+  });
   if (typeof txb !== "undefined") transactionBlock = txb;
 };
 
 a2b = false;
 const getCETUStoSUITransactionBlock = async () => {
-  const txb = await CETUStoSUI.createSwapTransaction(
+  const txb = await CETUStoSUI.createSwapTransaction({
     a2b,
     amountIn,
     amountOut,
     byAmountIn,
-    slippage
-  );
+    slippage,
+  });
   if (typeof txb !== "undefined") transactionBlock = txb;
 };
 
-getUSDCtoSUITransactionBlock().then((res) => {
-  getCETUStoSUITransactionBlock().then((res) => {
-    signer
-      .signAndExecuteTransactionBlock({
-        transactionBlock: transactionBlock,
-        requestType: "WaitForLocalExecution",
-        options: {
-          showObjectChanges: true,
-          showEffects: true,
-        },
-      })
-      .then(function (res: any) {
-        console.log("executed! result = ", res);
-      });
-  });
+// getUSDCtoSUITransactionBlock().then((res) => {
+getCETUStoSUITransactionBlock().then((res) => {
+  signer
+    .signAndExecuteTransactionBlock({
+      transactionBlock: transactionBlock,
+      requestType: "WaitForLocalExecution",
+      options: {
+        showObjectChanges: true,
+        showEffects: true,
+      },
+    })
+    .then(function (res: any) {
+      console.log("executed! result = ", res);
+    });
 });
+// });

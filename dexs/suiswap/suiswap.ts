@@ -10,6 +10,7 @@ import { buildInputCoinForAmount } from "../../utils/utils";
 import { mainnet } from "../cetus/mainnet_config";
 import { testnet } from "../cetus/testnet_config";
 import { suiswapConfig } from "../dexsConfig";
+import { SuiswapParams } from "../dexsParams";
 import { Pool, PreswapResult } from "../pool";
 
 enum sdkEnv {
@@ -29,7 +30,7 @@ function buildSdkOptions() {
   }
 }
 
-export class Suiwap extends Pool {
+export class Suiwap extends Pool<SuiswapParams> {
   private package: string;
   private module: string;
   private senderAddress: string;
@@ -43,10 +44,9 @@ export class Suiwap extends Pool {
   }
 
   async createSwapTransaction(
-    a2b: boolean,
-    amountIn: number
+    params: SuiswapParams
   ): Promise<TransactionBlock | undefined> {
-    const txb = await this.createTransactionBlock(a2b, amountIn);
+    const txb = await this.createTransactionBlock(params.a2b, params.amountIn);
     return txb;
   }
 
