@@ -10,8 +10,10 @@ import {
   Connection,
   JsonRpcProvider,
   SUI_CLOCK_OBJECT_ID,
+  SuiObjectResponse,
   TransactionArgument,
   TransactionBlock,
+  getObjectFields,
 } from "@mysten/sui.js";
 import BN from "bn.js";
 import { getCoinInfo } from "../../coins/coins";
@@ -45,15 +47,21 @@ export class CetusPool extends Pool<CetusParams> {
   private package: string;
   private module: string;
   private globalConfig: string;
+  private provider: JsonRpcProvider;
 
   constructor(address: string, coinTypeA: string, coinTypeB: string) {
     super(address, coinTypeA, coinTypeB);
     this.sdk = new SDK(buildSdkOptions());
     this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
 
-    this.package = cetusConfig.package;
-    this.module = cetusConfig.module;
-    this.globalConfig = cetusConfig.globalConfig;
+    this.package = cetusConfig.contract.PackageId;
+    this.module = cetusConfig.contract.ModuleId;
+    this.globalConfig = cetusConfig.contract.GlobalConfig;
+    this.provider = new JsonRpcProvider(
+      new Connection({
+        fullnode: mainnet.fullRpcUrl,
+      })
+    );
   }
 
   async createSwapTransaction(
@@ -98,12 +106,6 @@ export class CetusPool extends Pool<CetusParams> {
     );
     const admin = process.env.ADMIN_ADDRESS;
 
-    let provider = new JsonRpcProvider(
-      new Connection({
-        fullnode: mainnet.fullRpcUrl,
-      })
-    );
-
     const amountLimit = adjustForSlippage(
       new BN(amountOut),
       Percentage.fromDecimal(d(slippage)),
@@ -121,7 +123,7 @@ export class CetusPool extends Pool<CetusParams> {
         BigInt(amountIn),
         a2b ? this.coinTypeA : this.coinTypeB,
         admin!,
-        provider
+        this.provider
       );
 
     if (typeof coins !== "undefined") {
@@ -178,9 +180,15 @@ export class CetusPool extends Pool<CetusParams> {
   }
 
   async estimatePrice(): Promise<number> {
-    let pool = await this.sdk.Pool.getPool(this.uri);
-    // current_sqrt_price is stored in Q64 format on Cetus
-    return pool.current_sqrt_price ** 2 / 2 ** 128;
+    const obj: SuiObjectResponse = await this.provider.getObject({
+      id: this.uri,
+      options: { showContent: true, showType: true },
+    });
+    let objFields = null;
+    if (obj && obj.data?.content?.dataType === "moveObject") {
+      objFields = getObjectFields(obj);
+    }
+    return objFields?.current_sqrt_price ** 2 / 2 ** 128;
   }
 }
 
