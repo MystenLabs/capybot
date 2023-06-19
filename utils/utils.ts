@@ -7,6 +7,7 @@ import {
   TransactionBlock,
   normalizeSuiObjectId,
 } from "@mysten/sui.js";
+import { coins } from "../index";
 
 import Decimal from "decimal.js";
 
@@ -342,4 +343,21 @@ function sortByBalanceDes(coins: CoinAsset[]): CoinAsset[] {
 // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
 function calculateTotalBalance(coins: CoinAsset[]): bigint {
   return coins.reduce((partialSum, c) => partialSum + c.balance, BigInt(0));
+}
+
+export function getCoinDecimals(coinType: string): number {
+  switch (coinType) {
+    case coins.SUI:
+      return 9;
+    case coins.USDC:
+      return 6;
+    case coins.CETUS:
+      return 9;
+    case coins.WETH:
+      return 8;
+    case coins.USDT:
+      return 6;
+    default:
+      return 0;
+  }
 }
