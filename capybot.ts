@@ -71,12 +71,9 @@ export class Capybot {
 
           // Execute any suggested trades
           for (const order of tradeOrders) {
-            console.log("*** for:", order);
             logger.info({ strategy: strategy.uri, decision: order }, "order");
-            let amountIn = order.amountIn;
-            const amountOut: number = order.estimatedPrice * amountIn;
-            // TODO: Do these as a programmable transaction
-
+            let amountIn = Math.round(order.amountIn);
+            let amountOut = Math.round(order.estimatedPrice * amountIn);
             const a2b: boolean = order.a2b;
             const byAmountIn: boolean = true;
             const slippage: number = 1;
@@ -114,7 +111,6 @@ export class Capybot {
               transactionBlock = new TransactionBlock();
             }
           }
-          // await this.signAndExecuteTransactionBlock(transactionBlock);
         }
       }
       await setTimeout(delay);

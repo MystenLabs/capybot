@@ -141,7 +141,7 @@ export async function selectTradeCoins(
   expectedAmount: Decimal
 ): Promise<string[]> {
   console.log(
-    `selectTradeCoins. owner: (${owner}), coinType: (${coinType}), expectedAmount: (${expectedAmount})`
+    `selectTradeCoins: coinType: (${coinType}), expectedAmount: (${expectedAmount})`
   );
   const coins: PaginatedCoins["data"][number][] = [];
   const coinIds: string[] = [];
