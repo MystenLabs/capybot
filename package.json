@@ -12,7 +12,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@cetusprotocol/cetus-sui-clmm-sdk": "^2.5.15",
+    "@cetusprotocol/cetus-sui-clmm-sdk": "^2.7.2",
     "@thanpolas/univ3prices": "^3.0.2",
     "pino": "^8.14.1",
     "pino-pretty": "^10.0.0",
