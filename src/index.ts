@@ -118,7 +118,7 @@ capybot.addStrategy(
         a2b: true,
       },
     ],
-    defaultAmount[coins.USDC],
+    defaultAmount[coins.SUI],
     ARBITRAGE_RELATIVE_LIMIT
   )
 );
@@ -134,7 +134,7 @@ capybot.addStrategy(
         pool: cetusUSDCtoSUI.uri,
         a2b: true,
       }],
-      defaultAmount[coins.USDC],
+      defaultAmount[coins.SUI],
       ARBITRAGE_RELATIVE_LIMIT
   )
 );
