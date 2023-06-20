@@ -1,9 +1,9 @@
 import {
-  Connection,
   JsonRpcProvider,
   SUI_CLOCK_OBJECT_ID,
   TransactionArgument,
   TransactionBlock,
+  mainnetConnection,
 } from "@mysten/sui.js";
 import { keypair } from "../../index";
 import { buildInputCoinForAmount } from "../../utils/utils";
@@ -61,11 +61,7 @@ export class Suiwap extends Pool<SuiswapParams> {
     );
     const admin = process.env.ADMIN_ADDRESS;
 
-    let provider = new JsonRpcProvider(
-      new Connection({
-        fullnode: mainnet.fullRpcUrl,
-      })
-    );
+    let provider = new JsonRpcProvider(mainnetConnection);
 
     const functionName = a2b ? "swap_x_to_y" : "swap_y_to_x";
 

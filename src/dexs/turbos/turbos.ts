@@ -1,11 +1,11 @@
 import {
-  Connection,
   JsonRpcProvider,
   SUI_CLOCK_OBJECT_ID,
   SuiObjectResponse,
   TransactionArgument,
   TransactionBlock,
   getObjectFields,
+  mainnetConnection,
 } from "@mysten/sui.js";
 import BN from "bn.js";
 import Decimal from "decimal.js";
@@ -59,11 +59,7 @@ export class TurbosPool extends Pool<TurbosParams> {
     this.module = turbosConfig.contract.ModuleId;
     this.versioned = turbosConfig.contract.Versioned;
 
-    this.provider = new JsonRpcProvider(
-      new Connection({
-        fullnode: mainnet.fullRpcUrl,
-      })
-    );
+    this.provider = new JsonRpcProvider(mainnetConnection);
   }
 
   async createSwapTransaction(

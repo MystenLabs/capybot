@@ -7,6 +7,7 @@ import SDK, {
 import { Connection, JsonRpcProvider, TransactionBlock } from "@mysten/sui.js";
 import BN from "bn.js";
 import { getCoinInfo } from "../../coins/coins";
+import { keypair } from "../../index";
 import { getTotalBalanceByCoinType } from "../../utils/utils";
 import { cetusConfig } from "../dexsConfig";
 import { CetusParams } from "../dexsParams";
@@ -28,7 +29,7 @@ export class CetusPool extends Pool<CetusParams> {
   constructor(address: string, coinTypeA: string, coinTypeB: string) {
     super(address, coinTypeA, coinTypeB);
     this.sdk = new SDK(buildSdkOptions());
-    this.sdk.senderAddress = process.env.ADMIN_ADDRESS!;
+    this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
 
     this.package = cetusConfig.contract.PackageId;
     this.module = cetusConfig.contract.ModuleId;
