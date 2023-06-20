@@ -11,6 +11,7 @@ export class Arbitrage extends Strategy {
 
     private readonly lowerLimit: number;
     private readonly poolChain: Array<PoolWithDirection>;
+    private readonly poolChainAsString: string;
     private latestRate: Record<string, number> = {};
     private readonly defaultAmount: number;
 
@@ -29,6 +30,8 @@ export class Arbitrage extends Strategy {
         this.poolChain = poolChain;
         this.defaultAmount = defaultAmount;
         this.lowerLimit = relativeLimit;
+        // A short string representation of the pools used. Used for logging and debugging
+        this.poolChainAsString = this.poolChain.map(p => p.pool.substring(0, 8)).toString();
     }
 
     evaluate(data: DataEntry): Array<TradeOrder> {
