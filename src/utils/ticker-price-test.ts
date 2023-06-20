@@ -36,6 +36,7 @@ const getSUItoUSDTprice = async () => {
 
 const getCCXTBinanceTickers = async () => {
   binanceMap = await binanceFetchTickers([
+    "BTC/USDC",
     "SUI/USDT",
     "SUI/TUSD",
     "SUI/BTC",
