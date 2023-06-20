@@ -3,6 +3,7 @@ import { Capybot } from "./capybot";
 import { CetusPool } from "./dexs/cetus/cetus";
 import { Arbitrage } from "./strategies/arbitrage";
 import { RideTheTrend } from "./strategies/ride_the_trend";
+import {TurbosPool} from "./dexs/turbos/turbos";
 
 // Convenience map from name to address for commonly used coins
 export const coins = {
@@ -16,19 +17,19 @@ export const coins = {
   USDT: "0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN",
 };
 
-// Setup default amount to trade for each token in each pool. Set to approximately 10 USD each.
+// Setup default amount to trade for each token in each pool. Set to approximately 1 USD each.
 export const defaultAmount: Record<string, number> = {};
-defaultAmount[coins.SUI] = 10_000_000_000;
-defaultAmount[coins.USDC] = 10_000_000;
-defaultAmount[coins.CETUS] = 150_000_000_000;
-defaultAmount[coins.CETUS0] = 150_000_000_000;
-defaultAmount[coins.BRT] = 1500_000_000_000_000;
-defaultAmount[coins.WETH] = 1000_000;
-defaultAmount[coins.TOCE] = 1_000_000_000_000;
-defaultAmount[coins.USDT] = 10_000_000;
+defaultAmount[coins.SUI] = 1_000_000_000;
+defaultAmount[coins.USDC] = 1_000_000;
+defaultAmount[coins.CETUS] = 15_000_000_000;
+defaultAmount[coins.CETUS0] = 15_000_000_000;
+defaultAmount[coins.BRT] = 150_000_000_000_000;
+defaultAmount[coins.WETH] = 100_000;
+defaultAmount[coins.TOCE] = 100_000_000_000;
+defaultAmount[coins.USDT] = 1_000_000;
 
 const RIDE_THE_THREAD_LIMIT = 1.00001;
-const ARBITAGE_RELATIVE_LIMIT = 1.002;
+const ARBITRAGE_RELATIVE_LIMIT = 1.001;
 
 // Setup wallet from passphrase.
 const phrase = process.env.ADMIN_PHRASE;
@@ -50,10 +51,17 @@ const cetusUSDCtoCETUS = new CetusPool(
   coins.USDC,
   coins.CETUS
 );
+const turbosSUItoUSDC = new TurbosPool(
+  "0x5eb2dfcdd1b15d2021328258f6d5ec081e9a0cdcfa9e13a0eaeb9b5f7505ca78",
+  coins.SUI,
+  coins.USDC,
+  "0x91bfbc386a41afcfd9b2533058d7e915a1d3829089cc268ff4333d54d6339ca1::fee3000bps::FEE3000BPS"
+);
 
 capybot.addPool(cetusUSDCtoSUI);
 capybot.addPool(cetusCETUStoSUI);
 capybot.addPool(cetusUSDCtoCETUS);
+capybot.addPool(turbosSUItoUSDC);
 
 // Trend riding strategies
 capybot.addStrategy(
@@ -98,20 +106,36 @@ capybot.addStrategy(
   new Arbitrage(
     [
       {
-        pool: cetusUSDCtoSUI.uri,
+        pool: turbosSUItoUSDC.uri,
+        a2b: true,
+      },
+      {
+        pool: cetusUSDCtoCETUS.uri,
         a2b: true,
       },
       {
         pool: cetusCETUStoSUI.uri,
-        a2b: false,
-      },
-      {
-        pool: cetusUSDCtoCETUS.uri,
-        a2b: false,
+        a2b: true,
       },
     ],
-    defaultAmount[coins.USDC],
-    ARBITAGE_RELATIVE_LIMIT
+    defaultAmount[coins.SUI],
+    ARBITRAGE_RELATIVE_LIMIT
+  )
+);
+
+capybot.addStrategy(
+  new Arbitrage(
+    [
+      {
+        pool: turbosSUItoUSDC.uri,
+        a2b: true,
+      },
+      {
+        pool: cetusUSDCtoSUI.uri,
+        a2b: true,
+      }],
+      defaultAmount[coins.SUI],
+      ARBITRAGE_RELATIVE_LIMIT
   )
 );
 
