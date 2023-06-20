@@ -1,5 +1,5 @@
 import {Strategy} from "./strategy";
-import {DataEntry} from "./data_entry";
+import {DataEntry} from "../data_sources/data_entry";
 import {TradeOrder} from "./order";
 import {Pool} from "../dexs/pool";
 import { CetusParams, SuiswapParams, TurbosParams } from "../dexs/dexsParams";

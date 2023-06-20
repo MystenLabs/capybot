@@ -355,6 +355,8 @@ export function getCoinDecimals(coinType: string): number {
       return 8;
     case coins.USDT:
       return 6;
+    case coins.WBTC:
+      return 8;
     default:
       return 0;
   }

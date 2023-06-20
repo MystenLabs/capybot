@@ -1,6 +1,6 @@
 import { TransactionBlock } from "@mysten/sui.js";
-import { DataEntry, SourceType } from "../strategies/data_entry";
-import { DataSource } from "./data_source";
+import { DataEntry, SourceType } from "../data_sources/data_entry";
+import { DataSource } from "../data_sources/data_source";
 import { CetusParams, SuiswapParams, TurbosParams } from "./dexsParams";
 
 export type PreswapResult = {

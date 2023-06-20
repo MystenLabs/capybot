@@ -1,4 +1,4 @@
-import {DataEntry} from "./data_entry";
+import {DataEntry} from "../data_sources/data_entry";
 import {TradeOrder} from "./order";
 import {Md5} from "ts-md5";
 import {logger} from "../logger";

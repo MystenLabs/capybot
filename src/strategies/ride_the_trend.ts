@@ -1,4 +1,4 @@
-import {DataEntry, SourceType} from "./data_entry";
+import {DataEntry, SourceType} from "../data_sources/data_entry";
 import {average} from "simple-statistics";
 import {Strategy} from "./strategy";
 import {TradeOrder} from "./order";

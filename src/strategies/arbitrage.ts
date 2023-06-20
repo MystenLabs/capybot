@@ -1,4 +1,4 @@
-import {DataEntry, SourceType} from "./data_entry";
+import {DataEntry, SourceType} from "../data_sources/data_entry";
 import {Strategy} from "./strategy";
 import {TradeOrder} from "./order";
 
