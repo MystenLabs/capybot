@@ -123,6 +123,22 @@ capybot.addStrategy(
   )
 );
 
+capybot.addStrategy(
+  new Arbitrage(
+    [
+      {
+        pool: turbosSUItoUSDC.uri,
+        a2b: true,
+      },
+      {
+        pool: cetusUSDCtoSUI.uri,
+        a2b: true,
+      }],
+      defaultAmount[coins.USDC],
+      ARBITRAGE_RELATIVE_LIMIT
+  )
+);
+
 // TODO: Add exchanges as data sources and use MarketDifference strategy once PR #5 lands
 
 // Start the bot
