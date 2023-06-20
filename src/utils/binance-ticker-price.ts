@@ -21,3 +21,28 @@ export async function SUItoUSDT() {
   const price = await getTickerPrice("SUIUSDT");
   return price;
 }
+
+export async function SUItoTUSD() {
+  const price = await getTickerPrice("SUITUSD");
+  return price;
+}
+
+export async function SUItoBTC() {
+  const price = await getTickerPrice("SUIBTC");
+  return price;
+}
+
+export async function SUItoBNB() {
+  const price = await getTickerPrice("SUIBNB");
+  return price;
+}
+
+export async function SUItoEUR() {
+  const price = await getTickerPrice("SUIEUR");
+  return price;
+}
+
+export async function SUItoTRY() {
+  const price = await getTickerPrice("SUITRY");
+  return price;
+}
