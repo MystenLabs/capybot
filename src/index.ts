@@ -29,7 +29,7 @@ defaultAmount[coins.TOCE] = 100_000_000_000;
 defaultAmount[coins.USDT] = 1_000_000;
 
 const RIDE_THE_THREAD_LIMIT = 1.00001;
-const ARBITAGE_RELATIVE_LIMIT = 1.002;
+const ARBITRAGE_RELATIVE_LIMIT = 1.001;
 
 // Setup wallet from passphrase.
 const phrase = process.env.ADMIN_PHRASE;
@@ -51,14 +51,17 @@ const cetusUSDCtoCETUS = new CetusPool(
   coins.USDC,
   coins.CETUS
 );
-const turbosUSDCtoSUI = new TurbosPool("0x5eb2dfcdd1b15d2021328258f6d5ec081e9a0cdcfa9e13a0eaeb9b5f7505ca78",
-    coins.USDC,
-    coins.SUI,
-    coins.SUI)
+const turbosSUItoUSDC = new TurbosPool(
+  "0x5eb2dfcdd1b15d2021328258f6d5ec081e9a0cdcfa9e13a0eaeb9b5f7505ca78",
+  coins.SUI,
+  coins.USDC,
+  "0x91bfbc386a41afcfd9b2533058d7e915a1d3829089cc268ff4333d54d6339ca1::fee3000bps::FEE3000BPS"
+);
 
 capybot.addPool(cetusUSDCtoSUI);
 capybot.addPool(cetusCETUStoSUI);
 capybot.addPool(cetusUSDCtoCETUS);
+capybot.addPool(turbosSUItoUSDC);
 
 // Trend riding strategies
 capybot.addStrategy(
@@ -103,22 +106,24 @@ capybot.addStrategy(
   new Arbitrage(
     [
       {
-        pool: turbosUSDCtoSUI.uri,
+        pool: turbosSUItoUSDC.uri,
+        a2b: true,
+      },
+      {
+        pool: cetusUSDCtoCETUS.uri,
         a2b: true,
       },
       {
         pool: cetusCETUStoSUI.uri,
-        a2b: false,
-      },
-      {
-        pool: cetusUSDCtoCETUS.uri,
-        a2b: false,
+        a2b: true,
       },
     ],
     defaultAmount[coins.USDC],
-    ARBITAGE_RELATIVE_LIMIT
+    ARBITRAGE_RELATIVE_LIMIT
   )
 );
+
+// TODO: Add exchanges as data sources and use MarketDifference strategy once PR #5 lands
 
 // Start the bot
 capybot.loop(3.6e6, 1000);

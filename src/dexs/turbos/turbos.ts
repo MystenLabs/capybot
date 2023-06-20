@@ -158,17 +158,11 @@ export class TurbosPool extends Pool<TurbosParams> {
     if (obj && obj.data?.content?.dataType === "moveObject") {
       objFields = getObjectFields(obj);
     }
-    const current_sqrt_price = objFields?.current_sqrt_price;
+    const current_sqrt_price = objFields?.sqrt_price;
 
     const price = new Decimal(current_sqrt_price.toString())
       .mul(Decimal.pow(2, -64))
-      .pow(2)
-      .mul(
-        Decimal.pow(
-          10,
-          getCoinDecimals(this.coinTypeA) - getCoinDecimals(this.coinTypeB)
-        )
-      );
+      .pow(2);
     return price.toNumber();
   }
 }
