@@ -17,3 +17,7 @@ export async function BTCtoUSDC() {
   return price;
 }
 
+export async function SUItoUSDT() {
+  const price = await getTickerPrice("SUIUSDT");
+  return price;
+}
