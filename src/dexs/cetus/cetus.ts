@@ -55,7 +55,7 @@ export class CetusPool extends Pool<CetusParams> {
       }), is: ${totalBalance} and amountIn is: ${params.amountIn}`
     );
 
-    if (Number(totalBalance) >= params.amountIn) {
+    if (params.amountIn > 0 && Number(totalBalance) >= params.amountIn) {
       console.log(
         `a2b: ${params.a2b}, amountIn: ${params.amountIn}, amountOut: ${params.amountOut}, byAmountIn: ${params.byAmountIn}, slippage: ${params.slippage}`
       );
@@ -145,21 +145,7 @@ export class CetusPool extends Pool<CetusParams> {
   }
 
   async estimatePrice(): Promise<number> {
-    // const obj: SuiObjectResponse = await this.provider.getObject({
-    //   id: this.uri,
-    //   options: { showContent: true, showType: true },
-    // });
-    // let objFields = null;
-    // if (obj && obj.data?.content?.dataType === "moveObject") {
-    //   objFields = getObjectFields(obj);
-    // }
-    // return objFields?.current_sqrt_price ** 2 / 2 ** 128;
-
     let pool = await this.sdk.Pool.getPool(this.uri);
     return pool.current_sqrt_price ** 2 / 2 ** 128;
   }
 }
-
-// function getDefaultSqrtPriceLimit(a2b: boolean): BN {
-//   return new BN(a2b ? MIN_SQRT_PRICE : MAX_SQRT_PRICE);
-// }
