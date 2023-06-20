@@ -4,7 +4,11 @@ import SDK, {
   adjustForSlippage,
   d,
 } from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
-import { Connection, JsonRpcProvider, TransactionBlock } from "@mysten/sui.js";
+import {
+  JsonRpcProvider,
+  TransactionBlock,
+  mainnetConnection,
+} from "@mysten/sui.js";
 import BN from "bn.js";
 import { getCoinInfo } from "../../coins/coins";
 import { keypair } from "../../index";
@@ -34,11 +38,7 @@ export class CetusPool extends Pool<CetusParams> {
     this.package = cetusConfig.contract.PackageId;
     this.module = cetusConfig.contract.ModuleId;
     this.globalConfig = cetusConfig.contract.GlobalConfig;
-    this.provider = new JsonRpcProvider(
-      new Connection({
-        fullnode: mainnet.fullRpcUrl,
-      })
-    );
+    this.provider = new JsonRpcProvider(mainnetConnection);
     this.ownerAddress = process.env.ADMIN_ADDRESS!;
   }
 
