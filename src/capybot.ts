@@ -1,9 +1,9 @@
 import {
-  Connection,
   JsonRpcProvider,
   Keypair,
   RawSigner,
   TransactionBlock,
+  mainnetConnection,
 } from "@mysten/sui.js";
 import { setTimeout } from "timers/promises";
 import { DataSource } from "./dexs/data_source";
@@ -29,11 +29,7 @@ export class Capybot {
 
   constructor(keypair: Keypair) {
     this.keypair = keypair;
-    this.provider = new JsonRpcProvider(
-      new Connection({
-        fullnode: "https://rpc.mainnet.sui.io:443",
-      })
-    );
+    this.provider = new JsonRpcProvider(mainnetConnection);
     this.signer = new RawSigner(this.keypair, this.provider);
   }
 
