@@ -28,8 +28,9 @@ export abstract class Pool<
   ): Promise<PreswapResult>;
 
   abstract createSwapTransaction(
+    transactionBlock: TransactionBlock,
     params: C
-  ): Promise<TransactionBlock | undefined>;
+  ): Promise<TransactionBlock>;
 
   abstract estimatePrice(): Promise<number>;
 
@@ -43,9 +44,4 @@ export abstract class Pool<
       price: price,
     };
   }
-
-  abstract addToTransactionBlock(
-    transactionBlock: TransactionBlock,
-    txbToBeAdded: TransactionBlock
-  ): TransactionBlock;
 }

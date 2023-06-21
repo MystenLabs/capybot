@@ -50,6 +50,7 @@ export class Capybot {
     }
     logger.info({ strategies: uniqueStrategies }, "strategies");
 
+    let transactionBlock: TransactionBlock = new TransactionBlock();
     while (new Date().getTime() - startTime < duration) {
       for (const uri in this.dataSources) {
         let dataSource = this.dataSources[uri];
@@ -63,57 +64,47 @@ export class Capybot {
 
         // Push new data to all strategies subscribed to this data source
         for (const strategy of this.strategies[uri]) {
-
           // Get orders for this strategy.
           let tradeOrders = strategy.evaluate(data);
 
           // Create transactions for the suggested trades
-          let transactionBlocks: Array<TransactionBlock> = [];
+          transactionBlock = new TransactionBlock();
           for (const order of tradeOrders) {
-            logger.info({strategy: strategy.uri, decision: order}, "order");
+            logger.info({ strategy: strategy.uri, decision: order }, "order");
             let amountIn = Math.round(order.amountIn);
             let amountOut = Math.round(order.estimatedPrice * amountIn);
             const a2b: boolean = order.a2b;
             const byAmountIn: boolean = true;
             const slippage: number = 1; // TODO: Define this in a meaningful way. Perhaps by the strategies.
 
-            let transactionBlock = await this.pools[
-                order.pool
-                ].createSwapTransaction({
+            transactionBlock = await this.pools[
+              order.pool
+            ].createSwapTransaction(transactionBlock, {
               a2b,
               amountIn,
               amountOut,
               byAmountIn,
               slippage,
             });
-
-            // If just one of the transactions ordered by a strategy are not possible to do, we shouldn't do any transactions at all
-            if (transactionBlock == undefined) {
-              transactionBlocks = [];
-              break;
-            }
-            transactionBlocks.push(transactionBlock);
           }
 
           // Execute the transactions
           // TODO: Do these as a programmable transaction instead of individually
           try {
-            for (const transactionBlock of transactionBlocks) {
-                let result = await this.signer
-                    .signAndExecuteTransactionBlock({
-                      transactionBlock,
-                      requestType: "WaitForLocalExecution",
-                      options: {
-                        showObjectChanges: true,
-                        showEffects: true,
-                      },
-                    });
-                logger.info(
-                    {strategy: strategy, transaction: result},
-                    "transaction"
-                );
-            }
-          } catch(e) {
+            transactionBlock.setGasBudget(1500000000);
+            let result = await this.signer.signAndExecuteTransactionBlock({
+              transactionBlock,
+              requestType: "WaitForLocalExecution",
+              options: {
+                showObjectChanges: true,
+                showEffects: true,
+              },
+            });
+            logger.info(
+              { strategy: strategy, transaction: result },
+              "transaction"
+            );
+          } catch (e) {
             logger.error(e);
           }
         }

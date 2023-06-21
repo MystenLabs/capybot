@@ -6,7 +6,10 @@ import {
   mainnetConnection,
 } from "@mysten/sui.js";
 import { keypair } from "../../index";
-import { buildInputCoinForAmount } from "../../utils/utils";
+import {
+  buildInputCoinForAmount,
+  getTotalBalanceByCoinType,
+} from "../../utils/utils";
 import { mainnet } from "../cetus/mainnet_config";
 import { testnet } from "../cetus/testnet_config";
 import { suiswapConfig } from "../dexsConfig";
@@ -44,34 +47,34 @@ export class Suiwap extends Pool<SuiswapParams> {
   }
 
   async createSwapTransaction(
+    transactionBlock: TransactionBlock,
     params: SuiswapParams
-  ): Promise<TransactionBlock | undefined> {
-    const txb = await this.createTransactionBlock(params.a2b, params.amountIn);
-    return txb;
-  }
-
-  async createTransactionBlock(
-    a2b: boolean,
-    amountIn: number
-  ): Promise<TransactionBlock | undefined> {
-    console.log(
-      `Swap: (${amountIn}) [${a2b ? this.coinTypeA : this.coinTypeB}], 
-       To: [${!a2b ? this.coinTypeA : this.coinTypeB}], 
-       pool: ${this.uri}`
-    );
+  ): Promise<TransactionBlock> {
+    console.log(`Swap: (${params.amountIn}) [${
+      params.a2b ? this.coinTypeA : this.coinTypeB
+    }], 
+       To: [${!params.a2b ? this.coinTypeA : this.coinTypeB}], 
+       pool: ${this.uri}`);
     const admin = process.env.ADMIN_ADDRESS;
 
     let provider = new JsonRpcProvider(mainnetConnection);
 
-    const functionName = a2b ? "swap_x_to_y" : "swap_y_to_x";
+    const functionName = params.a2b ? "swap_x_to_y" : "swap_y_to_x";
 
-    const transactionBlock = new TransactionBlock();
+    const totalBalanceForCoinType = await getTotalBalanceByCoinType(
+      provider,
+      admin!,
+      params.a2b ? this.coinTypeA : this.coinTypeB
+    );
+
+    if (BigInt(totalBalanceForCoinType) < params.amountIn)
+      return transactionBlock;
 
     const coins: TransactionArgument[] | undefined =
       await buildInputCoinForAmount(
         transactionBlock,
-        BigInt(amountIn),
-        a2b ? this.coinTypeA : this.coinTypeB,
+        BigInt(params.amountIn),
+        params.a2b ? this.coinTypeA : this.coinTypeB,
         admin!,
         provider
       );
@@ -84,7 +87,7 @@ export class Suiwap extends Pool<SuiswapParams> {
           transactionBlock.makeMoveVec({
             objects: coins,
           }),
-          transactionBlock.pure(amountIn.toFixed(0), "u64"),
+          transactionBlock.pure(params.amountIn.toFixed(0), "u64"),
           transactionBlock.pure(0, "u64"),
           transactionBlock.object(SUI_CLOCK_OBJECT_ID),
         ],
@@ -93,7 +96,8 @@ export class Suiwap extends Pool<SuiswapParams> {
 
       return transactionBlock;
     }
-    return undefined;
+
+    return transactionBlock;
   }
 
   async preswap(
@@ -110,12 +114,5 @@ export class Suiwap extends Pool<SuiswapParams> {
 
   async estimatePrice(): Promise<number> {
     return 0 ** 2 / 2 ** 128;
-  }
-
-  addToTransactionBlock(
-    transactionBlock: TransactionBlock,
-    txbToBeAdded: TransactionBlock
-  ): TransactionBlock {
-    return transactionBlock;
   }
 }

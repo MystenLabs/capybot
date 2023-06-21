@@ -63,14 +63,16 @@ export class TurbosPool extends Pool<TurbosParams> {
   }
 
   async createSwapTransaction(
+    transactionBlock: TransactionBlock,
     params: TurbosParams
-  ): Promise<TransactionBlock | undefined> {
+  ): Promise<TransactionBlock> {
     const txb = await this.createTransactionBlock(
       params.a2b,
       params.amountIn,
       params.amountSpecifiedIsInput,
       params.slippage
     );
+    if (typeof txb === "undefined") return new TransactionBlock();
     return txb;
   }
 
