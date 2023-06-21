@@ -43,4 +43,9 @@ export abstract class Pool<
       price: price,
     };
   }
+
+  abstract addToTransactionBlock(
+    transactionBlock: TransactionBlock,
+    txbToBeAdded: TransactionBlock
+  ): TransactionBlock;
 }

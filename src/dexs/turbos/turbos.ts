@@ -10,7 +10,7 @@ import {
 import BN from "bn.js";
 import Decimal from "decimal.js";
 import { keypair } from "../../index";
-import { buildInputCoinForAmount, getCoinDecimals } from "../../utils/utils";
+import { buildInputCoinForAmount } from "../../utils/utils";
 import { mainnet } from "../cetus/mainnet_config";
 import { testnet } from "../cetus/testnet_config";
 import { turbosConfig } from "../dexsConfig";
@@ -164,6 +164,13 @@ export class TurbosPool extends Pool<TurbosParams> {
       .mul(Decimal.pow(2, -64))
       .pow(2);
     return price.toNumber();
+  }
+
+  addToTransactionBlock(
+    transactionBlock: TransactionBlock,
+    txbToBeAdded: TransactionBlock
+  ): TransactionBlock {
+    return transactionBlock;
   }
 }
 

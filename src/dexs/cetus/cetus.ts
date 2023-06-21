@@ -6,6 +6,7 @@ import SDK, {
 } from "@cetusprotocol/cetus-sui-clmm-sdk/dist";
 import {
   JsonRpcProvider,
+  SUI_CLOCK_OBJECT_ID,
   TransactionBlock,
   mainnetConnection,
 } from "@mysten/sui.js";
@@ -147,5 +148,96 @@ export class CetusPool extends Pool<CetusParams> {
   async estimatePrice(): Promise<number> {
     let pool = await this.sdk.Pool.getPool(this.uri);
     return pool.current_sqrt_price ** 2 / 2 ** 128;
+  }
+
+  addToTransactionBlock(
+    transactionBlock: TransactionBlock,
+    txbToBeAdded: TransactionBlock
+  ): TransactionBlock {
+    let target = "";
+    let args: string[] = [];
+    let typeArguments: string[] = [];
+    let coins: string[] = [];
+
+    let packageName: string = "";
+    let moduleName: string = "";
+    let functionName: string = "";
+
+    if (typeof txbToBeAdded === "undefined") return transactionBlock;
+
+    console.log("*** transactionBlock ***: ", txbToBeAdded.blockData);
+
+    const moveCall = txbToBeAdded.blockData.transactions.find((obj) => {
+      if (obj.kind === "MoveCall") return obj.target;
+    });
+
+    if (moveCall?.kind === "MoveCall" && moveCall?.target) {
+      target = moveCall.target;
+      console.log("*** target ***: ", target);
+      [packageName, moduleName, functionName] = target.split("::");
+    }
+
+    console.log("*** packageName ***: ", packageName);
+    console.log("*** moduleName ***: ", moduleName);
+    console.log("*** functionName ***: ", functionName);
+
+    // if (moveCall?.kind === "MoveCall" && moveCall?.arguments) {
+    // const inputs = moveCall.arguments;
+
+    const inputs = txbToBeAdded.blockData.inputs;
+
+    args = [];
+
+    inputs.forEach((input) => {
+      console.log("*** input ***: ", input, " - input.type: ", input.type);
+      if (
+        input.kind === "Input" &&
+        (input.type === "object" || input.type === "pure")
+      )
+        args.push(input.value);
+    });
+
+    console.log("*** argumentsArray ***:", args);
+    // }
+
+    if (moveCall?.kind === "MoveCall" && moveCall?.typeArguments)
+      typeArguments = moveCall.typeArguments;
+    console.log("*** typeArguments ***: ", typeArguments);
+
+    let makeMoveVec = txbToBeAdded.blockData.transactions.find((obj) => {
+      if (obj.kind === "MakeMoveVec") return obj;
+    });
+    if (makeMoveVec?.kind === "MakeMoveVec" && makeMoveVec?.objects) {
+      coins = makeMoveVec.objects
+        .filter((obj) => obj.kind === "Input" && obj.value)
+        .map((obj) => (obj.kind === "Input" && obj?.value ? obj.value : null));
+      console.log("*** makeMoveVecValues ***: ", coins);
+    }
+
+    console.log("*** coins ***: ", coins);
+
+    args = args.filter((item) => !coins.includes(item));
+
+    console.log("*** args ***: ", args);
+
+    //
+    transactionBlock.moveCall({
+      target: `${packageName}::${moduleName}::${functionName}`,
+      arguments: [
+        transactionBlock.object(args[0]),
+        transactionBlock.object(args[1]),
+        transactionBlock.makeMoveVec({
+          objects: coins.map((id) => transactionBlock.object(id)),
+        }),
+        transactionBlock.pure(args[2]),
+        transactionBlock.pure(args[3]),
+        transactionBlock.pure(args[4]),
+        transactionBlock.pure(args[5]),
+        transactionBlock.object(SUI_CLOCK_OBJECT_ID),
+      ],
+      typeArguments,
+    });
+
+    return transactionBlock;
   }
 }

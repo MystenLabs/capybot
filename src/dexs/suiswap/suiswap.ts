@@ -111,4 +111,11 @@ export class Suiwap extends Pool<SuiswapParams> {
   async estimatePrice(): Promise<number> {
     return 0 ** 2 / 2 ** 128;
   }
+
+  addToTransactionBlock(
+    transactionBlock: TransactionBlock,
+    txbToBeAdded: TransactionBlock
+  ): TransactionBlock {
+    return transactionBlock;
+  }
 }
