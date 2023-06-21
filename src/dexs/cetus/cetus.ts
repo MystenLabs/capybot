@@ -165,31 +165,20 @@ export class CetusPool extends Pool<CetusParams> {
 
     if (typeof txbToBeAdded === "undefined") return transactionBlock;
 
-    console.log("*** transactionBlock ***: ", txbToBeAdded.blockData);
-
     const moveCall = txbToBeAdded.blockData.transactions.find((obj) => {
       if (obj.kind === "MoveCall") return obj.target;
     });
 
     if (moveCall?.kind === "MoveCall" && moveCall?.target) {
       target = moveCall.target;
-      console.log("*** target ***: ", target);
       [packageName, moduleName, functionName] = target.split("::");
     }
-
-    console.log("*** packageName ***: ", packageName);
-    console.log("*** moduleName ***: ", moduleName);
-    console.log("*** functionName ***: ", functionName);
-
-    // if (moveCall?.kind === "MoveCall" && moveCall?.arguments) {
-    // const inputs = moveCall.arguments;
 
     const inputs = txbToBeAdded.blockData.inputs;
 
     args = [];
 
     inputs.forEach((input) => {
-      console.log("*** input ***: ", input, " - input.type: ", input.type);
       if (
         input.kind === "Input" &&
         (input.type === "object" || input.type === "pure")
@@ -197,30 +186,19 @@ export class CetusPool extends Pool<CetusParams> {
         args.push(input.value);
     });
 
-    console.log("*** argumentsArray ***:", args);
-    // }
-
     if (moveCall?.kind === "MoveCall" && moveCall?.typeArguments)
       typeArguments = moveCall.typeArguments;
-    console.log("*** typeArguments ***: ", typeArguments);
 
     let makeMoveVec = txbToBeAdded.blockData.transactions.find((obj) => {
       if (obj.kind === "MakeMoveVec") return obj;
     });
-    if (makeMoveVec?.kind === "MakeMoveVec" && makeMoveVec?.objects) {
+    if (makeMoveVec?.kind === "MakeMoveVec" && makeMoveVec?.objects)
       coins = makeMoveVec.objects
         .filter((obj) => obj.kind === "Input" && obj.value)
         .map((obj) => (obj.kind === "Input" && obj?.value ? obj.value : null));
-      console.log("*** makeMoveVecValues ***: ", coins);
-    }
-
-    console.log("*** coins ***: ", coins);
 
     args = args.filter((item) => !coins.includes(item));
 
-    console.log("*** args ***: ", args);
-
-    //
     transactionBlock.moveCall({
       target: `${packageName}::${moduleName}::${functionName}`,
       arguments: [
