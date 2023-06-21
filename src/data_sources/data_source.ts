@@ -1,4 +1,4 @@
-import {DataEntry} from "../strategies/data_entry";
+import {DataEntry} from "./data_entry";
 
 /** A DataSource provides real-time price data for a pair of coins. This could be a trading pool or an exchange. */
 export abstract class DataSource {

@@ -4,6 +4,8 @@ import { CetusPool } from "./dexs/cetus/cetus";
 import { Arbitrage } from "./strategies/arbitrage";
 import { RideTheTrend } from "./strategies/ride_the_trend";
 import {TurbosPool} from "./dexs/turbos/turbos";
+import {MarketDifference} from "./strategies/market_difference";
+import {BinanceBTCtoUSDC} from "./data_sources/binance/BinanceBTCtoUSDC";
 
 // Convenience map from name to address for commonly used coins
 export const coins = {
@@ -15,6 +17,7 @@ export const coins = {
   WETH: "0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN",
   TOCE: "0xd2013e206f7983f06132d5b61f7c577638ff63171221f4f600a98863febdfb47::toce::TOCE",
   USDT: "0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN",
+  WBTC: "0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN",
 };
 
 // Setup default amount to trade for each token in each pool. Set to approximately 1 USD each.
@@ -27,6 +30,7 @@ defaultAmount[coins.BRT] = 150_000_000_000_000;
 defaultAmount[coins.WETH] = 100_000;
 defaultAmount[coins.TOCE] = 100_000_000_000;
 defaultAmount[coins.USDT] = 1_000_000;
+defaultAmount[coins.WBTC] = 3_000;
 
 const RIDE_THE_THREAD_LIMIT = 1.00001;
 const ARBITRAGE_RELATIVE_LIMIT = 1.001;
@@ -57,11 +61,18 @@ const turbosSUItoUSDC = new TurbosPool(
   coins.USDC,
   "0x91bfbc386a41afcfd9b2533058d7e915a1d3829089cc268ff4333d54d6339ca1::fee3000bps::FEE3000BPS"
 );
+const cetusWBTCtoUSDC = new CetusPool(
+  "0xaa57c66ba6ee8f2219376659f727f2b13d49ead66435aa99f57bb008a64a8042",
+  coins.WBTC,
+  coins.USDC,
+);
 
 capybot.addPool(cetusUSDCtoSUI);
 capybot.addPool(cetusCETUStoSUI);
 capybot.addPool(cetusUSDCtoCETUS);
 capybot.addPool(turbosSUItoUSDC);
+capybot.addPool(cetusWBTCtoUSDC);
+capybot.addDataSource(new BinanceBTCtoUSDC());
 
 // Trend riding strategies
 capybot.addStrategy(
@@ -139,7 +150,14 @@ capybot.addStrategy(
   )
 );
 
-// TODO: Add exchanges as data sources and use MarketDifference strategy once PR #5 lands
+capybot.addStrategy(
+  new MarketDifference(
+    cetusWBTCtoUSDC,
+    ["BinanceBTCtoUSDC"],
+    [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
+    ARBITRAGE_RELATIVE_LIMIT
+  )
+);
 
 // Start the bot
 capybot.loop(3.6e6, 1000);
