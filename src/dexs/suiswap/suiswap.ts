@@ -33,7 +33,7 @@ function buildSdkOptions() {
   }
 }
 
-export class Suiwap extends Pool<SuiswapParams> {
+export class SuiswapPool extends Pool<SuiswapParams> {
   private package: string;
   private module: string;
   private senderAddress: string;
@@ -55,7 +55,6 @@ export class Suiwap extends Pool<SuiswapParams> {
     }], 
        To: [${!params.a2b ? this.coinTypeA : this.coinTypeB}], 
        pool: ${this.uri}`);
-    const admin = process.env.ADMIN_ADDRESS;
 
     let provider = new JsonRpcProvider(mainnetConnection);
 
@@ -63,7 +62,7 @@ export class Suiwap extends Pool<SuiswapParams> {
 
     const totalBalanceForCoinType = await getTotalBalanceByCoinType(
       provider,
-      admin!,
+      this.senderAddress!,
       params.a2b ? this.coinTypeA : this.coinTypeB
     );
 
@@ -75,7 +74,7 @@ export class Suiwap extends Pool<SuiswapParams> {
         transactionBlock,
         BigInt(params.amountIn),
         params.a2b ? this.coinTypeA : this.coinTypeB,
-        admin!,
+        this.senderAddress!,
         provider
       );
 

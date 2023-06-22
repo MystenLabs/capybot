@@ -14,7 +14,6 @@ import BN from "bn.js";
 import { getCoinInfo } from "../../coins/coins";
 import { keypair } from "../../index";
 import { getTotalBalanceByCoinType } from "../../utils/utils";
-import { cetusConfig } from "../dexsConfig";
 import { CetusParams } from "../dexsParams";
 import { Pool, PreswapResult } from "../pool";
 import { mainnet } from "./mainnet_config";
@@ -25,22 +24,16 @@ function buildSdkOptions(): SdkOptions {
 
 export class CetusPool extends Pool<CetusParams> {
   private sdk: SDK;
-  private package: string;
-  private module: string;
-  private globalConfig: string;
   private provider: JsonRpcProvider;
-  private ownerAddress: string;
+  private senderAddress: string;
 
   constructor(address: string, coinTypeA: string, coinTypeB: string) {
     super(address, coinTypeA, coinTypeB);
     this.sdk = new SDK(buildSdkOptions());
     this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress();
 
-    this.package = cetusConfig.contract.PackageId;
-    this.module = cetusConfig.contract.ModuleId;
-    this.globalConfig = cetusConfig.contract.GlobalConfig;
     this.provider = new JsonRpcProvider(mainnetConnection);
-    this.ownerAddress = process.env.ADMIN_ADDRESS!;
+    this.senderAddress = keypair.getPublicKey().toSuiAddress();
   }
 
   async createSwapTransaction(
@@ -49,7 +42,7 @@ export class CetusPool extends Pool<CetusParams> {
   ): Promise<TransactionBlock> {
     const totalBalance = await getTotalBalanceByCoinType(
       this.provider,
-      this.ownerAddress,
+      this.senderAddress,
       params.a2b ? this.coinTypeA : this.coinTypeB
     );
 

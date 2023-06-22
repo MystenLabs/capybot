@@ -6,9 +6,12 @@ import {
   mainnetConnection,
 } from "@mysten/sui.js";
 import { setTimeout } from "timers/promises";
+import { CetusPool } from "./dexs/cetus/cetus";
 import { DataSource } from "./dexs/data_source";
 import { CetusParams, SuiswapParams, TurbosParams } from "./dexs/dexsParams";
 import { Pool } from "./dexs/pool";
+import { SuiswapPool } from "./dexs/suiswap/suiswap";
+import { TurbosPool } from "./dexs/turbos/turbos";
 import { logger } from "./logger";
 import { Strategy } from "./strategies/strategy";
 
@@ -73,15 +76,28 @@ export class Capybot {
             const byAmountIn: boolean = true;
             const slippage: number = 1; // TODO: Define this in a meaningful way. Perhaps by the strategies.
 
-            transactionBlock = await this.pools[
-              order.pool
-            ].createSwapTransaction(transactionBlock, {
-              a2b,
-              amountIn,
-              amountOut,
-              byAmountIn,
-              slippage,
-            });
+            // Check pool type and create transaction accordingly
+            if (this.pools[order.pool] instanceof CetusPool) {
+              console.log("CetusPool transactionBlock");
+              transactionBlock = await this.pools[
+                order.pool
+              ].createSwapTransaction(transactionBlock, {
+                a2b,
+                amountIn,
+                amountOut,
+                byAmountIn,
+                slippage,
+              });
+            } else if (this.pools[order.pool] instanceof SuiswapPool) {
+              console.log("SuiswapPool transactionBlock");
+              transactionBlock = await this.pools[
+                order.pool
+              ].createSwapTransaction(transactionBlock, {
+                a2b,
+                amountIn,
+              });
+            } else if (this.pools[order.pool] instanceof TurbosPool) {
+            }
           }
 
           // Execute the transactions
