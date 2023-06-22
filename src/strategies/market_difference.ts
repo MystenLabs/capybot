@@ -1,8 +1,8 @@
 import {Strategy} from "./strategy";
-import {DataEntry} from "../data_sources/data_entry";
+import {DataPoint, DataType} from "../data_sources/data_point";
 import {TradeOrder} from "./order";
 import {Pool} from "../dexs/pool";
-import { CetusParams, SuiswapParams, TurbosParams } from "../dexs/dexsParams";
+import {CetusParams, SuiswapParams, TurbosParams} from "../dexs/dexsParams";
 
 export class MarketDifference extends Strategy {
   private readonly pool: Pool<CetusParams | SuiswapParams | TurbosParams>;
@@ -38,9 +38,15 @@ export class MarketDifference extends Strategy {
     this.limit = limit;
   }
 
-  evaluate(data: DataEntry): Array<TradeOrder> {
-    if (data.source == this.pool.uri) {
-      this.latestPoolPrice = data.price;
+  evaluate(data: DataPoint): Array<TradeOrder> {
+    if (data.type != DataType.Price) {
+      return [];
+    }
+
+    let price = data.price;
+
+    if (data.source_uri == this.pool.uri) {
+      this.latestPoolPrice = price;
       return [];
     }
 
@@ -48,10 +54,10 @@ export class MarketDifference extends Strategy {
       return [];
     }
 
-    let priceRatio = data.price / this.latestPoolPrice;
+    let priceRatio = price / this.latestPoolPrice;
     this.logStatus({
       poolPrice: this.latestPoolPrice,
-      exchangePrice: data.price,
+      exchangePrice: price,
       priceRatio,
     });
 

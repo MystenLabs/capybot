@@ -1,5 +1,5 @@
 import { TransactionBlock } from "@mysten/sui.js";
-import { DataEntry, SourceType } from "../data_sources/data_entry";
+import { DataPoint, DataType} from "../data_sources/data_point";
 import { DataSource } from "../data_sources/data_source";
 import { CetusParams, SuiswapParams, TurbosParams } from "./dexsParams";
 
@@ -33,11 +33,11 @@ export abstract class Pool<
 
   abstract estimatePrice(): Promise<number>;
 
-  async getData(): Promise<DataEntry> {
+  async getData(): Promise<DataPoint> {
     let price = await this.estimatePrice();
     return {
-      sourceType: SourceType.Pool,
-      source: this.uri,
+      type: DataType.Price,
+      source_uri: this.uri,
       coinTypeFrom: this.coinTypeA,
       coinTypeTo: this.coinTypeB,
       price: price,
