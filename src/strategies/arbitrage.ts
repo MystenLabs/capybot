@@ -41,7 +41,7 @@ export class Arbitrage extends Strategy {
         }
 
         // Update history
-        this.latestRate[data.source_uri] = data.payload.price;
+        this.latestRate[data.source_uri] = data.price;
 
         // Compute the price when exchanging coins around the chain
         let arbitrage = 1;

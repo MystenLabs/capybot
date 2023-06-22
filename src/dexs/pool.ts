@@ -38,11 +38,9 @@ export abstract class Pool<
     return {
       type: DataType.Price,
       source_uri: this.uri,
-      payload: {
-        coinTypeFrom: this.coinTypeA,
-        coinTypeTo: this.coinTypeB,
-        price: price,
-      }
+      coinTypeFrom: this.coinTypeA,
+      coinTypeTo: this.coinTypeB,
+      price: price,
     };
   }
 }

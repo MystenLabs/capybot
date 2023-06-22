@@ -53,7 +53,7 @@ export class RideTheTrend extends Strategy {
         this.lastDecision++;
 
         // Get the current price from the data point
-        let price = data.payload.price;
+        let price = data.price;
 
         // Add the new data point to the history
         this.history.push(price);

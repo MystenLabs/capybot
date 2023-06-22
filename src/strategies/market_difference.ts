@@ -43,7 +43,7 @@ export class MarketDifference extends Strategy {
       return [];
     }
 
-    let price = data.payload.price;
+    let price = data.price;
 
     if (data.source_uri == this.pool.uri) {
       this.latestPoolPrice = price;
