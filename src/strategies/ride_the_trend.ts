@@ -1,4 +1,4 @@
-import {DataEntry, SourceType} from "../data_sources/data_entry";
+import {DataPoint, DataType} from "../data_sources/data_point";
 import {average} from "simple-statistics";
 import {Strategy} from "./strategy";
 import {TradeOrder} from "./order";
@@ -15,7 +15,7 @@ export class RideTheTrend extends Strategy {
     private lastDecision: number = 0;
     private readonly pool: string;
 
-    private history: Array<DataEntry> = [];
+    private history: Array<number> = [];
     private readonly limit: number;
     private readonly defaultAmounts: [number, number];
 
@@ -42,18 +42,21 @@ export class RideTheTrend extends Strategy {
         this.limit = limit;
     }
 
-    evaluate(data: DataEntry): Array<TradeOrder> {
+    evaluate(data: DataPoint): Array<TradeOrder> {
 
         // This strategy is only interested in the price from the pool it's observing
-        if (data.sourceType != SourceType.Pool || data.source != this.pool) {
+        if (data.type != DataType.Price || data.source_uri != this.pool) {
             return [];
         }
 
         // Keep track of last time this strategy called for a trade. If it was very recent, our trade might have influenced the price.
         this.lastDecision++;
 
+        // Get the current price from the data point
+        let price = data.payload.price;
+
         // Add the new data point to the history
-        this.history.push(data);
+        this.history.push(price);
         if (this.history.length < this.long) {
             return [];
         }
@@ -65,11 +68,11 @@ export class RideTheTrend extends Strategy {
 
         // We're certain that the history has length this.long at this point
         // TODO: We can do this by streaming instead of recomputing the average every time
-        let short_average = average(this.history.slice(this.history.length - this.short, this.history.length).map(d => d.price));
-        let long_average = average(this.history.map(d => d.price));
+        let short_average = average(this.history.slice(this.history.length - this.short, this.history.length));
+        let long_average = average(this.history);
 
         this.logStatus({
-            price: data.price,
+            price: price,
             short_average: short_average,
             long_average: long_average
         });
@@ -88,7 +91,7 @@ export class RideTheTrend extends Strategy {
                 return [{
                     pool: this.pool,
                     amountIn: this.defaultAmounts[0],
-                    estimatedPrice: data.price,
+                    estimatedPrice: price,
                     a2b: true
                 }];
             } else if (short_average / long_average < 1 / this.limit && this.shortWasHigher) {
@@ -98,7 +101,7 @@ export class RideTheTrend extends Strategy {
                 return [{
                     pool: this.pool,
                     amountIn: this.defaultAmounts[1],
-                    estimatedPrice: 1 / data.price,
+                    estimatedPrice: 1 / price,
                     a2b: false
                 }];
             }

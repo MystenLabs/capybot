@@ -1,4 +1,4 @@
-import {DataEntry} from "../data_sources/data_entry";
+import {DataPoint} from "../data_sources/data_point";
 import {TradeOrder} from "./order";
 import {Md5} from "ts-md5";
 import {logger} from "../logger";
@@ -20,7 +20,7 @@ export abstract class Strategy {
      *
      * @param data The data to evaluate.
      */
-    abstract evaluate(data: DataEntry): Array<TradeOrder>;
+    abstract evaluate(data: DataPoint): Array<TradeOrder>;
 
     /**
      * The pools and coin types this pool needs information from.

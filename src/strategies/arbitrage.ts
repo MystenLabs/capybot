@@ -1,4 +1,4 @@
-import {DataEntry, SourceType} from "../data_sources/data_entry";
+import {DataPoint, DataType} from "../data_sources/data_point";
 import {Strategy} from "./strategy";
 import {TradeOrder} from "./order";
 
@@ -34,15 +34,14 @@ export class Arbitrage extends Strategy {
         this.poolChainAsString = this.poolChain.map(p => p.pool.substring(0, 8)).toString();
     }
 
-    evaluate(data: DataEntry): Array<TradeOrder> {
-
+    evaluate(data: DataPoint): Array<TradeOrder> {
         // This strategy is only interested in the price from the pools it's observing
-        if (data.sourceType != SourceType.Pool || !this.poolChain.map(p => p.pool).includes(data.source)) {
+        if (data.type != DataType.Price || !this.poolChain.map(p => p.pool).includes(data.source_uri)) {
             return [];
         }
 
         // Update history
-        this.latestRate[data.source] = data.price;
+        this.latestRate[data.source_uri] = data.payload.price;
 
         // Compute the price when exchanging coins around the chain
         let arbitrage = 1;
