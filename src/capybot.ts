@@ -85,27 +85,32 @@ export class Capybot {
           }
 
           // Execute the transactions
-          // TODO: Do these as a programmable transaction instead of individually
-          try {
-            transactionBlock.setGasBudget(1500000000);
-            let result = await this.signer.signAndExecuteTransactionBlock({
-              transactionBlock,
-              requestType: "WaitForLocalExecution",
-              options: {
-                showObjectChanges: true,
-                showEffects: true,
-              },
-            });
-            logger.info(
-              { strategy: strategy, transaction: result },
-              "transaction"
-            );
-          } catch (e) {
-            logger.error(e);
-          }
+          await this.executeTransactionBlock(transactionBlock, strategy);
         }
       }
       await setTimeout(delay);
+    }
+  }
+
+  private async executeTransactionBlock(
+    transactionBlock: TransactionBlock,
+    strategy: Strategy
+  ) {
+    if (transactionBlock.blockData.transactions.length !== 0) {
+      try {
+        transactionBlock.setGasBudget(1500000000);
+        let result = await this.signer.signAndExecuteTransactionBlock({
+          transactionBlock,
+          requestType: "WaitForLocalExecution",
+          options: {
+            showObjectChanges: true,
+            showEffects: true,
+          },
+        });
+        logger.info({ strategy: strategy, transaction: result }, "transaction");
+      } catch (e) {
+        logger.error(e);
+      }
     }
   }
 
