@@ -1,7 +1,6 @@
 # Capy Arbitrage Bot
 
-This repository contains a simple arbitrage bot which is designed to find and take advantage of arbitrage opportunities in different SUI DEXs.
-Since it is still in BETA version, it might not be profitable.
+This repository contains simple DeFi bots which are designed to find and take advantage of arbitrage opportunities in different SUI DEXs and/or perform trading activities based on script-logic strategies. Since it is still in BETA version, the agents might not be profitable and are mainly open-sourced as a reference implementation that could be reused to implement custom strategies.
 
 ## Features
 
@@ -71,6 +70,11 @@ export ADMIN_ADDRESS="0x..."
 2. Run the script with `npm run start`
 
 This will run the bot for one hour. To run the bot for longer you should change the `duration` value in the call to `capybot.loop` in `src/index.ts`.
+
+## Monitoring
+The Capybot Monitor is a collection of Python scripts to monitor the status of a running instance of a Capybot. It produces live updated plots like the following which shows the price development for the swap pools the given Capybot was trading where 1 is the price when the bot was started.
+![pools](https://github.com/MystenLabs/capybot/assets/6288307/553a517c-cccb-4b26-8361-257cf63dd4d8)
+Installation instructions are available on the [Capybot Monitor repository](https://github.com/MystenLabs/capybot-monitor/tree/main).
 
 ## Contributing
 

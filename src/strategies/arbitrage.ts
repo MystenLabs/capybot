@@ -57,6 +57,7 @@ export class Arbitrage extends Strategy {
         this.logStatus({arbitrage: arbitrage});
 
         if (arbitrage > this.lowerLimit) {
+            // The amount of A by trading around the chain is higher than the amount in.
             let orders = [];
             let amountIn: number = this.defaultAmount;
             for (const pool of this.poolChain) {
@@ -71,6 +72,7 @@ export class Arbitrage extends Strategy {
             }
             return orders;
         } else if (arbitrage < 1 / this.lowerLimit) {
+            // The amount of A by trading around the chain is lower than the amount in. Trade in the opposite direction.
             let orders = [];
             let amount: number = this.defaultAmount;
             for (const pool of this.poolChain.reverse()) {
