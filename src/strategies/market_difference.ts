@@ -58,7 +58,6 @@ export class MarketDifference extends Strategy {
     this.logStatus({
       poolPrice: this.latestPoolPrice,
       exchangePrice: price,
-      priceRatio,
     });
 
     if (priceRatio > this.limit) {
