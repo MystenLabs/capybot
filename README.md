@@ -9,11 +9,12 @@ This repository contains simple DeFi bots in Typescript, which are designed to f
 - The `Arbitrage` strategy finds arbitrage opportunities across multiple DEXs and uses Programmable transactions to simulate flashbot activity for atomicity.
 - Automatically executes trades when profitable opportunities are found.
 - Supports multiple cryptocurrencies and trading pairs, currently supporting 3 Sui DEXs.
+- Supports receiving data from multiple sources, including external such as Binance. At the moment, feeds from [CCTX (CryptoCurrency eXchange Trading Library)](https://github.com/ccxt/ccxt) are utilized to get the latest prices from Binance. Note that CCTX supports Binance, Bitget, Coinbase, Kraken, KuCoin and OKx, and it is straight-forward to accept feeds from these CEXs as well.
 
 ## Overview
 In Capybot, **strategies** subscribe to relevant **data sources** and creates **trade orders** based on the information they get.
 Every second, Capybot requests new data points from each data source. When a new data point is received, Capybot sends
-it to subscribing strategies which return trade orders to Capybot. These trade orders are then exectued by submitting
+it to subscribing strategies which return trade orders to Capybot. These trade orders are then executed by submitting
 transactions to the relevant swap pools modules. If a strategy returns multiple trade orders, they are submitted as a single 
 transaction.
 
@@ -42,7 +43,7 @@ There are currently three treading strategies implemented in Capybot:
 
 Strategies are located in the `src/strategies` folder, and each strategy extends the `Strategy` class which requires the
 `evaluate` method to be implemented. The `evaluate` method is called every second with the latest data point from the
-data sources and should return an (potentially empty) array of trade orders.
+data sources and should return a (potentially empty) array of trade orders.
 
 If you want to add other strategies, you should implement it as described above and add it to Capybot by calling `capybot.addStrategy` 
 in `src/index.ts`.
@@ -50,10 +51,10 @@ in `src/index.ts`.
 ## Data sources
 There are two different kind of data sources in Capybot: Swap pools and external sources. Capybot may order trades from 
 swap pools, and they provide the current relative price of the tokens in the pool. External sources may provide any kind 
-of information that could be relavant for strategies.
+of information that could be relevant for strategies.
 
 At the moment, Capybot supports swap pools from [Cetus](https://www.cetus.zone/), [Turbos](https://turbos.finance/) and 
-[Suiswap](https://suiswap.app/app/), and uses Binance as an external data sources for the relative prices of some token 
+[Suiswap](https://suiswap.app/app/), and uses Binance (via [CCTX](https://github.com/ccxt/ccxt)) as an external data sources for the relative prices of some token 
 pairs.
 
 ## Installation
@@ -81,10 +82,10 @@ Installation instructions are available on the [Capybot Monitor repository](http
 ## Pools
 The table below lists all the pools for the 3 DEXs:
 
-| Dex | Description |
-| --- | --- |
+| DEX        | Description |
+|------------| --- |
 | git status | List all new or modified files |
-| git diff | Show file differences that haven't been staged |
+| git diff   | Show file differences that haven't been staged |
 
 
 | DEX | Coin A - CoinB | Pool |
@@ -134,6 +135,6 @@ The table below lists all the pools for the 3 DEXs:
 |		|	USDCsol - USDC	|	0x2d87656c2a116b04a790abade9a66bee2abf184c2d0f1abed6e0b1196e136769	|
 |		|	WETH - USDC	|	0x1937e826d0e546e8e0ea7511d0abfde86a2b64b68ca8f504b8059e800bf167f0	|
 |		|	USDC - USDT	|	0x08948c60f307c52f8f9dc5b2a6a832feef159318998e375560d3187c1c25fbce	|
-## Contributing
 
+## Contributing
 Contributions are welcome! Please open an issue or pull request if you have any suggestions or improvements.
