@@ -85,8 +85,8 @@ export class RideTheTrend extends Strategy {
 
         // The last trade could have influenced the price, so we wait until this effect has passed
         if (short_average != long_average && this.lastDecision > this.short + 1) {
-            if (short_average / long_average > this.limit && !this.shortWasHigher) {
-                // Trend has gone up - buy B for A
+            if (short_average / long_average < 1 / this.limit && this.shortWasHigher) {
+                // The value of A is going down.
                 this.lastDecision = 0;
                 this.shortWasHigher = true;
                 return [{
@@ -95,8 +95,8 @@ export class RideTheTrend extends Strategy {
                     estimatedPrice: price,
                     a2b: true
                 }];
-            } else if (short_average / long_average < 1 / this.limit && this.shortWasHigher) {
-                // Trend is going down - buy A for B
+            } else if (short_average / long_average > this.limit && !this.shortWasHigher) {
+                // The value of A is going up.
                 this.lastDecision = 0;
                 this.shortWasHigher = false;
                 return [{
