@@ -27,10 +27,11 @@ export class RideTheTrend extends Strategy {
      * @param long The length of the long moving average.
      * @param defaultAmounts The number of tokens to swap of coin type A and B resp. when the trend changes.
      * @param limit Relative limit is percentage, eg. 1.05 for a 5% win
+     * @param name A human readable name for this strategy.
      */
-    constructor(pool: string, short: number, long: number, defaultAmounts: [number, number], limit: number) {
+    constructor(pool: string, short: number, long: number, defaultAmounts: [number, number], limit: number, name: string) {
         super({
-            name: "RideTheTrend",
+            name: name,
             pool: pool,
             short: short,
             long: long

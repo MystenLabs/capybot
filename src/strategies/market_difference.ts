@@ -20,15 +20,17 @@ export class MarketDifference extends Strategy {
    * @param defaultAmounts The default amounts to trade when the price difference is too large.
    * @param limit The relative limit for the price difference. If the price difference is larger than this, a trade will be made.
    *             A value of 1.05 means that the price difference should be at least 5%.
+   * @param name A human-readable name for this strategy.
    */
   constructor(
     pool: Pool<CetusParams | SuiswapParams | TurbosParams>,
     exchanges: Array<string>,
     defaultAmounts: [number, number],
-    limit: number
+    limit: number,
+    name: string,
   ) {
     super({
-      name: "MarketDifference",
+      name: name,
       pool: pool.uri,
       exchanges: exchanges,
     });
