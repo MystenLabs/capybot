@@ -83,7 +83,9 @@ This will run the bot for one hour. To run the bot for longer you should change 
 ## Monitoring
 
 The Capybot Monitor is a collection of Python scripts to monitor the status of a running instance of a Capybot. It produces live updated plots like the following which shows the price development for the swap pools the given Capybot was trading where 1 is the price when the bot was started.
+
 <img src="./images/pools.png" alt="pools">
+
 Installation instructions are available on the [Capybot Monitor repository](https://github.com/MystenLabs/capybot-monitor).
 
 ## Pools
