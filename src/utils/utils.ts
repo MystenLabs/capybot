@@ -126,14 +126,6 @@ export function composeType(address: string, ...args: unknown[]): string {
   return result;
 }
 
-// const primaryCoinInputs =
-//   (await TransactionUtil.syncBuildCoinInputForAmount(
-//     this._sdk,
-//     tx,
-//     BigInt(min_sale_amount),
-//     params.coin_type_sale
-//   )) as TransactionArgument;
-
 export async function selectTradeCoins(
   provider: JsonRpcProvider,
   owner: SuiAddress,
@@ -204,15 +196,6 @@ export async function getBalancesForCoinTypes(
     console.log(coinType, " - ", BigInt(coinBalance.totalBalance));
     coinsBalances.set(coinType, BigInt(coinBalance.totalBalance));
   }
-
-  // coinTypes.forEach(async (coinType) => {
-  //   console.log(coinType);
-  //   let coinBalance = await provider.getBalance({
-  //     owner,
-  //     coinType,
-  //   });
-  //   coinsBalances.set(coinType, BigInt(coinBalance.totalBalance));
-  // });
 
   return coinsBalances;
 }
