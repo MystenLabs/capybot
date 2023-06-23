@@ -13,7 +13,7 @@ This repository contains simple DeFi bots in Typescript, which are designed to f
 
 ## Overview
 
-In Capybot, **strategies** subscribe to relevant **data sources** and creates **trade orders** based on the information they get.
+In Capybot, **strategies** subscribe to relevant **data sources** and create **trade orders** based on the information they get.
 Every second, Capybot requests new data points from each data source. When a new data point is received, Capybot sends
 it to subscribing strategies which return trade orders to Capybot. These trade orders are then executed by submitting
 transactions to the relevant swap pools modules. If a strategy returns multiple trade orders, they are submitted as a single
@@ -38,7 +38,7 @@ sequenceDiagram
 
 ## Strategies
 
-There are currently three treading strategies implemented in Capybot:
+There are currently three trading strategies implemented in Capybot:
 
 - `Arbitrage`: This strategy looks for [arbitrage opportunities](https://en.wikipedia.org/wiki/Triangular_arbitrage) in chains of two or more swap pools across different DEXs. It computes the product of the prices along the chain of swap pools, say SUI -> USDC -> CETUS -> SUI, and if the product is different from 1 it means there is an arbitrage opportunity.
 - `RideTheTrend`: This strategy looks for [trend following](https://en.wikipedia.org/wiki/Trend_following) opportunities in a single swap pool by comparing a short moving average with a longer moving average to get an indication whether the price is going up or down.
@@ -53,7 +53,7 @@ in `src/index.ts`.
 
 ## Data sources
 
-There are two different kind of data sources in Capybot: Swap pools and external sources. Capybot may order trades from
+There are two different types of data sources in Capybot: Swap pools and external sources. Capybot may order trades from
 swap pools, and they provide the current relative price of the tokens in the pool. External sources may provide any kind
 of information that could be relevant for strategies.
 
