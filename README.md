@@ -5,19 +5,14 @@ This repository contains simple DeFi bots in Typescript, which are designed to f
 ## Features
 
 - Implements a basic `Strategy` interface (developers can implement their own strategies).
-- Provides 3 basic trading strategies as reference implementations.
-- The `Arbitrage` strategy finds arbitrage opportunities across multiple DEXs and uses Programmable transactions to simulate flashbot activity for atomicity.
-- Automatically executes trades when profitable opportunities are found.
-- Supports multiple cryptocurrencies and trading pairs, currently supporting 3 Sui DEXs.
-- Supports receiving data from multiple sources, including external, such as Binance. At the moment, feeds from [CCTX (CryptoCurrency eXchange Trading Library)](https://github.com/ccxt/ccxt) are utilized to get the latest prices from Binance. Note that CCTX supports Binance, Bitget, Coinbase, Kraken, KuCoin and OKX, and it is straight-forward to accept feeds from these CEXs as well.
+- Provides three basic trading strategies as reference implementations (described later in this Readme).
+- Automatically executes trades when it finds profitable opportunities.
+- Supports multiple cryptocurrencies and trading pairs; currently supporting trading on three Sui DEXs.
+- Supports receiving data from multiple sources, including swap pools and external sources like Binance. Currently, the bot utilizes feeds from [CCTX (CryptoCurrency eXchange Trading Library)](https://github.com/ccxt/ccxt) to get the latest prices from Binance. Note that CCTX supports Binance, Bitget, Coinbase, Kraken, KuCoin and OKX, and it is straight-forward to accept feeds from these CEXs as well.
 
 ## Overview
 
-In Capybot, **strategies** subscribe to relevant **data sources** and create **trade orders** based on the information they get.
-Every second, Capybot requests new data points from each data source. When a new data point is received, Capybot sends
-it to subscribing strategies which return trade orders to Capybot. These trade orders are then executed by submitting
-transactions to the relevant swap pools modules. If a strategy returns multiple trade orders, they are submitted as a single
-transaction.
+In Capy Trading Bot, **strategies** subscribe to relevant **data sources** and create **trade orders** based on the information they get. Every second, Capy Trading Bot requests new data points from each data source. When it receives a new data point, Capy Trading Bot sends it to subscribing strategies which return trade orders to Capy Trading Bot. Capy Trading Bot submits transactions to the relevant swap pools modules to execute these trade orders. If a strategy returns multiple trade orders, Capy Trading Bot submits them as a single transaction.
 
 ```mermaid
 sequenceDiagram
@@ -38,28 +33,23 @@ sequenceDiagram
 
 ## Strategies
 
-There are currently three trading strategies implemented in Capybot:
-
+Capy Trading Bot supports the following three trading strategies:
 - `Arbitrage`: This strategy looks for [arbitrage opportunities](https://en.wikipedia.org/wiki/Triangular_arbitrage) in chains of two or more swap pools across different DEXs. It computes the product of the prices along the chain of swap pools, say SUI -> USDC -> CETUS -> SUI, and if the product is different from 1 it means there is an arbitrage opportunity.
 - `RideTheTrend`: This strategy looks for [trend following](https://en.wikipedia.org/wiki/Trend_following) opportunities in a single swap pool by comparing a short moving average with a longer moving average to get an indication whether the price is going up or down.
-- `MarketDifference`: This strategy compares the relative price of a token pair in a swap pool with the price of the same pair on an exchange, e.g. Binance. If the price differs, the strategy suggests to either trade or short a given token.
+- `MarketDifference`: This strategy compares the relative price of a token pair in a swap pool with the price of the same pair on an exchange, such as Binance. If the price differs, the strategy suggests to either go long or short a given token.
 
 Strategies are located in the `src/strategies` folder, and each strategy extends the `Strategy` class which requires the
 `evaluate` method to be implemented. The `evaluate` method is called every second with the latest data point from the
 data sources and should return a (potentially empty) array of trade orders.
 
-If you want to add other strategies, you should implement it as described above and add it to Capybot by calling `capybot.addStrategy`
-in `src/index.ts`.
+To add other strategies, you can implement them as described above and add it to Capy Trading Bot by calling `capybot.addStrategy` in `src/index.ts`.
 
 ## Data sources
 
-There are two different types of data sources in Capybot: Swap pools and external sources. Capybot may order trades from
-swap pools, and they provide the current relative price of the tokens in the pool. External sources may provide any kind
-of information that could be relevant for strategies.
+Capy Trading Bot can leverage two different types of data sources: Swap pools and external sources. Capy Trading Bot can execute trades via swap pools, and swap pools provide the current token price in the pool. External data sources can provide additional data that could be useful inputs to trading strategies.
 
-At the moment, Capybot supports swap pools from [Cetus](https://www.cetus.zone/), [Turbos](https://turbos.finance/) and
-[Suiswap](https://suiswap.app/app/), and uses Binance (via [CCTX](https://github.com/ccxt/ccxt)) as an external data source for the relative prices of some token
-pairs.
+In this release, Capy Trading Bot supports swap pools from [Cetus](https://www.cetus.zone/), [Turbos](https://turbos.finance/) and
+[Suiswap](https://suiswap.app/app/), and uses Binance (via [CCTX](https://github.com/ccxt/ccxt)) as an external data source for the relative prices of some token pairs.
 
 ## Installation
 
