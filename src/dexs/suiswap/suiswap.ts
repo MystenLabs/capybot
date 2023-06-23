@@ -46,6 +46,12 @@ export class SuiswapPool extends Pool<SuiswapParams> {
     this.module = suiswapConfig.contract.ModuleId;
   }
 
+  /**
+   * Create swap transaction
+   * @param transactionBlock Transaction block
+   * @param params Suiswap parameters
+   * @returns Transaction block
+   */
   async createSwapTransaction(
     transactionBlock: TransactionBlock,
     params: SuiswapParams

@@ -72,6 +72,12 @@ export class TurbosPool extends Pool<TurbosParams> {
     this.senderAddress = keypair.getPublicKey().toSuiAddress();
   }
 
+  /**
+   * Create swap transaction
+   * @param transactionBlock Transaction block
+   * @param params Turbos parameters
+   * @returns Transaction block
+   */
   async createSwapTransaction(
     transactionBlock: TransactionBlock,
     params: TurbosParams

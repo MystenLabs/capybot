@@ -36,6 +36,12 @@ export class CetusPool extends Pool<CetusParams> {
     this.senderAddress = keypair.getPublicKey().toSuiAddress();
   }
 
+  /**
+   * Create swap transaction
+   * @param transactionBlock Transaction block
+   * @param params Cetus parameters
+   * @returns Transaction block
+   */
   async createSwapTransaction(
     transactionBlock: TransactionBlock,
     params: CetusParams
