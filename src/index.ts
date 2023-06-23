@@ -32,8 +32,8 @@ defaultAmount[coins.TOCE] = 100_000_000_000;
 defaultAmount[coins.USDT] = 1_000_000;
 defaultAmount[coins.WBTC] = 3_000;
 
-const RIDE_THE_THREAD_LIMIT = 1.00001;
-const ARBITRAGE_RELATIVE_LIMIT = 1.001;
+const RIDE_THE_THREAD_LIMIT = 1.000005;
+const ARBITRAGE_RELATIVE_LIMIT = 1.01;
 
 // Setup wallet from passphrase.
 const phrase = process.env.ADMIN_PHRASE;
@@ -84,7 +84,8 @@ capybot.addStrategy(
       defaultAmount[cetusUSDCtoSUI.coinTypeA],
       defaultAmount[cetusUSDCtoSUI.coinTypeB],
     ],
-    RIDE_THE_THREAD_LIMIT
+    RIDE_THE_THREAD_LIMIT,
+    "RideTheTrend (USDC/SUI)"
   )
 );
 capybot.addStrategy(
@@ -96,7 +97,8 @@ capybot.addStrategy(
       defaultAmount[cetusCETUStoSUI.coinTypeA],
       defaultAmount[cetusCETUStoSUI.coinTypeB],
     ],
-    RIDE_THE_THREAD_LIMIT
+    RIDE_THE_THREAD_LIMIT,
+    "RideTheTrend (CETUS/SUI)"
   )
 );
 capybot.addStrategy(
@@ -108,7 +110,8 @@ capybot.addStrategy(
       defaultAmount[cetusUSDCtoCETUS.coinTypeA],
       defaultAmount[cetusUSDCtoCETUS.coinTypeB],
     ],
-    RIDE_THE_THREAD_LIMIT
+    RIDE_THE_THREAD_LIMIT,
+    "RideTheTrend (USDC/CETUS)"
   )
 );
 
@@ -130,7 +133,8 @@ capybot.addStrategy(
       },
     ],
     defaultAmount[coins.SUI],
-    ARBITRAGE_RELATIVE_LIMIT
+    ARBITRAGE_RELATIVE_LIMIT,
+    "Arbitrage: SUI -Turbos-> USDC -Cetus-> CETUS -Cetus-> SUI"
   )
 );
 
@@ -146,7 +150,8 @@ capybot.addStrategy(
         a2b: true,
       }],
       defaultAmount[coins.SUI],
-      ARBITRAGE_RELATIVE_LIMIT
+      ARBITRAGE_RELATIVE_LIMIT,
+    "Arbitrage: SUI -Turbos-> USDC -Cetus-> SUI"
   )
 );
 
@@ -155,7 +160,8 @@ capybot.addStrategy(
     cetusWBTCtoUSDC,
     ["BinanceBTCtoUSDC"],
     [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
-    ARBITRAGE_RELATIVE_LIMIT
+    ARBITRAGE_RELATIVE_LIMIT,
+    "Market diff: (W)BTC/USDC, Binance vs CETUS"
   )
 );
 
