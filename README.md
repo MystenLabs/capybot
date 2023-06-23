@@ -54,7 +54,7 @@ swap pools, and they provide the current relative price of the tokens in the poo
 of information that could be relevant for strategies.
 
 At the moment, Capybot supports swap pools from [Cetus](https://www.cetus.zone/), [Turbos](https://turbos.finance/) and 
-[Suiswap](https://suiswap.app/app/), and uses Binance (via [CCTX](https://github.com/ccxt/ccxt)) as an external data sources for the relative prices of some token 
+[Suiswap](https://suiswap.app/app/), and uses Binance (via [CCTX](https://github.com/ccxt/ccxt)) as an external data source for the relative prices of some token 
 pairs.
 
 ## Installation
