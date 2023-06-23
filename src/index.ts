@@ -1,11 +1,11 @@
 import { Ed25519Keypair } from "@mysten/sui.js";
 import { Capybot } from "./capybot";
+import { BinanceBTCtoUSDC } from "./data_sources/binance/BinanceBTCtoUSDC";
 import { CetusPool } from "./dexs/cetus/cetus";
+import { TurbosPool } from "./dexs/turbos/turbos";
 import { Arbitrage } from "./strategies/arbitrage";
+import { MarketDifference } from "./strategies/market_difference";
 import { RideTheTrend } from "./strategies/ride_the_trend";
-import {TurbosPool} from "./dexs/turbos/turbos";
-import {MarketDifference} from "./strategies/market_difference";
-import {BinanceBTCtoUSDC} from "./data_sources/binance/BinanceBTCtoUSDC";
 
 // Convenience map from name to address for commonly used coins
 export const coins = {
@@ -64,7 +64,7 @@ const turbosSUItoUSDC = new TurbosPool(
 const cetusWBTCtoUSDC = new CetusPool(
   "0xaa57c66ba6ee8f2219376659f727f2b13d49ead66435aa99f57bb008a64a8042",
   coins.WBTC,
-  coins.USDC,
+  coins.USDC
 );
 
 capybot.addPool(cetusUSDCtoSUI);
@@ -148,9 +148,10 @@ capybot.addStrategy(
       {
         pool: cetusUSDCtoSUI.uri,
         a2b: true,
-      }],
-      defaultAmount[coins.SUI],
-      ARBITRAGE_RELATIVE_LIMIT,
+      },
+    ],
+    defaultAmount[coins.SUI],
+    ARBITRAGE_RELATIVE_LIMIT,
     "Arbitrage: SUI -Turbos-> USDC -Cetus-> SUI"
   )
 );
