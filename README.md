@@ -71,6 +71,11 @@ export ADMIN_ADDRESS="0x..."
 
 This will run the bot for one hour. To run the bot for longer you should change the `duration` value in the call to `capybot.loop` in `src/index.ts`.
 
+## Monitoring
+The Capybot Monitor is a collection of Python scripts to monitor the status of a running instance of a Capybot. It produces live updated plots like the following which shows the price development for the swap pools the given Capybot was trading where 1 is the price when the bot was started.
+![pools](https://github.com/MystenLabs/capybot/assets/6288307/553a517c-cccb-4b26-8361-257cf63dd4d8)
+Installation instructions are available on the [Capybot Monitor repository](https://github.com/MystenLabs/capybot-monitor/tree/main).
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or pull request if you have any suggestions or improvements.
