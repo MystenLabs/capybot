@@ -112,6 +112,7 @@ export class SuiswapPool extends Pool<SuiswapParams> {
   }
 
   async estimatePrice(): Promise<number> {
+    // FIXME: estimate price
     return 0 ** 2 / 2 ** 128;
   }
 }

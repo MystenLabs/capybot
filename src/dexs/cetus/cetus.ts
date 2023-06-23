@@ -65,8 +65,6 @@ export class CetusPool extends Pool<CetusParams> {
       let moduleName: string = "";
       let functionName: string = "";
 
-      // if (typeof txbToBeAdded === "undefined") return transactionBlock;
-
       const moveCall = txb.blockData.transactions.find((obj) => {
         if (obj.kind === "MoveCall") return obj.target;
       });
