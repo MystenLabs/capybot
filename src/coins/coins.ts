@@ -14,6 +14,7 @@ export type Coin = {
 
 /**
  * Returns the coin information for a given coin type.
+ * Coin info from coins.json (https://github.com/suiet/sui-coin-list/blob/main/src/coins.json) based on the coin type.
  * @param coin_type The type of the coin.
  * @returns The coin information.
  */
