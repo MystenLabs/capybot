@@ -9,8 +9,12 @@ import {
 } from "@mysten/sui.js";
 import BN from "bn.js";
 import Decimal from "decimal.js";
+import { Network, Trade, TurbosSdk } from "turbos-clmm-sdk";
 import { keypair } from "../../index";
-import { buildInputCoinForAmount, getCoinDecimals } from "../../utils/utils";
+import {
+  buildInputCoinForAmount,
+  getTotalBalanceByCoinType,
+} from "../../utils/utils";
 import { mainnet } from "../cetus/mainnet_config";
 import { testnet } from "../cetus/testnet_config";
 import { turbosConfig } from "../dexsConfig";
@@ -38,6 +42,7 @@ function buildSdkOptions() {
 }
 
 export class TurbosPool extends Pool<TurbosParams> {
+  private sdk: TurbosSdk;
   private package: string;
   private module: string;
   private senderAddress: string;
@@ -60,18 +65,50 @@ export class TurbosPool extends Pool<TurbosParams> {
     this.versioned = turbosConfig.contract.Versioned;
 
     this.provider = new JsonRpcProvider(mainnetConnection);
+
+    this.sdk = new TurbosSdk(Network.mainnet, this.provider);
+
+    this.provider = new JsonRpcProvider(mainnetConnection);
+    this.senderAddress = keypair.getPublicKey().toSuiAddress();
   }
 
+  /**
+   * Create swap transaction
+   * @param transactionBlock Transaction block
+   * @param params Turbos parameters
+   * @returns Transaction block
+   */
   async createSwapTransaction(
+    transactionBlock: TransactionBlock,
     params: TurbosParams
-  ): Promise<TransactionBlock | undefined> {
-    const txb = await this.createTransactionBlock(
-      params.a2b,
-      params.amountIn,
-      params.amountSpecifiedIsInput,
-      params.slippage
+  ): Promise<TransactionBlock> {
+    const totalBalance = await getTotalBalanceByCoinType(
+      this.provider,
+      this.senderAddress,
+      params.a2b ? this.coinTypeA : this.coinTypeB
     );
-    return txb;
+
+    console.log(
+      `TotalBalance for CoinType (${
+        params.a2b ? this.coinTypeA : this.coinTypeB
+      }), is: ${totalBalance} and amountIn is: ${params.amountIn}`
+    );
+
+    if (params.amountIn > 0 && Number(totalBalance) >= params.amountIn) {
+      //FIXME Skip swap USDC to SUI via Turbos, due to failure in execution.
+      if (
+        !params.a2b &&
+        this.uri ===
+          "0x5eb2dfcdd1b15d2021328258f6d5ec081e9a0cdcfa9e13a0eaeb9b5f7505ca78"
+      )
+        return transactionBlock;
+      return await this.createTurbosTransactionBlockWithSDK(
+        transactionBlock,
+        params
+      );
+    }
+
+    return transactionBlock;
   }
 
   async createTransactionBlock(
@@ -136,6 +173,41 @@ export class TurbosPool extends Pool<TurbosParams> {
     }
     return undefined;
   }
+  async createTurbosTransactionBlockWithSDK(
+    transactionBlock: TransactionBlock,
+    params: TurbosParams
+  ): Promise<TransactionBlock> {
+    console.log("createTurbosTransactionBlockWithSDK, a2b: ", params.a2b);
+    const swapResult: Trade.ComputedSwapResult =
+      await this.sdk.trade.computeSwapResult({
+        pool: this.uri,
+        a2b: params.a2b,
+        address: this.senderAddress,
+        amountSpecified: params.amountIn,
+        amountSpecifiedIsInput: params.amountSpecifiedIsInput,
+      });
+    console.log("swapResult: ", swapResult);
+
+    return this.sdk.trade.swap({
+      routes: [
+        {
+          pool: swapResult.pool,
+          a2b: swapResult.a_to_b,
+          nextTickIndex: this.sdk.math.bitsToNumber(
+            swapResult.tick_current_index.bits
+          ),
+        },
+      ],
+      coinTypeA: swapResult.a_to_b ? this.coinTypeA : this.coinTypeB,
+      coinTypeB: swapResult.a_to_b ? this.coinTypeB : this.coinTypeA,
+      address: swapResult.recipient,
+      amountA: swapResult.amount_a,
+      amountB: swapResult.amount_b,
+      amountSpecifiedIsInput: params.amountSpecifiedIsInput,
+      slippage: params.slippage.toString(),
+      txb: transactionBlock,
+    });
+  }
 
   async preswap(
     a2b: boolean,
@@ -164,6 +236,13 @@ export class TurbosPool extends Pool<TurbosParams> {
       .mul(Decimal.pow(2, -64))
       .pow(2);
     return price.toNumber();
+  }
+
+  addToTransactionBlock(
+    transactionBlock: TransactionBlock,
+    txbToBeAdded: TransactionBlock
+  ): TransactionBlock {
+    return transactionBlock;
   }
 }
 
