@@ -61,7 +61,6 @@ export class CetusPool extends Pool<CetusParams> {
     if (params.amountIn > 0 && Number(totalBalance) >= params.amountIn) {
       const txb = await this.createCetusTransactionBlockWithSDK(params);
 
-      //
       let target = "";
       let args: string[] = [];
       let typeArguments: string[] = [];
@@ -125,7 +124,6 @@ export class CetusPool extends Pool<CetusParams> {
       });
 
       return transactionBlock;
-      //
     }
     return transactionBlock;
   }
