@@ -1,12 +1,14 @@
 # Capy Arbitrage Bot
 
-This repository contains simple DeFi bots which are designed to find and take advantage of arbitrage opportunities in different SUI DEXs and/or perform trading activities based on script-logic strategies. Since it is still in BETA version, the agents might not be profitable and are mainly open-sourced as a reference implementation that could be reused to implement custom strategies.
+This repository contains simple DeFi bots in Typescript, which are designed to find and take advantage of arbitrage opportunities in different SUI DEXs and/or perform trading activities based on script-logic strategies. Since it is still in BETA version, the agents might not be profitable and are mainly open-sourced as a reference implementation that could be reused to implement custom strategies.
 
 ## Features
 
-- Finds arbitrage opportunities across multiple DEXs.
+- Implements a basic `Strategy` interface (developers can implement their own strategies).
+- Provides 3 basic trading strategies as reference implementations.
+- The `Arbitrage` strategy finds arbitrage opportunities across multiple DEXs and uses Programmable transactions to simulate flashbot activity for atomicity.
 - Automatically executes trades when profitable opportunities are found.
-- Supports multiple cryptocurrencies and trading pairs.
+- Supports multiple cryptocurrencies and trading pairs, currently supporting 3 Sui DEXs.
 
 ## Overview
 In Capybot, **strategies** subscribe to relevant **data sources** and creates **trade orders** based on the information they get.
@@ -74,7 +76,7 @@ This will run the bot for one hour. To run the bot for longer you should change 
 ## Monitoring
 The Capybot Monitor is a collection of Python scripts to monitor the status of a running instance of a Capybot. It produces live updated plots like the following which shows the price development for the swap pools the given Capybot was trading where 1 is the price when the bot was started.
 ![pools](https://github.com/MystenLabs/capybot/assets/6288307/553a517c-cccb-4b26-8361-257cf63dd4d8)
-Installation instructions are available on the [Capybot Monitor repository](https://github.com/MystenLabs/capybot-monitor/tree/main).
+Installation instructions are available on the [Capybot Monitor repository](https://github.com/MystenLabs/capybot-monitor).
 
 ## Pools
 The table below lists all the pools for the 3 DEXs:
