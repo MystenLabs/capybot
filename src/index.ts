@@ -33,7 +33,7 @@ defaultAmount[coins.USDT] = 1_000_000;
 defaultAmount[coins.WBTC] = 3_000;
 
 const RIDE_THE_THREAD_LIMIT = 1.00001;
-const ARBITRAGE_RELATIVE_LIMIT = 1.001;
+const ARBITRAGE_RELATIVE_LIMIT = 1.01;
 
 // Setup wallet from passphrase.
 const phrase = process.env.ADMIN_PHRASE;
