@@ -9,7 +9,7 @@ This repository contains simple DeFi bots in Typescript, which are designed to f
 - The `Arbitrage` strategy finds arbitrage opportunities across multiple DEXs and uses Programmable transactions to simulate flashbot activity for atomicity.
 - Automatically executes trades when profitable opportunities are found.
 - Supports multiple cryptocurrencies and trading pairs, currently supporting 3 Sui DEXs.
-- Supports receiving data from multiple sources, including external such as Binance. At the moment, feeds from [CCTX (CryptoCurrency eXchange Trading Library)](https://github.com/ccxt/ccxt) are utilized to get the latest prices from Binance. Note that CCTX supports Binance, Bitget, Coinbase, Kraken, KuCoin and OKx, and it is straight-forward to accept feeds from these CEXs as well.
+- Supports receiving data from multiple sources, including external, such as Binance. At the moment, feeds from [CCTX (CryptoCurrency eXchange Trading Library)](https://github.com/ccxt/ccxt) are utilized to get the latest prices from Binance. Note that CCTX supports Binance, Bitget, Coinbase, Kraken, KuCoin and OKX, and it is straight-forward to accept feeds from these CEXs as well.
 
 ## Overview
 In Capybot, **strategies** subscribe to relevant **data sources** and creates **trade orders** based on the information they get.
