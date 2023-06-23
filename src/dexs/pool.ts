@@ -9,11 +9,6 @@ export type PreswapResult = {
   estimatedFeeAmount: number;
 };
 
-//
-// The code snippet you provided is written in TypeScript. It defines an abstract class called Pool which extends another class called DataSource. The Pool class has two properties called coinTypeA and coinTypeB. It also has an abstract method called preswap, which takes in three parameters and returns a Promise of type PreswapResult. The class also has two other abstract methods called createSwapTransaction and estimatePrice, both of which return Promises. Finally, the class has a method called getData, which returns a Promise of type DataPoint.
-// The code is used to create a pool of liquidity for decentralized exchanges (DEXs) such as Cetus, Suiswap, and Turbos. The pool is used to swap one cryptocurrency for another. The code defines the basic structure for the pool and provides methods for swapping cryptocurrencies and estimating prices.
-//
-
 /**
  * Abstract class representing a pool of liquidity for decentralized exchanges (DEXs) such as Cetus, Suiswap, and Turbos.
  */
