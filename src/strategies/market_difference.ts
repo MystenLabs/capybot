@@ -1,8 +1,8 @@
 import {Strategy} from "./strategy";
-import {DataEntry} from "./data_entry";
+import {DataPoint, DataType} from "../data_sources/data_point";
 import {TradeOrder} from "./order";
 import {Pool} from "../dexs/pool";
-import { CetusParams, SuiswapParams, TurbosParams } from "../dexs/dexsParams";
+import {CetusParams, SuiswapParams, TurbosParams} from "../dexs/dexsParams";
 
 export class MarketDifference extends Strategy {
   private readonly pool: Pool<CetusParams | SuiswapParams | TurbosParams>;
@@ -20,15 +20,17 @@ export class MarketDifference extends Strategy {
    * @param defaultAmounts The default amounts to trade when the price difference is too large.
    * @param limit The relative limit for the price difference. If the price difference is larger than this, a trade will be made.
    *             A value of 1.05 means that the price difference should be at least 5%.
+   * @param name A human-readable name for this strategy.
    */
   constructor(
     pool: Pool<CetusParams | SuiswapParams | TurbosParams>,
     exchanges: Array<string>,
     defaultAmounts: [number, number],
-    limit: number
+    limit: number,
+    name: string,
   ) {
     super({
-      name: "MarketDifference",
+      name: name,
       pool: pool.uri,
       exchanges: exchanges,
     });
@@ -38,9 +40,15 @@ export class MarketDifference extends Strategy {
     this.limit = limit;
   }
 
-  evaluate(data: DataEntry): Array<TradeOrder> {
-    if (data.source == this.pool.uri) {
-      this.latestPoolPrice = data.price;
+  evaluate(data: DataPoint): Array<TradeOrder> {
+    if (data.type != DataType.Price) {
+      return [];
+    }
+
+    let price = data.price;
+
+    if (data.source_uri == this.pool.uri) {
+      this.latestPoolPrice = price;
       return [];
     }
 
@@ -48,11 +56,10 @@ export class MarketDifference extends Strategy {
       return [];
     }
 
-    let priceRatio = data.price / this.latestPoolPrice;
+    let priceRatio = price / this.latestPoolPrice;
     this.logStatus({
       poolPrice: this.latestPoolPrice,
-      exchangePrice: data.price,
-      priceRatio,
+      exchangePrice: price,
     });
 
     if (priceRatio > this.limit) {

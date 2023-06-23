@@ -1,8 +1,14 @@
 const ccxt = require("ccxt");
 
-const exchange = new ccxt.binance({ enableRateLimit: true });
+const binance = new ccxt.binance({ enableRateLimit: true });
+const bitget = new ccxt.bitget({ enableRateLimit: true });
+const coinbaseprime = new ccxt.coinbaseprime({ enableRateLimit: true });
+const kraken = new ccxt.kraken({ enableRateLimit: true });
+const kucoin = new ccxt.kucoin({ enableRateLimit: true });
+const okx = new ccxt.okx({ enableRateLimit: true });
 
-export const binanceFetchTickers = async function (pairs) {
+// Exchange;
+const exchangeFetchTickers = async function (exchange, pairs) {
   const map = new Map();
 
   const response = await exchange.fetchTickers(pairs);
@@ -12,12 +18,36 @@ export const binanceFetchTickers = async function (pairs) {
   return map;
 };
 
+export const binanceFetchTickers = async function (pairs) {
+  return await exchangeFetchTickers(binance, pairs);
+};
+
+export const bitgetFetchTickers = async function (pairs) {
+  return await exchangeFetchTickers(bitget, pairs);
+};
+
+export const coinbaseprimeFetchTickers = async function (pairs) {
+  return await exchangeFetchTickers(coinbaseprime, pairs);
+};
+
+export const krakenFetchTickers = async function (pairs) {
+  return await exchangeFetchTickers(kraken, pairs);
+};
+
+export const kucoinFetchTickers = async function (pairs) {
+  return await exchangeFetchTickers(kucoin, pairs);
+};
+
+export const okxFetchTickers = async function (pairs) {
+  return await exchangeFetchTickers(okx, pairs);
+};
+
 export const binanceFetchTickersAll = async function () {
   const map = new Map();
 
-  const response = await exchange.fetchTickers();
-  for (i = 0; i < response.length; i++)
-    map.set(response[i].symbol, response[i].last);
+  const fetchedTickers = await binance.fetchTickers();
+  for (let i = 0; i < fetchedTickers.length; i++)
+    map.set(fetchedTickers[i].symbol, fetchedTickers[i].last);
 
   return map;
 };

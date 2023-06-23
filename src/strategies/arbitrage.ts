@@ -1,4 +1,4 @@
-import {DataEntry, SourceType} from "./data_entry";
+import {DataPoint, DataType} from "../data_sources/data_point";
 import {Strategy} from "./strategy";
 import {TradeOrder} from "./order";
 
@@ -21,10 +21,11 @@ export class Arbitrage extends Strategy {
      * @param poolChain The chain of pools to consider for an arbitrage. The order should be defined such that a transaction on all chains in order will end up with the same token.
      * @param defaultAmount The default amount of the first coin in the pool chain to trade (e.g. `poolChain[0].a2b ? poolChain[0].pool.coinTypeA : poolChain[0].pool.coinTypeB`.
      * @param relativeLimit Relative limit is percentage, e.g. 1.05 for a 5% win.
+     * @param name A human-readable name for this strategy.
      */
-    constructor(poolChain: Array<PoolWithDirection>, defaultAmount: number, relativeLimit: number) {
+    constructor(poolChain: Array<PoolWithDirection>, defaultAmount: number, relativeLimit: number, name: string) {
         super({
-            name: "Arbitrage",
+            name: name,
             poolChain: poolChain,
         });
         this.poolChain = poolChain;
@@ -34,15 +35,14 @@ export class Arbitrage extends Strategy {
         this.poolChainAsString = this.poolChain.map(p => p.pool.substring(0, 8)).toString();
     }
 
-    evaluate(data: DataEntry): Array<TradeOrder> {
-
+    evaluate(data: DataPoint): Array<TradeOrder> {
         // This strategy is only interested in the price from the pools it's observing
-        if (data.sourceType != SourceType.Pool || !this.poolChain.map(p => p.pool).includes(data.source)) {
+        if (data.type != DataType.Price || !this.poolChain.map(p => p.pool).includes(data.source_uri)) {
             return [];
         }
 
         // Update history
-        this.latestRate[data.source] = data.price;
+        this.latestRate[data.source_uri] = data.price;
 
         // Compute the price when exchanging coins around the chain
         let arbitrage = 1;

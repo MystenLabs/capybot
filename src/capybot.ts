@@ -6,8 +6,8 @@ import {
   mainnetConnection,
 } from "@mysten/sui.js";
 import { setTimeout } from "timers/promises";
+import { DataSource } from "./data_sources/data_source";
 import { CetusPool } from "./dexs/cetus/cetus";
-import { DataSource } from "./dexs/data_source";
 import { CetusParams, SuiswapParams, TurbosParams } from "./dexs/dexsParams";
 import { Pool } from "./dexs/pool";
 import { SuiswapPool } from "./dexs/suiswap/suiswap";
