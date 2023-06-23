@@ -8,6 +8,6 @@ export abstract class DataSource {
         this.uri = uri;
     }
 
-    /** Get the latest price information from this data source */
+    /** Get the latest price information from this data source. The price indicates the number of coinTypeB's you can get for 1 coinTypeA. */
     abstract getData(): Promise<DataPoint>;
 }

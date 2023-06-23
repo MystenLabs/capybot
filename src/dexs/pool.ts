@@ -31,6 +31,7 @@ export abstract class Pool<
     params: C
   ): Promise<TransactionBlock | undefined>;
 
+  /** Get the number of this.coinTypeB you can get for 1 this.coinTypeA. */
   abstract estimatePrice(): Promise<number>;
 
   async getData(): Promise<DataPoint> {

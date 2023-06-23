@@ -56,7 +56,7 @@ export class Arbitrage extends Strategy {
         }
         this.logStatus({arbitrage: arbitrage});
 
-        if (arbitrage > this.lowerLimit) {
+        if (arbitrage < 1 / this.lowerLimit) {
             let orders = [];
             let amountIn: number = this.defaultAmount;
             for (const pool of this.poolChain) {
@@ -70,7 +70,7 @@ export class Arbitrage extends Strategy {
                 amountIn = amountIn * latestRate;
             }
             return orders;
-        } else if (arbitrage < 1 / this.lowerLimit) {
+        } else if (arbitrage > this.lowerLimit) {
             let orders = [];
             let amount: number = this.defaultAmount;
             for (const pool of this.poolChain.reverse()) {

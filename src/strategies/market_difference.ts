@@ -63,23 +63,23 @@ export class MarketDifference extends Strategy {
     });
 
     if (priceRatio > this.limit) {
-      // The pool price for B is too low - buy B
-      return [
-        {
-          pool: this.pool.uri,
-          amountIn: this.defaultAmounts[0],
-          estimatedPrice: this.latestPoolPrice,
-          a2b: true,
-        },
-      ];
-    } else if (priceRatio < 1 / this.limit) {
-      // The pool price for B is too high - buy A
+      // The value of A is higher on the exchange than in the pool. Buy more A
       return [
         {
           pool: this.pool.uri,
           amountIn: this.defaultAmounts[1],
           estimatedPrice: 1 / this.latestPoolPrice,
           a2b: false,
+        },
+      ];
+    } else if (priceRatio < 1 / this.limit) {
+      // The value of A is lower on the exchange compared to the pool.
+      return [
+        {
+          pool: this.pool.uri,
+          amountIn: this.defaultAmounts[0],
+          estimatedPrice: this.latestPoolPrice,
+          a2b: true,
         },
       ];
     }
