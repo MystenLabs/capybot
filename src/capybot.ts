@@ -76,9 +76,7 @@ export class Capybot {
             const byAmountIn: boolean = true;
             const slippage: number = 1; // TODO: Define this in a meaningful way. Perhaps by the strategies.
 
-            // Check pool type and create transaction accordingly
             if (this.pools[order.pool] instanceof CetusPool) {
-              console.log("CetusPool transactionBlock");
               transactionBlock = await this.pools[
                 order.pool
               ].createSwapTransaction(transactionBlock, {
@@ -89,7 +87,6 @@ export class Capybot {
                 slippage,
               });
             } else if (this.pools[order.pool] instanceof SuiswapPool) {
-              console.log("SuiswapPool transactionBlock");
               transactionBlock = await this.pools[
                 order.pool
               ].createSwapTransaction(transactionBlock, {
@@ -97,9 +94,16 @@ export class Capybot {
                 amountIn,
               });
             } else if (this.pools[order.pool] instanceof TurbosPool) {
+              transactionBlock = await this.pools[
+                order.pool
+              ].createSwapTransaction(transactionBlock, {
+                a2b,
+                amountIn,
+                amountSpecifiedIsInput: true,
+                slippage: 0,
+              });
             }
           }
-
           // Execute the transactions
           await this.executeTransactionBlock(transactionBlock, strategy);
         }
