@@ -11,7 +11,6 @@ export class RideTheTrend extends Strategy {
 
     private readonly short: number;
     private readonly long: number;
-    private shortWasHigher: boolean | null = null;
     private lastDecision: number = 0;
     private readonly pool: string;
 
@@ -78,27 +77,20 @@ export class RideTheTrend extends Strategy {
             long_average: long_average
         });
 
-        // The first time we run this, we need to set the initial state
-        if (this.shortWasHigher == null) {
-            this.shortWasHigher = short_average > long_average;
-        }
-
         // The last trade could have influenced the price, so we wait until this effect has passed
-        if (short_average != long_average && this.lastDecision > this.short + 1) {
-            if (short_average / long_average < 1 / this.limit && this.shortWasHigher) {
+        if (this.lastDecision > this.long + 1) {
+            if (short_average / long_average < 1 / this.limit) {
                 // The value of A is going down.
                 this.lastDecision = 0;
-                this.shortWasHigher = true;
                 return [{
                     pool: this.pool,
                     amountIn: this.defaultAmounts[0],
                     estimatedPrice: price,
                     a2b: true
                 }];
-            } else if (short_average / long_average > this.limit && !this.shortWasHigher) {
+            } else if (short_average / long_average > this.limit) {
                 // The value of A is going up.
                 this.lastDecision = 0;
-                this.shortWasHigher = false;
                 return [{
                     pool: this.pool,
                     amountIn: this.defaultAmounts[1],

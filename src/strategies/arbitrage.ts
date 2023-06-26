@@ -13,6 +13,7 @@ export class Arbitrage extends Strategy {
     private readonly poolChain: Array<PoolWithDirection>;
     private readonly poolChainAsString: string;
     private latestRate: Record<string, number> = {};
+    private latestFee: Record<string, number> = {};
     private readonly defaultAmount: number;
 
     /**
@@ -43,18 +44,21 @@ export class Arbitrage extends Strategy {
 
         // Update history
         this.latestRate[data.source_uri] = data.price;
+        this.latestFee[data.source_uri] = data.fee;
 
         // Compute the price when exchanging coins around the chain
         let arbitrage = 1;
+        let arbitrageReverse = 1;
         for (const pool of this.poolChain) {
             let rate = this.getLatestRate(pool.pool, pool.a2b);
             if (rate == undefined) {
                 // Not all pools have a registered value yet.
                 return [];
             }
-            arbitrage *= rate;
+            arbitrage *= (1 - this.latestFee[pool.pool]) * rate;
+            arbitrageReverse *= (1 - this.latestFee[pool.pool]) * (1 / rate);
         }
-        this.logStatus({arbitrage: arbitrage});
+        this.logStatus({arbitrage: arbitrage, reverse: arbitrageReverse});
 
         if (arbitrage > this.lowerLimit) {
             // The amount of A by trading around the chain is higher than the amount in.
@@ -71,7 +75,7 @@ export class Arbitrage extends Strategy {
                 amountIn = amountIn * latestRate;
             }
             return orders;
-        } else if (arbitrage < 1 / this.lowerLimit) {
+        } else if (arbitrageReverse > this.lowerLimit) {
             // The amount of A by trading around the chain is lower than the amount in. Trade in the opposite direction.
             let orders = [];
             let amount: number = this.defaultAmount;

@@ -38,7 +38,8 @@ defaultAmount[coins.WBTC] = 3_000;
 export const MAX_GAS_PRICE_PER_TRANSACTION = 4_400_000;
 
 const RIDE_THE_THREAD_LIMIT = 1.000005;
-const ARBITRAGE_RELATIVE_LIMIT = 1.01;
+const ARBITRAGE_RELATIVE_LIMIT = 1.0001;
+const MARKET_DIFFERENCE_LIMIT = 1.01;
 
 // Setup wallet from passphrase.
 const phrase = process.env.ADMIN_PHRASE;
@@ -164,9 +165,9 @@ capybot.addStrategy(
 capybot.addStrategy(
   new MarketDifference(
     cetusWBTCtoUSDC,
-    ["BinanceBTCtoUSDC"],
+    "BinanceBTCtoUSDC",
     [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
-    ARBITRAGE_RELATIVE_LIMIT,
+    MARKET_DIFFERENCE_LIMIT,
     "Market diff: (W)BTC/USDC, Binance vs CETUS"
   )
 );
