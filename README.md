@@ -243,8 +243,6 @@ The table below lists all the pools for the 3 DEXs:
 |         | WETH - USDC      | 0x1937e826d0e546e8e0ea7511d0abfde86a2b64b68ca8f504b8059e800bf167f0 |
 |         | USDC - USDT      | 0x08948c60f307c52f8f9dc5b2a6a832feef159318998e375560d3187c1c25fbce |
 
-## Examples
-
 ## Contributing
 
 Contributions are welcome! Please open an issue or pull request if you have any suggestions or improvements.
