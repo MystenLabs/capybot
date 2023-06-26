@@ -59,6 +59,8 @@ In this release, Capy Trading Bot supports swap pools from [Cetus](https://www.c
 
 ## Usage
 
+### Set two environment variables
+
 Before you run the script, you need to set two environment variables: `ADMIN_PHRASE` and `ADMIN_ADDRESS`.
 The `ADMIN_PHRASE` is the passphrase for your account, and the `ADMIN_ADDRESS` is the hexadecimal address of your account. You can export them using the following commands in your terminal:
 
@@ -69,7 +71,7 @@ export ADMIN_ADDRESS="your_address_here"
 
 Before you continue with the next steps, make sure to replace the placeholders with your actual values. Do not share your passphrase or address with anyone else.
 
-## Declare Pools
+### Declare Pools
 
 On the following snippet of code, we declare 3 pools
 
@@ -81,7 +83,7 @@ const USDTtoSUI = new Pool("0x0...2", coins.USDT, coins.SUI);
 const USDCtoUSDT = new Pool("0x0...3", coins.USDC, coins.USDT);
 ```
 
-## Add a triangular arbitrage strategy
+### Add a triangular arbitrage strategy
 
 To execute a triangular arbitrage strategy, a trader makes 3 transactions:
 first, exchange the original token for another one (i.e. SUI -> USDC);
@@ -117,7 +119,7 @@ capybot.addStrategy(
 
 `ARBITRAGE_RELATIVE_LIMIT` represents the relative limit. e.g. 1.05 for a 5% win.
 
-## Add a ride the trend strategy
+### Add a ride the trend strategy
 
 Ride the trend strategy is a trading technique that involves following the direction of the market movement and staying in a position until the trend reverses. The idea is to capture as much profit as possible from a strong and sustained price movement.
 To apply this strategy, traders need to identify the trend using technical indicators, such as moving averages and enter a trade when the price confirms the trend.
@@ -148,7 +150,7 @@ It takes six parameters as input:
 
 It calculates the moving averages of the pool price and it then compares the short and long moving averages to determine the trend direction. When the trend changes, it executes a swap, with the specified swap amounts and relative limit.
 
-## Market Difference
+### Market Difference
 
 The bot can also use external data sources. For example, if there is a price discrepancy between Binance and a SUI DEX, the bot can arbitrage by buying/selling tokens on the DEX.
 
