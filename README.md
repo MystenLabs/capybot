@@ -160,7 +160,7 @@ On the following snippet of code, we create a new market difference strategy. Th
 capybot.addStrategy(
   new MarketDifference(
     WBTCtoUSDC,
-    ["BinanceBTCtoUSDC"],
+    "BinanceBTCtoUSDC",
     [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
     ARBITRAGE_RELATIVE_LIMIT,
     "Market diff: (W)BTC/USDC, Binance vs DEX"
@@ -171,7 +171,7 @@ capybot.addStrategy(
 The following parameters are required:
 
 - pool: The pool to monitor for price changes.
-- exchanges: The exchanges to compare with the pool. They should offer the same trading pairs as the pool.
+- exchange: The exchange to compare with the pool. It should offer the same trading pairs as the pool.
 - defaultAmounts: The default amounts of tokens to trade when the price difference exceeds the limit.
 - limit: The relative threshold for the price difference. A trade will be executed if the price difference is greater than this value.
 - For example, a value of 1.05 means that the price difference should be at least 5%.
