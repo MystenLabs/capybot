@@ -105,20 +105,14 @@ export class SuiswapPool extends Pool<SuiswapParams> {
     return transactionBlock;
   }
 
-  async preswap(
-    a2b: boolean,
-    amount: number,
-    byAmountIn: boolean
-  ): Promise<PreswapResult> {
-    return {
-      estimatedAmountIn: 0,
-      estimatedAmountOut: 0,
-      estimatedFeeAmount: 0,
-    };
-  }
-
-  async estimatePrice(): Promise<number> {
+  async estimatePriceAndFee(): Promise<{
+    price: number;
+    fee: number;
+  }> {
     // FIXME: estimate price
-    return 0 ** 2 / 2 ** 128;
+    return {
+      price: 0 ** 2 / 2 ** 128,
+      fee: 0,
+    };
   }
 }

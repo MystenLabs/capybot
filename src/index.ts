@@ -32,6 +32,9 @@ defaultAmount[coins.TOCE] = 100_000_000_000;
 defaultAmount[coins.USDT] = 1_000_000;
 defaultAmount[coins.WBTC] = 3_000;
 
+// A conservative upper limit on the max gas price per transaction block in SUI
+export const MAX_GAS_PRICE_PER_TRANSACTION = 4_400_000;
+
 const RIDE_THE_THREAD_LIMIT = 1.000005;
 const ARBITRAGE_RELATIVE_LIMIT = 1.01;
 

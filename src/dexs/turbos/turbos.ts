@@ -209,19 +209,10 @@ export class TurbosPool extends Pool<TurbosParams> {
     });
   }
 
-  async preswap(
-    a2b: boolean,
-    amount: number,
-    byAmountIn: boolean
-  ): Promise<PreswapResult> {
-    return {
-      estimatedAmountIn: 0,
-      estimatedAmountOut: 0,
-      estimatedFeeAmount: 0,
-    };
-  }
-
-  async estimatePrice(): Promise<number> {
+  async estimatePriceAndFee(): Promise<{
+    price: number;
+    fee: number;
+  }> {
     const obj: SuiObjectResponse = await this.provider.getObject({
       id: this.uri,
       options: { showContent: true, showType: true },
@@ -235,7 +226,13 @@ export class TurbosPool extends Pool<TurbosParams> {
     const price = new Decimal(current_sqrt_price.toString())
       .mul(Decimal.pow(2, -64))
       .pow(2);
-    return price.toNumber();
+
+    const fee = objFields?.fee * 10 ** -6;
+
+    return {
+      price: price.toNumber(),
+      fee,
+    };
   }
 
   addToTransactionBlock(
