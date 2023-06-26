@@ -11,8 +11,10 @@ import { RideTheTrend } from "./strategies/ride_the_trend";
 export const coins = {
   SUI: "0x2::sui::SUI",
   USDC: "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
-  CETUS: "0x06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS",
-  CETUS0: "0x6864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS",
+  CETUS:
+    "0x06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS",
+  CETUS0:
+    "0x6864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS",
   BRT: "0x5580c843b6290acb2dbc7d5bf8ab995d4d4b6ba107e2a283b4d481aab1564d68::brt::BRT",
   WETH: "0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN",
   TOCE: "0xd2013e206f7983f06132d5b61f7c577638ff63171221f4f600a98863febdfb47::toce::TOCE",
@@ -31,6 +33,9 @@ defaultAmount[coins.WETH] = 100_000;
 defaultAmount[coins.TOCE] = 100_000_000_000;
 defaultAmount[coins.USDT] = 1_000_000;
 defaultAmount[coins.WBTC] = 3_000;
+
+// A conservative upper limit on the max gas price per transaction block in SUI
+export const MAX_GAS_PRICE_PER_TRANSACTION = 4_400_000;
 
 const RIDE_THE_THREAD_LIMIT = 1.000005;
 const ARBITRAGE_RELATIVE_LIMIT = 1.01;

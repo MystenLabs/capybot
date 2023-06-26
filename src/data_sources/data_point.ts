@@ -1,15 +1,19 @@
 export enum DataType {
-    Price,
-    Other,
+  Price,
+  Other,
 }
 
 type BaseDataPoint<Type extends DataType> = {
-    type: Type,
-    source_uri: string,
-}
+  type: Type;
+  source_uri: string;
+};
 
-export type PriceData = BaseDataPoint<DataType.Price> & { coinTypeFrom: string,
-    coinTypeTo: string, price: number };
+export type PriceData = BaseDataPoint<DataType.Price> & {
+  coinTypeFrom: string;
+  coinTypeTo: string;
+  price: number;
+  fee: number;
+};
 
 export type OtherData = BaseDataPoint<DataType.Other> & { data: string };
 

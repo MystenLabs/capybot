@@ -17,6 +17,7 @@ import { getTotalBalanceByCoinType } from "../../utils/utils";
 import { CetusParams } from "../dexsParams";
 import { Pool, PreswapResult } from "../pool";
 import { mainnet } from "./mainnet_config";
+import {logger} from "../../logger";
 
 function buildSdkOptions(): SdkOptions {
   return mainnet;
@@ -128,39 +129,19 @@ export class CetusPool extends Pool<CetusParams> {
     return transactionBlock;
   }
 
-  async preswap(
-    a2b: boolean,
-    amount: number,
-    byAmountIn: boolean
-  ): Promise<PreswapResult> {
+  async estimatePriceAndFee(): Promise<{
+    price: number;
+    fee: number;
+  }> {
     let pool = await this.sdk.Pool.getPool(this.uri);
 
-    // Load coin info
-    let coinA = getCoinInfo(this.coinTypeA);
-    let coinB = getCoinInfo(this.coinTypeB);
-
-    const res: any = await this.sdk.Swap.preswap({
-      a2b: a2b,
-      amount: amount.toString(),
-      by_amount_in: byAmountIn,
-      coinTypeA: this.coinTypeA,
-      coinTypeB: this.coinTypeB,
-      current_sqrt_price: pool.current_sqrt_price,
-      decimalsA: coinA.decimals,
-      decimalsB: coinB.decimals,
-      pool: pool,
-    });
+    let price = pool.current_sqrt_price ** 2 / 2 ** 128;
+    let fee = pool.fee_rate * 10 ** -6;
 
     return {
-      estimatedAmountIn: res.estimatedAmountIn,
-      estimatedAmountOut: res.estimatedAmountOut,
-      estimatedFeeAmount: res.estimatedFeeAmount,
+      price,
+      fee,
     };
-  }
-
-  async estimatePrice(): Promise<number> {
-    let pool = await this.sdk.Pool.getPool(this.uri);
-    return pool.current_sqrt_price ** 2 / 2 ** 128;
   }
 
   async createCetusTransactionBlockWithSDK(

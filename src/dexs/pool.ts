@@ -37,19 +37,6 @@ export abstract class Pool<
   }
 
   /**
-   * Abstract method for swapping cryptocurrencies before a transaction is made.
-   * @param a2b A boolean value indicating whether to swap from A to B or from B to A.
-   * @param amount The amount of cryptocurrency to swap.
-   * @param byAmountIn A boolean value indicating whether the amount is specified as input or output.
-   * @returns A Promise of type PreswapResult.
-   */
-  abstract preswap(
-    a2b: boolean,
-    amount: number,
-    byAmountIn: boolean
-  ): Promise<PreswapResult>;
-
-  /**
    * Abstract method for creating a swap transaction.
    * @param transactionBlock The transaction block to create the transaction in.
    * @param params The parameters for the swap transaction.
@@ -61,23 +48,27 @@ export abstract class Pool<
   ): Promise<TransactionBlock>;
 
   /**
-   * Abstract method for estimating the price of a cryptocurrency swap.
-   * @returns A Promise of type number representing the estimated price of the swap.
+   * Abstract method for estimating the price of a cryptocurrency swap and the fee.
+   * @returns A Promise of type number representing the estimated price of the swap and the relative fee.
    */
-  abstract estimatePrice(): Promise<number>;
+  abstract estimatePriceAndFee(): Promise<{
+    price: number,
+    fee: number,
+  }>;
 
   /**
    * Method for getting data about the pool.
    * @returns A Promise of type DataPoint representing data about the pool.
    */
   async getData(): Promise<DataPoint> {
-    let price = await this.estimatePrice();
+    let priceAndFee = await this.estimatePriceAndFee();
     return {
       type: DataType.Price,
       source_uri: this.uri,
       coinTypeFrom: this.coinTypeA,
       coinTypeTo: this.coinTypeB,
-      price: price,
+      price: priceAndFee.price,
+      fee: priceAndFee.fee,
     };
   }
 }
