@@ -1,3 +1,4 @@
+import { Fee, Percentage } from "./Percentage";
 import { CoinType, TokenAmount } from "./token_amount";
 
 /**
@@ -15,7 +16,7 @@ export class TokenPrice {
   }
 
   /** Get the price where `coinFrom` and `coinTo` are swapped. */
-  getInversePrice(): TokenPrice {
+  invert(): TokenPrice {
     return new TokenPrice(1 / this.price, this.coinTo, this.coinFrom);
   }
 
@@ -25,6 +26,35 @@ export class TokenPrice {
       throw new Error("The coin types does not match");
     }
     return new TokenAmount(amount.amount * this.price, this.coinFrom);
+  }
+
+  /** Assuming `this.coinTo` equals `other.coinFrom`, this method returns the combined price of `this.coinFrom` as `other.coinTo`. */
+  combine(other: TokenPrice): TokenPrice {
+    if (this.coinTo != other.coinFrom) {
+      throw new Error("this.coinTo much be equal to other.coinFrom");
+    }
+    return new TokenPrice(
+      this.price * other.price,
+      this.coinFrom,
+      other.coinTo
+    );
+  }
+
+  /** Combine this `TokenPrice` with a {@link Fee} computing the gross price including the fee. */
+  includingFee(fee: Fee): TokenPrice {
+    return new TokenPrice(
+      this.price * (1 - fee.toRatio()),
+      this.coinFrom,
+      this.coinTo
+    );
+  }
+
+  /** Compute the ratio of this `TokenPrice` over other as a {@link Percentage}. */
+  difference(other: TokenPrice): Percentage {
+    if (this.coinFrom != other.coinFrom || this.coinTo != other.coinTo) {
+      throw new Error("Prices must be for the same pair.");
+    }
+    return Percentage.fromRatio(this.price / other.price);
   }
 
   toString(): string {

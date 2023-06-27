@@ -11,13 +11,17 @@ export class Percentage {
   }
 
   /** Returns the percentage as a a multiplier, e.g. 10% is returner as 0.1. */
-  getMultiplier(): number {
+  toRatio(): number {
     return this.percentage * 0.01;
+  }
+
+  static fromRatio(ratio: number): Percentage {
+    return new Percentage(ratio * 100);
   }
 
   /** Compute this percentage of a given `TokenAmount`. */
   ofAmount(amount: TokenAmount): TokenAmount {
-    return new TokenAmount(this.getMultiplier() * amount.amount, amount.coin);
+    return new TokenAmount(this.toRatio() * amount.amount, amount.coin);
   }
 
   /** Add this percentage to a given `TokenAmount`. */
