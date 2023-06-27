@@ -6,6 +6,7 @@ import { TurbosPool } from "./dexs/turbos/turbos";
 import { Arbitrage } from "./strategies/arbitrage";
 import { MarketDifference } from "./strategies/market_difference";
 import { RideTheTrend } from "./strategies/ride_the_trend";
+import { RideTheExternalTrend } from "./strategies/ride_the_external_trend";
 
 // Convenience map from name to address for commonly used coins
 export const coins = {
@@ -37,7 +38,7 @@ defaultAmount[coins.WBTC] = 3_000;
 // A conservative upper limit on the max gas price per transaction block in SUI
 export const MAX_GAS_PRICE_PER_TRANSACTION = 4_400_000;
 
-const RIDE_THE_THREAD_LIMIT = 1.000005;
+const RIDE_THE_TREND_LIMIT = 1.000005;
 const ARBITRAGE_RELATIVE_LIMIT = 1.0001;
 const MARKET_DIFFERENCE_LIMIT = 1.01;
 
@@ -90,7 +91,7 @@ capybot.addStrategy(
       defaultAmount[cetusUSDCtoSUI.coinTypeA],
       defaultAmount[cetusUSDCtoSUI.coinTypeB],
     ],
-    RIDE_THE_THREAD_LIMIT,
+    RIDE_THE_TREND_LIMIT,
     "RideTheTrend (USDC/SUI)"
   )
 );
@@ -103,7 +104,7 @@ capybot.addStrategy(
       defaultAmount[cetusCETUStoSUI.coinTypeA],
       defaultAmount[cetusCETUStoSUI.coinTypeB],
     ],
-    RIDE_THE_THREAD_LIMIT,
+    RIDE_THE_TREND_LIMIT,
     "RideTheTrend (CETUS/SUI)"
   )
 );
@@ -116,7 +117,7 @@ capybot.addStrategy(
       defaultAmount[cetusUSDCtoCETUS.coinTypeA],
       defaultAmount[cetusUSDCtoCETUS.coinTypeB],
     ],
-    RIDE_THE_THREAD_LIMIT,
+    RIDE_THE_TREND_LIMIT,
     "RideTheTrend (USDC/CETUS)"
   )
 );
@@ -169,6 +170,19 @@ capybot.addStrategy(
     [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
     MARKET_DIFFERENCE_LIMIT,
     "Market diff: (W)BTC/USDC, Binance vs CETUS"
+  )
+);
+
+capybot.addStrategy(
+  new RideTheExternalTrend(
+    cetusWBTCtoUSDC.uri,
+    "BinanceBTCtoUSDC",
+    5,
+    10,
+    [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
+    RIDE_THE_TREND_LIMIT,
+    1.0001,
+    "Ride external trend: (W)BTC/USDC, Binance vs CETUS"
   )
 );
 

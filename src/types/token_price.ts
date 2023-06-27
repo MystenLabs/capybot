@@ -1,4 +1,4 @@
-import { Fee, Percentage } from "./Percentage";
+import { Fee, Percentage } from "./percentage";
 import { CoinType, TokenAmount } from "./token_amount";
 
 /**
