@@ -107,7 +107,7 @@ export class RideTheExternalTrend extends Strategy {
       if (short_average / long_average < 1 / this.limit) {
         // The value of A is going down. Sell A and hope it goes even lower.
 
-        if (price > this.latestPoolPrice / this.priceRatio) {
+        if (price > this.latestPoolPrice * this.priceRatio) {
           // The pool price is not as good as the exchange price, so we do not trade anything now
           return [];
         }
@@ -125,7 +125,7 @@ export class RideTheExternalTrend extends Strategy {
         // The value of A is going up. Buy and hope it continues.
         this.lastDecision = 0;
 
-        if (price < this.latestPoolPrice * this.priceRatio) {
+        if (price < this.latestPoolPrice / this.priceRatio) {
           // The pool price is not as good as the exchange price, so we do not trade anything now
           return [];
         }
