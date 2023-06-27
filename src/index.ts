@@ -177,11 +177,11 @@ capybot.addStrategy(
   new RideTheExternalTrend(
     cetusWBTCtoUSDC.uri,
     "BinanceBTCtoUSDC",
+    5,
     10,
-    30,
     [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
     RIDE_THE_TREND_LIMIT,
-    MARKET_DIFFERENCE_LIMIT,
+    1.0001,
     "Ride external trend: (W)BTC/USDC, Binance vs CETUS"
   )
 );
