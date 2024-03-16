@@ -1,26 +1,26 @@
 export type argumentsType =
-  | {
-      kind: "Input";
-      index: number;
-      type?: "object" | "pure" | undefined;
-      value?: any;
-    }
-  | {
-      kind: "GasCoin";
-    }
-  | {
-      kind: "Result";
-      index: number;
-    }
-  | {
-      kind: "NestedResult";
-      index: number;
-      resultIndex: number;
-    };
+    | {
+          kind: 'Input'
+          index: number
+          type?: 'object' | 'pure' | undefined
+          value?: any
+      }
+    | {
+          kind: 'GasCoin'
+      }
+    | {
+          kind: 'Result'
+          index: number
+      }
+    | {
+          kind: 'NestedResult'
+          index: number
+          resultIndex: number
+      }
 
 export type MoveCallObject = {
-  target: string;
-  arguments: argumentsType[];
-  typeArguments: string[];
-  coins?: string[];
-};
+    target: string
+    arguments: argumentsType[]
+    typeArguments: string[]
+    coins?: string[]
+}

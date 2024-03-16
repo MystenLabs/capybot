@@ -1,2 +1,2 @@
-export * from "./magic-numbers";
-export * from "./network";
+export * from './magic-numbers'
+export * from './network'

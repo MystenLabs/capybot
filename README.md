@@ -4,11 +4,11 @@ This repository contains simple DeFi bots in Typescript, which are designed to f
 
 ## Features
 
-- Implements a basic `Strategy` interface (developers can implement their own strategies).
-- Provides three basic trading strategies as reference implementations (described later in this Readme).
-- Automatically executes trades when it finds profitable opportunities.
-- Supports multiple cryptocurrencies and trading pairs; currently supporting trading on three Sui DEXs.
-- Supports receiving data from multiple sources, including swap pools and external sources like Binance. Currently, the bot utilizes feeds from [CCTX (CryptoCurrency eXchange Trading Library)](https://github.com/ccxt/ccxt) to get the latest prices from Binance. Note that CCTX supports Binance, Bitget, Coinbase, Kraken, KuCoin and OKX, and it is straight-forward to accept feeds from these CEXs as well.
+-   Implements a basic `Strategy` interface (developers can implement their own strategies).
+-   Provides three basic trading strategies as reference implementations (described later in this Readme).
+-   Automatically executes trades when it finds profitable opportunities.
+-   Supports multiple cryptocurrencies and trading pairs; currently supporting trading on three Sui DEXs.
+-   Supports receiving data from multiple sources, including swap pools and external sources like Binance. Currently, the bot utilizes feeds from [CCTX (CryptoCurrency eXchange Trading Library)](https://github.com/ccxt/ccxt) to get the latest prices from Binance. Note that CCTX supports Binance, Bitget, Coinbase, Kraken, KuCoin and OKX, and it is straight-forward to accept feeds from these CEXs as well.
 
 ## Overview
 
@@ -35,9 +35,9 @@ sequenceDiagram
 
 Capy Trading Bot supports the following three trading strategies:
 
-- `Arbitrage`: This strategy looks for [arbitrage opportunities](https://en.wikipedia.org/wiki/Triangular_arbitrage) in chains of two or more swap pools across different DEXs. It computes the product of the prices along the chain of swap pools, say SUI -> USDC -> CETUS -> SUI, and if the product is different from 1 it means there is an arbitrage opportunity.
-- `RideTheTrend`: This strategy looks for [trend following](https://en.wikipedia.org/wiki/Trend_following) opportunities in a single swap pool by comparing a short moving average with a longer moving average to get an indication whether the price is going up or down.
-- `MarketDifference`: This strategy compares the relative price of a token pair in a swap pool with the price of the same pair on an exchange, such as Binance. If the price differs, the strategy suggests to either go long or short a given token.
+-   `Arbitrage`: This strategy looks for [arbitrage opportunities](https://en.wikipedia.org/wiki/Triangular_arbitrage) in chains of two or more swap pools across different DEXs. It computes the product of the prices along the chain of swap pools, say SUI -> USDC -> CETUS -> SUI, and if the product is different from 1 it means there is an arbitrage opportunity.
+-   `RideTheTrend`: This strategy looks for [trend following](https://en.wikipedia.org/wiki/Trend_following) opportunities in a single swap pool by comparing a short moving average with a longer moving average to get an indication whether the price is going up or down.
+-   `MarketDifference`: This strategy compares the relative price of a token pair in a swap pool with the price of the same pair on an exchange, such as Binance. If the price differs, the strategy suggests to either go long or short a given token.
 
 Strategies are located in the `src/strategies` folder, and each strategy extends the `Strategy` class which requires the
 `evaluate` method to be implemented. The `evaluate` method is called every second with the latest data point from the
@@ -76,11 +76,11 @@ Before you continue with the next steps, make sure to replace the placeholders w
 On the following snippet of code, we declare 3 pools
 
 ```typescript
-const USDCtoSUI = new Pool("0x0...1", coins.USDC, coins.SUI);
+const USDCtoSUI = new Pool('0x0...1', coins.USDC, coins.SUI)
 
-const USDTtoSUI = new Pool("0x0...2", coins.USDT, coins.SUI);
+const USDTtoSUI = new Pool('0x0...2', coins.USDT, coins.SUI)
 
-const USDCtoUSDT = new Pool("0x0...3", coins.USDC, coins.USDT);
+const USDCtoUSDT = new Pool('0x0...3', coins.USDC, coins.USDT)
 ```
 
 ### Add a triangular arbitrage strategy
@@ -95,26 +95,26 @@ On the following snippet of code we add a triangular arbitrage strategy to the c
 ```typescript
 // Add triangular arbitrage strategy: USDC/SUI -> (USDT/SUI)^-1 -> (USDC/USDT)^-1.
 capybot.addStrategy(
-  new Arbitrage(
-    [
-      {
-        pool: SUItoUSDC.uri,
-        a2b: true,
-      },
-      {
-        pool: USDCtoUSDT.uri,
-        a2b: true,
-      },
-      {
-        pool: USDTtoSUI.uri,
-        a2b: true,
-      },
-    ],
-    defaultAmount[coins.SUI],
-    ARBITRAGE_RELATIVE_LIMIT,
-    "Arbitrage: SUI -> USDC -> USDT -> SUI"
-  )
-);
+    new Arbitrage(
+        [
+            {
+                pool: SUItoUSDC.uri,
+                a2b: true,
+            },
+            {
+                pool: USDCtoUSDT.uri,
+                a2b: true,
+            },
+            {
+                pool: USDTtoSUI.uri,
+                a2b: true,
+            },
+        ],
+        defaultAmount[coins.SUI],
+        ARBITRAGE_RELATIVE_LIMIT,
+        'Arbitrage: SUI -> USDC -> USDT -> SUI'
+    )
+)
 ```
 
 `ARBITRAGE_RELATIVE_LIMIT` represents the relative limit. e.g. 1.05 for a 5% win.
@@ -128,25 +128,28 @@ On the following snippet of code, we add a Ride The Trend strategy to the capybo
 
 ```typescript
 capybot.addStrategy(
-  new RideTheTrend(
-    SUItoUSDC.uri,
-    5,
-    10,
-    [defaultAmount[SUItoUSDC.coinTypeA], defaultAmount[SUItoUSDC.coinTypeB]],
-    RIDE_THE_THREAD_LIMIT,
-    "RideTheTrend (SUI/USDC)"
-  )
-);
+    new RideTheTrend(
+        SUItoUSDC.uri,
+        5,
+        10,
+        [
+            defaultAmount[SUItoUSDC.coinTypeA],
+            defaultAmount[SUItoUSDC.coinTypeB],
+        ],
+        RIDE_THE_THREAD_LIMIT,
+        'RideTheTrend (SUI/USDC)'
+    )
+)
 ```
 
 It takes six parameters as input:
 
-- pool: The address of the pool to watch.
-- short: The length of the short moving average (in seconds).
-- long: The length of the long moving average (in seconds).
-- defaultAmounts: An array of two numbers, representing the amount of tokens to swap of coin type A and B respectively when the trend changes.
-- limit: A number between 0 and 1, representing the percentage of profit or loss to accept before executing a swap. For example, 1.05 means a 5% profit margin.
-- name: A human-readable name for this strategy.
+-   pool: The address of the pool to watch.
+-   short: The length of the short moving average (in seconds).
+-   long: The length of the long moving average (in seconds).
+-   defaultAmounts: An array of two numbers, representing the amount of tokens to swap of coin type A and B respectively when the trend changes.
+-   limit: A number between 0 and 1, representing the percentage of profit or loss to accept before executing a swap. For example, 1.05 means a 5% profit margin.
+-   name: A human-readable name for this strategy.
 
 It calculates the moving averages of the pool price and it then compares the short and long moving averages to determine the trend direction. When the trend changes, it executes a swap, with the specified swap amounts and relative limit.
 
@@ -158,24 +161,24 @@ On the following snippet of code, we create a new market difference strategy. Th
 
 ```typescript
 capybot.addStrategy(
-  new MarketDifference(
-    WBTCtoUSDC,
-    "BinanceBTCtoUSDC",
-    [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
-    ARBITRAGE_RELATIVE_LIMIT,
-    "Market diff: (W)BTC/USDC, Binance vs DEX"
-  )
-);
+    new MarketDifference(
+        WBTCtoUSDC,
+        'BinanceBTCtoUSDC',
+        [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
+        ARBITRAGE_RELATIVE_LIMIT,
+        'Market diff: (W)BTC/USDC, Binance vs DEX'
+    )
+)
 ```
 
 The following parameters are required:
 
-- pool: The pool to monitor for price changes.
-- exchange: The exchange to compare with the pool. It should offer the same trading pairs as the pool.
-- defaultAmounts: The default amounts of tokens to trade when the price difference exceeds the limit.
-- limit: The relative threshold for the price difference. A trade will be executed if the price difference is greater than this value.
-- For example, a value of 1.05 means that the price difference should be at least 5%.
-- name: A human-readable name for this strategy.
+-   pool: The pool to monitor for price changes.
+-   exchange: The exchange to compare with the pool. It should offer the same trading pairs as the pool.
+-   defaultAmounts: The default amounts of tokens to trade when the price difference exceeds the limit.
+-   limit: The relative threshold for the price difference. A trade will be executed if the price difference is greater than this value.
+-   For example, a value of 1.05 means that the price difference should be at least 5%.
+-   name: A human-readable name for this strategy.
 
 ## Build and Run the Bot
 

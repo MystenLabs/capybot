@@ -1,270 +1,270 @@
 [
-  {
-    "name": "Sui",
-    "symbol": "SUI",
-    "coin_type": "0x2::sui::SUI",
-    "coingecko_id": "sui",
-    "decimals": 9,
-    "icon_url": "",
-    "project_url": "https://sui.io",
-    "source": "native"
-  },
-  {
-    "name": "Wrapped Matic",
-    "symbol": "WMATIC",
-    "coin_type": "0xdbe380b13a6d0f5cdedd58de8f04625263f113b3f9db32b3e1983f49e2841676::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "polygon"
+    {
+        "name": "Sui",
+        "symbol": "SUI",
+        "coin_type": "0x2::sui::SUI",
+        "coingecko_id": "sui",
+        "decimals": 9,
+        "icon_url": "",
+        "project_url": "https://sui.io",
+        "source": "native"
+    },
+    {
+        "name": "Wrapped Matic",
+        "symbol": "WMATIC",
+        "coin_type": "0xdbe380b13a6d0f5cdedd58de8f04625263f113b3f9db32b3e1983f49e2841676::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "polygon"
+        }
+    },
+    {
+        "name": "Wrapped BNB",
+        "symbol": "WBNB",
+        "coin_type": "0xb848cce11ef3a8f62eccea6eb5b35a12c4c2b1ee1af7755d02d7bd6218e8226f::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "bnb"
+        }
+    },
+    {
+        "name": "Wrapped ETH",
+        "symbol": "WETH",
+        "coin_type": "0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "eth"
+        }
+    },
+    {
+        "name": "USD Coin",
+        "symbol": "USDC",
+        "coin_type": "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
+        "decimals": 6,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "eth"
+        }
+    },
+    {
+        "name": "Tether USD",
+        "symbol": "USDT",
+        "coin_type": "0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN",
+        "decimals": 6,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "eth"
+        }
+    },
+    {
+        "name": "Wrapped BTC",
+        "symbol": "WBTC",
+        "coin_type": "0x27792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "btc"
+        }
+    },
+    {
+        "name": "Wrapped AVAX",
+        "symbol": "WAVAX",
+        "coin_type": "0x1e8b532cca6569cab9f9b9ebc73f8c13885012ade714729aa3b450e0339ac766::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "avax"
+        }
+    },
+    {
+        "name": "Wrapped Fantom",
+        "symbol": "WFTM",
+        "coin_type": "0x6081300950a4f1e2081580e919c210436a1bed49080502834950d31ee55a2396::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "ftm"
+        }
+    },
+    {
+        "name": "Celo native asset",
+        "symbol": "CELO",
+        "coin_type": "0xa198f3be41cda8c07b3bf3fee02263526e535d682499806979a111e88a5a8d0f::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "celo"
+        }
+    },
+    {
+        "name": "Wrapped GLMR",
+        "symbol": "WGLMR",
+        "coin_type": "0x66f87084e49c38f76502d17f87d17f943f183bb94117561eb573e075fdc5ff75::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "moonbeam"
+        }
+    },
+    {
+        "name": "Wrapped SOL",
+        "symbol": "WSOL",
+        "coin_type": "0xb7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "sol"
+        }
+    },
+    {
+        "name": "USD Coin",
+        "symbol": "USDCsol",
+        "coin_type": "0xb231fcda8bbddb31f2ef02e6161444aec64a514e2c89279584ac9806ce9cf037::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "sol"
+        }
+    },
+    {
+        "name": "USD Coin",
+        "symbol": "USDCbnb",
+        "coin_type": "0x909cba62ce96d54de25bec9502de5ca7b4f28901747bbf96b76c2e63ec5f1cba::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "bnb"
+        }
+    },
+    {
+        "name": "USD Coin",
+        "symbol": "USDCpol",
+        "coin_type": "0xdb9ed08481f9dd565fd36b834eb3c2cda1ee5f388048154807cffcb0267ed3b2::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "polygon"
+        }
+    },
+    {
+        "name": "Wrapped USDC on Arbitrum",
+        "symbol": "USDCarb",
+        "coin_type": "0xe32d3ebafa42e6011b87ef1087bbc6053b499bf6f095807b9013aff5a6ecd7bb::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "arb"
+        }
+    },
+    {
+        "name": "Wrapped BTC",
+        "symbol": "tBTC",
+        "coin_type": "0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN",
+        "decimals": 8,
+        "icon_url": "",
+        "project_url": "https://wormhole.com/",
+        "source": "bridge",
+        "wrapped": {
+            "bridge": "wormhole",
+            "chain": "btc"
+        }
+    },
+    {
+        "name": "Cetus Token",
+        "symbol": "CETUS",
+        "coin_type": "0x06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS",
+        "coingecko_id": "cetus-protocol",
+        "decimals": 9,
+        "icon_url": "https://uxcdefo3r2uemooidt2kk2stykakvwd2m6nasg5lhbfaxemm4i3a.arweave.net/pcQyFduOqEY5yBz0pWpTwoCq2HpnmgkbqzhKC5GM4jY",
+        "project_url": "https://www.cetus.zone/",
+        "source": "native"
+    },
+    {
+        "name": "MOVE",
+        "description": "BlueMove",
+        "symbol": "MOVE",
+        "coin_type": "0xd9f9b0b4f35276eecd1eea6985bfabe2a2bbd5575f9adb9162ccbdb4ddebde7f::smove::SMOVE",
+        "decimals": 9,
+        "icon_url": "https://bluemove.net/BlueMove_main_logo_RGB-Blue_512.png",
+        "project_url": "https://sui.bluemove.net",
+        "source": "native"
+    },
+    {
+        "name": "Turbos",
+        "description": "Turbos Finance Token",
+        "symbol": "TURBOS",
+        "coin_type": "0x5d1f47ea69bb0de31c313d7acf89b890dbb8991ea8e03c6c355171f84bb1ba4a::turbos::TURBOS",
+        "decimals": 9,
+        "icon_url": "https://ipfs.io/ipfs/QmbfGQugNb5Te96jVmR21kiKNcmD4k1ntXgyKbFTXioihQ?filename=turbostoken.svg",
+        "project_url": "https://turbos.finance/",
+        "source": "native"
+    },
+    {
+        "name": "SUIA",
+        "description": "SUIA is the native token of Suia.io",
+        "symbol": "SUIA",
+        "coin_type": "0x1d58e26e85fbf9ee8596872686da75544342487f95b1773be3c9a49ab1061b19::suia_token::SUIA_TOKEN",
+        "decimals": 9,
+        "icon_url": "https://bafkreia2vfy4zap6plymncr37eeywxbno6zzfcchnrvrlys3rgbimx5w5a.ipfs.nftstorage.link/",
+        "project_url": "https://suia.io",
+        "source": "native"
+    },
+    {
+        "name": "SuiPad",
+        "description": "SuiPad The Premier Launchpad for Tier-1 Projects",
+        "symbol": "SUIP",
+        "coin_type": "0xe4239cd951f6c53d9c41e25270d80d31f925ad1655e5ba5b543843d4a66975ee::SUIP::SUIP",
+        "decimals": 9,
+        "icon_url": "",
+        "project_url": "https://suipad.xyz/",
+        "source": "native"
     }
-  },
-  {
-    "name": "Wrapped BNB",
-    "symbol": "WBNB",
-    "coin_type": "0xb848cce11ef3a8f62eccea6eb5b35a12c4c2b1ee1af7755d02d7bd6218e8226f::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "bnb"
-    }
-  },
-  {
-    "name": "Wrapped ETH",
-    "symbol": "WETH",
-    "coin_type": "0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "eth"
-    }
-  },
-  {
-    "name": "USD Coin",
-    "symbol": "USDC",
-    "coin_type": "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
-    "decimals": 6,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "eth"
-    }
-  },
-  {
-    "name": "Tether USD",
-    "symbol": "USDT",
-    "coin_type": "0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN",
-    "decimals": 6,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "eth"
-    }
-  },
-  {
-    "name": "Wrapped BTC",
-    "symbol": "WBTC",
-    "coin_type": "0x27792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "btc"
-    }
-  },
-  {
-    "name": "Wrapped AVAX",
-    "symbol": "WAVAX",
-    "coin_type": "0x1e8b532cca6569cab9f9b9ebc73f8c13885012ade714729aa3b450e0339ac766::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "avax"
-    }
-  },
-  {
-    "name": "Wrapped Fantom",
-    "symbol": "WFTM",
-    "coin_type": "0x6081300950a4f1e2081580e919c210436a1bed49080502834950d31ee55a2396::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "ftm"
-    }
-  },
-  {
-    "name": "Celo native asset",
-    "symbol": "CELO",
-    "coin_type": "0xa198f3be41cda8c07b3bf3fee02263526e535d682499806979a111e88a5a8d0f::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "celo"
-    }
-  },
-  {
-    "name": "Wrapped GLMR",
-    "symbol": "WGLMR",
-    "coin_type": "0x66f87084e49c38f76502d17f87d17f943f183bb94117561eb573e075fdc5ff75::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "moonbeam"
-    }
-  },
-  {
-    "name": "Wrapped SOL",
-    "symbol": "WSOL",
-    "coin_type": "0xb7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "sol"
-    }
-  },
-  {
-    "name": "USD Coin",
-    "symbol": "USDCsol",
-    "coin_type": "0xb231fcda8bbddb31f2ef02e6161444aec64a514e2c89279584ac9806ce9cf037::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "sol"
-    }
-  },
-  {
-    "name": "USD Coin",
-    "symbol": "USDCbnb",
-    "coin_type": "0x909cba62ce96d54de25bec9502de5ca7b4f28901747bbf96b76c2e63ec5f1cba::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "bnb"
-    }
-  },
-  {
-    "name": "USD Coin",
-    "symbol": "USDCpol",
-    "coin_type": "0xdb9ed08481f9dd565fd36b834eb3c2cda1ee5f388048154807cffcb0267ed3b2::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "polygon"
-    }
-  },
-  {
-    "name": "Wrapped USDC on Arbitrum",
-    "symbol": "USDCarb",
-    "coin_type": "0xe32d3ebafa42e6011b87ef1087bbc6053b499bf6f095807b9013aff5a6ecd7bb::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "arb"
-    }
-  },
-  {
-    "name": "Wrapped BTC",
-    "symbol": "tBTC",
-    "coin_type": "0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN",
-    "decimals": 8,
-    "icon_url": "",
-    "project_url": "https://wormhole.com/",
-    "source": "bridge",
-    "wrapped": {
-      "bridge": "wormhole",
-      "chain": "btc"
-    }
-  },
-  {
-    "name": "Cetus Token",
-    "symbol": "CETUS",
-    "coin_type": "0x06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS",
-    "coingecko_id": "cetus-protocol",
-    "decimals": 9,
-    "icon_url": "https://uxcdefo3r2uemooidt2kk2stykakvwd2m6nasg5lhbfaxemm4i3a.arweave.net/pcQyFduOqEY5yBz0pWpTwoCq2HpnmgkbqzhKC5GM4jY",
-    "project_url": "https://www.cetus.zone/",
-    "source": "native"
-  },
-  {
-    "name": "MOVE",
-    "description": "BlueMove",
-    "symbol": "MOVE",
-    "coin_type": "0xd9f9b0b4f35276eecd1eea6985bfabe2a2bbd5575f9adb9162ccbdb4ddebde7f::smove::SMOVE",
-    "decimals": 9,
-    "icon_url": "https://bluemove.net/BlueMove_main_logo_RGB-Blue_512.png",
-    "project_url": "https://sui.bluemove.net",
-    "source": "native"
-  },
-  {
-    "name": "Turbos",
-    "description": "Turbos Finance Token",
-    "symbol": "TURBOS",
-    "coin_type": "0x5d1f47ea69bb0de31c313d7acf89b890dbb8991ea8e03c6c355171f84bb1ba4a::turbos::TURBOS",
-    "decimals": 9,
-    "icon_url": "https://ipfs.io/ipfs/QmbfGQugNb5Te96jVmR21kiKNcmD4k1ntXgyKbFTXioihQ?filename=turbostoken.svg",
-    "project_url": "https://turbos.finance/",
-    "source": "native"
-  },
-  {
-    "name": "SUIA",
-    "description": "SUIA is the native token of Suia.io",
-    "symbol": "SUIA",
-    "coin_type": "0x1d58e26e85fbf9ee8596872686da75544342487f95b1773be3c9a49ab1061b19::suia_token::SUIA_TOKEN",
-    "decimals": 9,
-    "icon_url": "https://bafkreia2vfy4zap6plymncr37eeywxbno6zzfcchnrvrlys3rgbimx5w5a.ipfs.nftstorage.link/",
-    "project_url": "https://suia.io",
-    "source": "native"
-  },
-  {
-    "name": "SuiPad",
-    "description": "SuiPad The Premier Launchpad for Tier-1 Projects",
-    "symbol": "SUIP",
-    "coin_type": "0xe4239cd951f6c53d9c41e25270d80d31f925ad1655e5ba5b543843d4a66975ee::SUIP::SUIP",
-    "decimals": 9,
-    "icon_url": "",
-    "project_url": "https://suipad.xyz/",
-    "source": "native"
-  }
 ]

@@ -1,16 +1,16 @@
-import {DataPoint} from "../data_sources/data_point";
-import {TradeOrder} from "./order";
-import {Md5} from "ts-md5";
-import {logger} from "../logger";
+import { DataPoint } from '../data_sources/data_point'
+import { TradeOrder } from './order'
+import { Md5 } from 'ts-md5'
+import { logger } from '../logger'
 
 export abstract class Strategy {
-    public readonly uri: string;
-    private parameters: any;
+    public readonly uri: string
+    private parameters: any
 
     protected constructor(parameters: any) {
-        this.parameters = parameters;
+        this.parameters = parameters
         // Generate short unique identifier for this strategy
-        this.uri = Md5.hashAsciiStr(JSON.stringify(parameters));
+        this.uri = Md5.hashAsciiStr(JSON.stringify(parameters))
     }
 
     /**
@@ -20,12 +20,12 @@ export abstract class Strategy {
      *
      * @param data The data to evaluate.
      */
-    abstract evaluate(data: DataPoint): Array<TradeOrder>;
+    abstract evaluate(data: DataPoint): Array<TradeOrder>
 
     /**
      * The pools and coin types this pool needs information from.
      */
-    abstract subscribes_to(): Array<string>;
+    abstract subscribes_to(): Array<string>
 
     /**
      * Report key statistics to the logger.
@@ -33,10 +33,12 @@ export abstract class Strategy {
      * @protected
      */
     protected logStatus(status: Record<string, number>): void {
-        logger.info({
-            uri: this.uri,
-            data: status,
-        }, 'strategy status');
+        logger.info(
+            {
+                uri: this.uri,
+                data: status,
+            },
+            'strategy status'
+        )
     }
 }
-
