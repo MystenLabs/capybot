@@ -1,12 +1,7 @@
-import {
-    JsonRpcProvider,
-    ObjectId,
-    PaginatedCoins,
-    SuiAddress,
-    TransactionArgument,
-    TransactionBlock,
-    normalizeSuiObjectId,
-} from '@mysten/sui.js'
+import { PaginatedCoins, SuiClient } from '@mysten/sui.js/client'
+import { TransactionArgument, TransactionBlock } from '@mysten/sui.js/transactions'
+import { normalizeSuiObjectId } from '@mysten/sui.js/utils'
+
 import { coins } from '../index'
 
 import Decimal from 'decimal.js'
@@ -129,8 +124,8 @@ export function composeType(address: string, ...args: unknown[]): string {
 }
 
 export async function selectTradeCoins(
-    provider: JsonRpcProvider,
-    owner: SuiAddress,
+    suiClient: SuiClient,
+    owner: string,
     coinType: string,
     expectedAmount: Decimal
 ): Promise<string[]> {
@@ -143,7 +138,7 @@ export async function selectTradeCoins(
     let result: PaginatedCoins | undefined
 
     do {
-        result = await provider.getCoins({
+        result = await suiClient.getCoins({
             owner,
             coinType,
             cursor: result?.nextCursor,
@@ -167,11 +162,11 @@ export async function selectTradeCoins(
 }
 
 export async function getTotalBalanceByCoinType(
-    provider: JsonRpcProvider,
-    owner: SuiAddress,
+    suiClient: SuiClient,
+    owner: string,
     coinType: string
 ): Promise<string> {
-    const amountTotal = await provider.getBalance({
+    const amountTotal = await suiClient.getBalance({
         owner,
         coinType,
     })
@@ -184,14 +179,14 @@ export async function getTotalBalanceByCoinType(
 }
 
 export async function getBalancesForCoinTypes(
-    provider: JsonRpcProvider,
-    owner: SuiAddress,
+    suiClient: SuiClient,
+    owner: string,
     coinTypes: Set<string>
 ): Promise<Map<string, BigInt>> {
     let coinsBalances = new Map<string, BigInt>()
 
     for (let coinType of coinTypes.values()) {
-        let coinBalance = await provider.getBalance({
+        let coinBalance = await suiClient.getBalance({
             owner,
             coinType,
         })
@@ -206,15 +201,15 @@ export async function buildInputCoinForAmount(
     txb: TransactionBlock,
     amount: bigint,
     coinType: string,
-    owner: SuiAddress,
-    provider: JsonRpcProvider
+    owner: string,
+    suiClient: SuiClient
 ): Promise<TransactionArgument[] | undefined> {
     if (amount === BigInt(0)) {
         throw new Error(`The amount cannot be (${amount})`)
     }
 
     const totalBalance = await getTotalBalanceByCoinType(
-        provider,
+        suiClient,
         owner,
         coinType
     )
@@ -233,7 +228,7 @@ export async function buildInputCoinForAmount(
     }
 
     const coinObjectIds = await selectTradeCoins(
-        provider,
+        suiClient,
         owner,
         coinType,
         new Decimal(Number(amount))
@@ -245,8 +240,8 @@ export async function buildInputCoinForAmount(
 function selectCoinObjectIdGreaterThanOrEqual(
     coins: CoinAsset[],
     amount: bigint,
-    exclude: ObjectId[] = []
-): { objectArray: ObjectId[]; remainCoins: CoinAsset[] } {
+    exclude: string[] = []
+): { objectArray: string[]; remainCoins: CoinAsset[] } {
     const objectArray = selectCoinAssetGreaterThanOrEqual(
         coins,
         amount,
@@ -263,7 +258,7 @@ function selectCoinObjectIdGreaterThanOrEqual(
 function selectCoinAssetGreaterThanOrEqual(
     coins: CoinAsset[],
     amount: bigint,
-    exclude: ObjectId[] = []
+    exclude: string[] = []
 ): { selectedCoins: CoinAsset[]; remainingCoins: CoinAsset[] } {
     const sortedCoins = sortByBalance(
         coins.filter((c) => !exclude.includes(c.coinObjectId))

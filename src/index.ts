@@ -1,8 +1,7 @@
-import { Ed25519Keypair } from '@mysten/sui.js'
+import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519'
 import { Capybot } from './capybot'
 import { BinanceBTCtoUSDC } from './data_sources/binance/BinanceBTCtoUSDC'
 import { CetusPool } from './dexs/cetus/cetus'
-import { TurbosPool } from './dexs/turbos/turbos'
 import { Arbitrage } from './strategies/arbitrage'
 import { MarketDifference } from './strategies/market_difference'
 import { RideTheTrend } from './strategies/ride_the_trend'
@@ -44,38 +43,35 @@ const MARKET_DIFFERENCE_LIMIT = 1.01
 const phrase = process.env.ADMIN_PHRASE
 export const keypair = Ed25519Keypair.deriveKeypair(phrase!)
 
-let capybot = new Capybot(keypair)
+let capybot = new Capybot(keypair, 'mainnet')
 const cetusUSDCtoSUI = new CetusPool(
     '0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630',
     coins.USDC,
-    coins.SUI
+    coins.SUI,
+    'mainnet'
 )
 const cetusCETUStoSUI = new CetusPool(
     '0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded',
     coins.CETUS,
-    coins.SUI
+    coins.SUI,
+    'mainnet'
 )
 const cetusUSDCtoCETUS = new CetusPool(
     '0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8',
     coins.USDC,
-    coins.CETUS
-)
-const turbosSUItoUSDC = new TurbosPool(
-    '0x5eb2dfcdd1b15d2021328258f6d5ec081e9a0cdcfa9e13a0eaeb9b5f7505ca78',
-    coins.SUI,
-    coins.USDC,
-    '0x91bfbc386a41afcfd9b2533058d7e915a1d3829089cc268ff4333d54d6339ca1::fee3000bps::FEE3000BPS'
+    coins.CETUS,
+    'mainnet'
 )
 const cetusWBTCtoUSDC = new CetusPool(
     '0xaa57c66ba6ee8f2219376659f727f2b13d49ead66435aa99f57bb008a64a8042',
     coins.WBTC,
-    coins.USDC
+    coins.USDC,
+    'mainnet'
 )
 
 capybot.addPool(cetusUSDCtoSUI)
 capybot.addPool(cetusCETUStoSUI)
 capybot.addPool(cetusUSDCtoCETUS)
-capybot.addPool(turbosSUItoUSDC)
 capybot.addPool(cetusWBTCtoUSDC)
 capybot.addDataSource(new BinanceBTCtoUSDC())
 
@@ -125,8 +121,8 @@ capybot.addStrategy(
     new Arbitrage(
         [
             {
-                pool: turbosSUItoUSDC.uri,
-                a2b: true,
+                pool: cetusUSDCtoSUI.uri,
+                a2b: false,
             },
             {
                 pool: cetusUSDCtoCETUS.uri,
@@ -144,43 +140,12 @@ capybot.addStrategy(
 )
 
 capybot.addStrategy(
-    new Arbitrage(
-        [
-            {
-                pool: turbosSUItoUSDC.uri,
-                a2b: true,
-            },
-            {
-                pool: cetusUSDCtoSUI.uri,
-                a2b: true,
-            },
-        ],
-        defaultAmount[coins.SUI],
-        ARBITRAGE_RELATIVE_LIMIT,
-        'Arbitrage: SUI -Turbos-> USDC -Cetus-> SUI'
-    )
-)
-
-capybot.addStrategy(
     new MarketDifference(
         cetusWBTCtoUSDC,
         'BinanceBTCtoUSDC',
         [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
         MARKET_DIFFERENCE_LIMIT,
         'Market diff: (W)BTC/USDC, Binance vs CETUS'
-    )
-)
-
-capybot.addStrategy(
-    new RideTheExternalTrend(
-        cetusWBTCtoUSDC.uri,
-        'BinanceBTCtoUSDC',
-        5,
-        10,
-        [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
-        RIDE_THE_TREND_LIMIT,
-        1.0001,
-        'Ride external trend: (W)BTC/USDC, Binance vs CETUS'
     )
 )
 

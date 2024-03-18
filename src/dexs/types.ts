@@ -24,3 +24,5 @@ export type MoveCallObject = {
     typeArguments: string[]
     coins?: string[]
 }
+
+export type SuiNetworks = 'mainnet' | 'testnet'

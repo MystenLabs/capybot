@@ -2,10 +2,10 @@ import { Strategy } from './strategy'
 import { DataPoint, DataType } from '../data_sources/data_point'
 import { TradeOrder } from './order'
 import { Pool } from '../dexs/pool'
-import { CetusParams, SuiswapParams, TurbosParams } from '../dexs/dexsParams'
+import { CetusParams, TurbosParams } from '../dexs/dexsParams'
 
 export class MarketDifference extends Strategy {
-    private readonly pool: Pool<CetusParams | SuiswapParams | TurbosParams>
+    private readonly pool: Pool<CetusParams | TurbosParams>
     private readonly exchange: string
     private latestExchangePrice: number | undefined
     private readonly limit: number
@@ -23,7 +23,7 @@ export class MarketDifference extends Strategy {
      * @param name A human-readable name for this strategy.
      */
     constructor(
-        pool: Pool<CetusParams | SuiswapParams | TurbosParams>,
+        pool: Pool<CetusParams | TurbosParams>,
         exchange: string,
         defaultAmounts: [number, number],
         limit: number,

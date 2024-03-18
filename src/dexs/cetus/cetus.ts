@@ -4,36 +4,44 @@ import SDK, {
     adjustForSlippage,
     d,
 } from '@cetusprotocol/cetus-sui-clmm-sdk/dist'
-import {
-    JsonRpcProvider,
-    SUI_CLOCK_OBJECT_ID,
-    TransactionBlock,
-    mainnetConnection,
-} from '@mysten/sui.js'
+
+import { SuiClient, getFullnodeUrl } from '@mysten/sui.js/client'
+import { TransactionBlock } from '@mysten/sui.js/transactions'
+import { SUI_CLOCK_OBJECT_ID } from '@mysten/sui.js/utils';
+
+import { SuiNetworks } from '../types'
+
 import BN from 'bn.js'
 import { getCoinInfo } from '../../coins/coins'
 import { keypair } from '../../index'
 import { getTotalBalanceByCoinType } from '../../utils/utils'
 import { CetusParams } from '../dexsParams'
 import { Pool, PreswapResult } from '../pool'
-import { mainnet } from './mainnet_config'
+import { clmmMainnet } from './mainnet_config'
 import { logger } from '../../logger'
 
-function buildSdkOptions(): SdkOptions {
-    return mainnet
+function buildSdkOptions(network: SuiNetworks): SdkOptions {
+    switch (network) {
+        case 'mainnet':
+            return clmmMainnet
+        case 'testnet':
+            throw new Error('Testnet not yet supported')
+    }
 }
 
 export class CetusPool extends Pool<CetusParams> {
     private sdk: SDK
-    private provider: JsonRpcProvider
+    private suiClient: SuiClient
     private senderAddress: string
+    private network: SuiNetworks
 
-    constructor(address: string, coinTypeA: string, coinTypeB: string) {
+    constructor(address: string, coinTypeA: string, coinTypeB: string, network: SuiNetworks) {
         super(address, coinTypeA, coinTypeB)
-        this.sdk = new SDK(buildSdkOptions())
-        this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress()
+        this.network = network
+        this.sdk = new SDK(buildSdkOptions(this.network))
 
-        this.provider = new JsonRpcProvider(mainnetConnection)
+        this.sdk.senderAddress = keypair.getPublicKey().toSuiAddress()
+        this.suiClient = new SuiClient({url: getFullnodeUrl(network)})
         this.senderAddress = keypair.getPublicKey().toSuiAddress()
     }
 
@@ -48,7 +56,7 @@ export class CetusPool extends Pool<CetusParams> {
         params: CetusParams
     ): Promise<TransactionBlock> {
         const totalBalance = await getTotalBalanceByCoinType(
-            this.provider,
+            this.suiClient,
             this.senderAddress,
             params.a2b ? this.coinTypeA : this.coinTypeB
         )
@@ -168,10 +176,10 @@ export class CetusPool extends Pool<CetusParams> {
         const res: any = await this.sdk.Swap.preswap({
             a2b: params.a2b,
             amount: coinAmount.toString(),
-            by_amount_in: byAmountIn,
+            byAmountIn: byAmountIn,
             coinTypeA: this.coinTypeA,
             coinTypeB: this.coinTypeB,
-            current_sqrt_price: pool.current_sqrt_price,
+            currentSqrtPrice: pool.current_sqrt_price,
             decimalsA: coinA.decimals,
             decimalsB: coinB.decimals,
             pool: pool,

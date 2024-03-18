@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "Arbitrage Bot",
     "scripts": {
-        "build": "rimraf dist/ && tsc",
+        "build": "yarn rimraf dist && tsc",
         "start": "node dist/index.js"
     },
     "license": "MIT",
@@ -12,12 +12,13 @@
         "gts": "^3.1.1",
         "prettier": "3.2.5",
         "rimraf": "^5.0.5",
+        "tsup": "^8.0.2",
         "typescript": "^5.1.3"
     },
     "dependencies": {
         "@binance/connector": "^3.0.0-rc.2",
-        "@cetusprotocol/cetus-sui-clmm-sdk": "^2.7.2",
-        "@mysten/sui.js": "^0.34.1",
+        "@cetusprotocol/cetus-sui-clmm-sdk": "^3.17.10",
+        "@mysten/sui.js": "0.51.0",
         "@thanpolas/univ3prices": "^3.0.2",
         "axios": "^1.4.0",
         "ccxt": "^3.1.52",

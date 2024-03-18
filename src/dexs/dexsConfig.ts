@@ -8,14 +8,6 @@ export const cetusConfig = {
     },
 }
 
-export const suiswapConfig = {
-    contract: {
-        PackageId:
-            '0xd075d51486df71e750872b4edf82ea3409fda397ceecc0b6aedf573d923c54a0',
-        ModuleId: 'pool',
-    },
-}
-
 export const turbosConfig = {
     contract: {
         PackageId:

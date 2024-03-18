@@ -1,19 +1,18 @@
-import {
-    JsonRpcProvider,
-    Keypair,
-    RawSigner,
-    TransactionBlock,
-    mainnetConnection,
-} from '@mysten/sui.js'
+import { SuiClient, getFullnodeUrl } from '@mysten/sui.js/client'
+import { Keypair } from '@mysten/sui.js/dist/cjs/cryptography/keypair'
+import { TransactionBlock } from '@mysten/sui.js/transactions'
+
 import { setTimeout } from 'timers/promises'
 import { DataSource } from './data_sources/data_source'
+import { SuiNetworks } from './dexs/types'
 import { CetusPool } from './dexs/cetus/cetus'
-import { CetusParams, SuiswapParams, TurbosParams } from './dexs/dexsParams'
+import { CetusParams, TurbosParams } from './dexs/dexsParams'
 import { Pool } from './dexs/pool'
-import { SuiswapPool } from './dexs/suiswap/suiswap'
-import { TurbosPool } from './dexs/turbos/turbos'
 import { logger } from './logger'
 import { Strategy } from './strategies/strategy'
+
+// Default gas budget: 1.5 `SUI`
+const DEFAULT_GAS_BUDGET: number = 1.5 * (10 ** 9)
 
 /**
  * A simple trading bot which subscribes to a number of trading pools across different DEXs. The bot may use multiple
@@ -23,17 +22,17 @@ export class Capybot {
     public dataSources: Record<string, DataSource> = {}
     public pools: Record<
         string,
-        Pool<CetusParams | SuiswapParams | TurbosParams>
+        Pool<CetusParams | TurbosParams>
     > = {}
     public strategies: Record<string, Array<Strategy>> = {}
     private keypair: Keypair
-    private provider: JsonRpcProvider
-    private signer: RawSigner
+    private suiClient: SuiClient
+    private network: SuiNetworks;
 
-    constructor(keypair: Keypair) {
+    constructor(keypair: Keypair, network: SuiNetworks) {
         this.keypair = keypair
-        this.provider = new JsonRpcProvider(mainnetConnection)
-        this.signer = new RawSigner(this.keypair, this.provider)
+        this.network = network
+        this.suiClient = new SuiClient({url: getFullnodeUrl(network)})
     }
 
     async loop(duration: number, delay: number) {
@@ -91,26 +90,6 @@ export class Capybot {
                                 byAmountIn,
                                 slippage,
                             })
-                        } else if (
-                            this.pools[order.pool] instanceof SuiswapPool
-                        ) {
-                            transactionBlock = await this.pools[
-                                order.pool
-                            ].createSwapTransaction(transactionBlock, {
-                                a2b,
-                                amountIn,
-                            })
-                        } else if (
-                            this.pools[order.pool] instanceof TurbosPool
-                        ) {
-                            transactionBlock = await this.pools[
-                                order.pool
-                            ].createSwapTransaction(transactionBlock, {
-                                a2b,
-                                amountIn,
-                                amountSpecifiedIsInput: true,
-                                slippage: 0,
-                            })
                         }
                     }
                     // Execute the transactions
@@ -130,10 +109,10 @@ export class Capybot {
     ) {
         if (transactionBlock.blockData.transactions.length !== 0) {
             try {
-                transactionBlock.setGasBudget(1500000000)
-                let result = await this.signer.signAndExecuteTransactionBlock({
+                transactionBlock.setGasBudget(DEFAULT_GAS_BUDGET)
+                let result = await this.suiClient.signAndExecuteTransactionBlock({
                     transactionBlock,
-                    requestType: 'WaitForLocalExecution',
+                    signer: this.keypair,
                     options: {
                         showObjectChanges: true,
                         showEffects: true,
@@ -174,7 +153,7 @@ export class Capybot {
     }
 
     /** Add a new pool for this bot to use for trading. */
-    addPool(pool: Pool<CetusParams | SuiswapParams | TurbosParams>) {
+    addPool(pool: Pool<CetusParams | TurbosParams>) {
         if (this.pools.hasOwnProperty(pool.uri)) {
             throw new Error('Pool ' + pool.uri + ' has already been added.')
         }

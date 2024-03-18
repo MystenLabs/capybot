@@ -19,7 +19,7 @@ export class BinanceBTCtoUSDC extends DataSource {
                 parsed
             return {
                 type: DataType.Price,
-                source_uri: super.uri,
+                source_uri: this.uri,
                 coinTypeFrom:
                     '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN',
                 coinTypeTo:

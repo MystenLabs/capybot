@@ -21,7 +21,7 @@ export class Percentage {
 
     /** Compute this percentage of a given `TokenAmount`. */
     ofAmount(amount: TokenAmount): TokenAmount {
-        return new TokenAmount(this.toRatio() * amount.amount, amount.coin)
+        return new TokenAmount(this.toRatio() * amount.amount, amount.coin, amount.symbol)
     }
 
     /** Add this percentage to a given `TokenAmount`. */
