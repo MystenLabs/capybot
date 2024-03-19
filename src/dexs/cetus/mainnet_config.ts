@@ -21,7 +21,7 @@ const SDKConfig = {
 
 // mainnet
 
-export const mainnet: SdkOptions = {
+export const clmmMainnet: SdkOptions = {
     fullRpcUrl: 'https://sui-mainnet-rpc.allthatnode.com',
     swapCountUrl: 'https://api-sui.cetus.zone/v2/sui/swap/count',
     simulationAccount: {
