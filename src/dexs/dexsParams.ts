@@ -24,6 +24,22 @@ export type CetusParams = {
     slippage: number
 }
 
+export type RAMMSuiParams = {
+    /**
+     * The Sui Move type of the trade's inbound asset.
+     */
+    assetIn: string,
+    /**
+     * The Sui Move type of the trade's outbound asset.
+     */
+    assetOut: string,
+    /**
+     * The amount of the inbound asset to trade.
+     */
+    amountIn: number,
+    //minAmountOut: number,
+}
+
 /**
  * Type representing parameters for the Turbos decentralized exchange.
  */
