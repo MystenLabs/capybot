@@ -146,6 +146,8 @@ export class CetusPool extends Pool<CetusParams> {
         let price = pool.current_sqrt_price ** 2 / 2 ** 128
         let fee = pool.fee_rate * 10 ** -6
 
+        console.log('COMPUTED PRICE BY CETUS: ' + price);
+
         return {
             price,
             fee,

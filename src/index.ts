@@ -54,24 +54,27 @@ const cetusUSDCtoSUI = new CetusPool(
     coins.SUI,
     'mainnet'
 )
+
 const cetusCETUStoSUI = new CetusPool(
-    '0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded',
+    "0x2e041f3fd93646dcc877f783c1f2b7fa62d30271bdef1f21ef002cebf857bded",
     coins.CETUS,
     coins.SUI,
     'mainnet'
-)
+);
+
 const cetusUSDCtoCETUS = new CetusPool(
-    '0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8',
+    "0x238f7e4648e62751de29c982cbf639b4225547c31db7bd866982d7d56fc2c7a8",
     coins.USDC,
     coins.CETUS,
     'mainnet'
-)
-const cetusWBTCtoUSDC = new CetusPool(
-    '0xaa57c66ba6ee8f2219376659f727f2b13d49ead66435aa99f57bb008a64a8042',
-    coins.WBTC,
-    coins.USDC,
+);
+
+const cetusSUItoUSDT = new CetusPool(
+    '0xa96b0178e9d66635ce3576561429acfa925eb388683992288207dbfffde94b65',
+    coins.SUI,
+    coins.USDT,
     'mainnet'
-)
+);
 
 const rammSUItoUSDC = new RAMMPool(
     rammSuiConfigs[SuiSupportedNetworks.mainnet][0],
@@ -90,9 +93,9 @@ const rammSUItoUSDC = new RAMMPool(
 ) */
 
 capybot.addPool(cetusUSDCtoSUI)
-capybot.addPool(cetusCETUStoSUI)
-capybot.addPool(cetusUSDCtoCETUS)
-capybot.addPool(cetusWBTCtoUSDC)
+//capybot.addPool(cetusCETUStoSUI)
+//capybot.addPool(cetusUSDCtoCETUS)
+capybot.addPool(cetusSUItoUSDT)
 capybot.addPool(rammSUItoUSDC)
 // TODO: fix the way `capybot` stores pool information, so that a RAMM pool with over 2 assets
 // can be added more than once e.g. for its `SUI/USDC` and `SUI/USDT` pairs.
@@ -100,7 +103,7 @@ capybot.addPool(rammSUItoUSDC)
 
 capybot.addDataSource(new BinanceBTCtoUSDC())
 
-// Add triangular arbitrage strategy: USDC/SUI -> (CETUS/SUI)^-1 -> (USDC/CETUS)^-1.
+/* // Add triangular arbitrage strategy: USDC/SUI -> (CETUS/SUI)^-1 -> (USDC/CETUS)^-1.
 capybot.addStrategy(
     new Arbitrage(
         [
@@ -119,7 +122,26 @@ capybot.addStrategy(
         ],
         defaultAmount[coins.SUI],
         ARBITRAGE_RELATIVE_LIMIT,
-        'Arbitrage: SUI -Turbos-> USDC -Cetus-> CETUS -Cetus-> SUI'
+        "Arbitrage: SUI -Cetus-> USDC -Cetus-> CETUS -Cetus-> SUI"
+    )
+); */
+
+// Add arbitrage strategy: USDC/SUI -> SUI/USDC
+capybot.addStrategy(
+    new Arbitrage(
+        [
+            {
+                pool: cetusUSDCtoSUI.uri,
+                a2b: false,
+            },
+            {
+                pool: rammSUItoUSDC.uri,
+                a2b: false,
+            }
+        ],
+        defaultAmount[coins.SUI],
+        ARBITRAGE_RELATIVE_LIMIT,
+        'Arbitrage: SUI -CETUS-> USDC -RAMM-> SUI'
     )
 )
 
