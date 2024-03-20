@@ -6,10 +6,13 @@ import { Arbitrage } from './strategies/arbitrage'
 import { MarketDifference } from './strategies/market_difference'
 import { RideTheTrend } from './strategies/ride_the_trend'
 import { RideTheExternalTrend } from './strategies/ride_the_external_trend'
+import { RAMMPool } from './dexs/ramm-sui/ramm-sui'
+
+import { SuiSupportedNetworks, rammSuiConfigs } from '@ramm/ramm-sui-sdk'
 
 // Convenience map from name to address for commonly used coins
 export const coins = {
-    SUI: '0x2::sui::SUI',
+    SUI: '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI',
     USDC: '0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN',
     CETUS: '0x06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS',
     CETUS0: '0x6864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS',
@@ -36,7 +39,8 @@ defaultAmount[coins.WBTC] = 3_000
 export const MAX_GAS_PRICE_PER_TRANSACTION = 4_400_000
 
 const RIDE_THE_TREND_LIMIT = 1.000005
-const ARBITRAGE_RELATIVE_LIMIT = 1.0001
+// Arbitrage threshold - 0.5%, or above
+const ARBITRAGE_RELATIVE_LIMIT = 1.005
 const MARKET_DIFFERENCE_LIMIT = 1.01
 
 // Setup wallet from passphrase.
@@ -69,52 +73,32 @@ const cetusWBTCtoUSDC = new CetusPool(
     'mainnet'
 )
 
+const rammSUItoUSDC = new RAMMPool(
+    rammSuiConfigs[SuiSupportedNetworks.mainnet][0],
+    '0x4ee5425220bc12f2ff633d37b1dc1eb56cc8fd96b1c72c49bd4ce6e895bd6cd7',
+    coins.SUI,
+    coins.USDC,
+    'mainnet'
+)
+
+/* const rammSUItoUSDT = new RAMMPool(
+    rammSuiConfigs[SuiSupportedNetworks.mainnet][0],
+    '0x4ee5425220bc12f2ff633d37b1dc1eb56cc8fd96b1c72c49bd4ce6e895bd6cd7',
+    coins.SUI,
+    coins.USDT,
+    'mainnet'
+) */
+
 capybot.addPool(cetusUSDCtoSUI)
 capybot.addPool(cetusCETUStoSUI)
 capybot.addPool(cetusUSDCtoCETUS)
 capybot.addPool(cetusWBTCtoUSDC)
-capybot.addDataSource(new BinanceBTCtoUSDC())
+capybot.addPool(rammSUItoUSDC)
+// TODO: fix the way `capybot` stores pool information, so that a RAMM pool with over 2 assets
+// can be added more than once e.g. for its `SUI/USDC` and `SUI/USDT` pairs.
+//capybot.addPool(rammSUItoUSDT)
 
-// Trend riding strategies
-capybot.addStrategy(
-    new RideTheTrend(
-        cetusUSDCtoSUI.uri,
-        5,
-        10,
-        [
-            defaultAmount[cetusUSDCtoSUI.coinTypeA],
-            defaultAmount[cetusUSDCtoSUI.coinTypeB],
-        ],
-        RIDE_THE_TREND_LIMIT,
-        'RideTheTrend (USDC/SUI)'
-    )
-)
-capybot.addStrategy(
-    new RideTheTrend(
-        cetusCETUStoSUI.uri,
-        5,
-        10,
-        [
-            defaultAmount[cetusCETUStoSUI.coinTypeA],
-            defaultAmount[cetusCETUStoSUI.coinTypeB],
-        ],
-        RIDE_THE_TREND_LIMIT,
-        'RideTheTrend (CETUS/SUI)'
-    )
-)
-capybot.addStrategy(
-    new RideTheTrend(
-        cetusUSDCtoCETUS.uri,
-        5,
-        10,
-        [
-            defaultAmount[cetusUSDCtoCETUS.coinTypeA],
-            defaultAmount[cetusUSDCtoCETUS.coinTypeB],
-        ],
-        RIDE_THE_TREND_LIMIT,
-        'RideTheTrend (USDC/CETUS)'
-    )
-)
+capybot.addDataSource(new BinanceBTCtoUSDC())
 
 // Add triangular arbitrage strategy: USDC/SUI -> (CETUS/SUI)^-1 -> (USDC/CETUS)^-1.
 capybot.addStrategy(
@@ -136,16 +120,6 @@ capybot.addStrategy(
         defaultAmount[coins.SUI],
         ARBITRAGE_RELATIVE_LIMIT,
         'Arbitrage: SUI -Turbos-> USDC -Cetus-> CETUS -Cetus-> SUI'
-    )
-)
-
-capybot.addStrategy(
-    new MarketDifference(
-        cetusWBTCtoUSDC,
-        'BinanceBTCtoUSDC',
-        [defaultAmount[coins.WBTC], defaultAmount[coins.USDC]],
-        MARKET_DIFFERENCE_LIMIT,
-        'Market diff: (W)BTC/USDC, Binance vs CETUS'
     )
 )
 

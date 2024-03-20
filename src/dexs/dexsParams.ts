@@ -26,13 +26,9 @@ export type CetusParams = {
 
 export type RAMMSuiParams = {
     /**
-     * The Sui Move type of the trade's inbound asset.
+     * A boolean value indicating whether to swap from A to B or from B to A.
      */
-    assetIn: string,
-    /**
-     * The Sui Move type of the trade's outbound asset.
-     */
-    assetOut: string,
+    a2b: boolean
     /**
      * The amount of the inbound asset to trade.
      */

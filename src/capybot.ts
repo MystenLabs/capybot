@@ -6,10 +6,11 @@ import { setTimeout } from 'timers/promises'
 import { DataSource } from './data_sources/data_source'
 import { SuiNetworks } from './dexs/types'
 import { CetusPool } from './dexs/cetus/cetus'
-import { CetusParams, TurbosParams } from './dexs/dexsParams'
+import { CetusParams, RAMMSuiParams, TurbosParams } from './dexs/dexsParams'
 import { Pool } from './dexs/pool'
 import { logger } from './logger'
 import { Strategy } from './strategies/strategy'
+import { RAMMPool } from './dexs/ramm-sui/ramm-sui'
 
 // Default gas budget: 1.5 `SUI`
 const DEFAULT_GAS_BUDGET: number = 1.5 * (10 ** 9)
@@ -22,7 +23,7 @@ export class Capybot {
     public dataSources: Record<string, DataSource> = {}
     public pools: Record<
         string,
-        Pool<CetusParams | TurbosParams>
+        Pool<CetusParams | TurbosParams | RAMMSuiParams>
     > = {}
     public strategies: Record<string, Array<Strategy>> = {}
     private keypair: Keypair
@@ -90,6 +91,13 @@ export class Capybot {
                                 byAmountIn,
                                 slippage,
                             })
+                        } else if (this.pools[order.pool] instanceof RAMMPool) {
+                            transactionBlock = await this.pools[
+                                order.pool
+                            ].createSwapTransaction(transactionBlock, {
+                                a2b,
+                                amountIn,
+                            })
                         }
                     }
                     // Execute the transactions
@@ -153,7 +161,7 @@ export class Capybot {
     }
 
     /** Add a new pool for this bot to use for trading. */
-    addPool(pool: Pool<CetusParams | TurbosParams>) {
+    addPool(pool: Pool<CetusParams | RAMMSuiParams | TurbosParams>) {
         if (this.pools.hasOwnProperty(pool.uri)) {
             throw new Error('Pool ' + pool.uri + ' has already been added.')
         }

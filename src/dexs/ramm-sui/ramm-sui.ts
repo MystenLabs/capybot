@@ -17,7 +17,7 @@ export class RAMMPool extends Pool<RAMMSuiParams> {
     private static readonly SUI_ADDRESS_SHORT: string = '0x2::SUI::sui'
     private static readonly SUI_ADDRESS_LONG: string = '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI'
 
-    constructor(address: string, coinTypeA: string, coinTypeB: string, network: SuiNetworks, rammConfig: RAMMSuiPoolConfig) {
+    constructor(rammConfig: RAMMSuiPoolConfig, address: string, coinTypeA: string, coinTypeB: string, network: SuiNetworks) {
         super(address, coinTypeA, coinTypeB)
         this.network = network
         this.rammSuiPool = new RAMMSuiPool(rammConfig)
@@ -126,18 +126,21 @@ export class RAMMPool extends Pool<RAMMSuiParams> {
             throw new Error('AmountIn or amountOut must be non-zero')
         }
 
+        const { assetIn, assetOut } = (params.a2b) ?
+            { assetIn: this.coinTypeA, assetOut: this.coinTypeB }:
+            { assetIn: this.coinTypeB, assetOut: this.coinTypeA };
+
         const { newCoinObj } = await this.prepareCoinForPaymentCommon(
             transactionBlock,
-            params.assetIn,
+            assetIn,
             params.amountIn
         );
-
 
         this.rammSuiPool.tradeAmountIn(
             transactionBlock,
             {
-                assetIn: params.assetIn,
-                assetOut: params.assetOut,
+                assetIn,
+                assetOut,
                 amountIn: newCoinObj,
                 minAmountOut: 1
             }
@@ -153,7 +156,7 @@ export class RAMMPool extends Pool<RAMMSuiParams> {
      * The price will be expressed as a ratio of the quote asset to the base asset, i.e. the cost
      * of 1 unit of the quote asset in terms of the base asset.
      */
-    public async estimatePriceAndFee(): Promise<{
+    async estimatePriceAndFee(): Promise<{
         price: number,
         fee: number
     }> {
